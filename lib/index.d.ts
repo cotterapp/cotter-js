@@ -1,2 +1,3 @@
 import CotterVerify from "./CotterVerify";
-export { CotterVerify };
+import CotterValidateJWT from "./CotterValidateJWT";
+export { CotterVerify, CotterValidateJWT };
