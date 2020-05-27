@@ -32,10 +32,6 @@
     "lib/**/*"
   ],
   "dependencies": {
-    "@types/jsonwebtoken": "^8.5.0",
-    "@types/jwk-to-pem": "^2.0.0",
-    "axios": "^0.19.2",
-    "jsonwebtoken": "^8.5.1",
-    "jwk-to-pem": "^2.0.3"
+    "detect-node": "^2.0.4"
   }
 }
