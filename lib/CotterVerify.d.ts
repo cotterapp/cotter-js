@@ -36,9 +36,11 @@ declare class Cotter {
     state: string | null;
     loaded: boolean;
     cotterIframeID: string;
+    verifier: string;
     constructor(config: Config);
     showForm(): void;
     removeForm(): void;
+    submitAuthorizationCode(payload: VerifyRespondResponse): Promise<void>;
     static StopSubmissionWithError(err: string, iframeID: string): void;
     static ContinueSubmit(payload: object, iframeID: string): void;
     static sendPost(data: object, iframeID: string): void;

@@ -38,6 +38,7 @@ class Cotter {
   state: string | null;
   loaded: boolean;
   cotterIframeID: string;
+  verifier: string;
   constructor(config: Config) {
     console.log("Using origin: ", new URL(window.location.href).origin);
     this.config = config;
@@ -56,6 +57,10 @@ class Cotter {
       this.state = Math.random().toString(36).substring(2, 15);
       localStorage.setItem("COTTER_STATE", this.state);
     }
+
+    // SUPPORT PKCE
+    this.verifier = generateVerifier();
+
     this.loaded = false;
     this.cotterIframeID =
       Math.random().toString(36).substring(2, 15) + "cotter-signup-iframe";
@@ -123,6 +128,9 @@ class Cotter {
             this.config.OnSuccess(data.payload);
           }
           break;
+        case cID + "ON_SUBMIT_AUTHORIZATION_CODE":
+          this.submitAuthorizationCode(data.payload);
+          break;
         case cID + "ON_ERROR":
           if (this.config.OnError) {
             this.config.OnError(data.payload);
@@ -173,18 +181,132 @@ class Cotter {
       ifrm.style.minHeight = "520px";
     }
     ifrm.style.overflow = "scroll";
-    ifrm.setAttribute(
-      "src",
-      encodeURI(
-        `${CotterEnum.CotterBaseURL}/signup?type=${this.config.Type}&domain=${this.config.Domain}&api_key=${this.config.ApiKeyID}&redirect_url=${this.config.RedirectURL}&state=${this.state}&id=${this.config.ContainerID}`
-      )
-    );
+    challengeFromVerifier(this.verifier).then((challenge) => {
+      ifrm.setAttribute(
+        "src",
+        encodeURI(
+          `${CotterEnum.CotterBaseURL}/signup?challenge=${challenge}&type=${this.config.Type}&domain=${this.config.Domain}&api_key=${this.config.ApiKeyID}&redirect_url=${this.config.RedirectURL}&state=${this.state}&id=${this.config.ContainerID}`
+        )
+      );
+    });
     ifrm.setAttribute("allowtransparency", "true");
   }
 
   removeForm() {
     var ifrm = document.getElementById(this.cotterIframeID);
     ifrm!.remove();
+  }
+
+  async submitAuthorizationCode(payload: VerifyRespondResponse) {
+    // Getting code from payload
+    var authorizationCode = payload.authorization_code;
+    var challengeID = payload.challenge_id;
+    var state = payload.state;
+    var clientJson = payload.client_json;
+
+    var skipRedirectURL =
+      this.config.RedirectURL === null ||
+      this.config.RedirectURL === undefined ||
+      (this.config.RedirectURL && this.config.RedirectURL.length <= 0) ||
+      this.config.SkipRedirectURL;
+
+    // State was set before the first request was sent
+    // This is making sure that the state returned is still the same
+    if (state !== this.state) {
+      if (this.config.OnError) {
+        var err = "State is not the same as the original request.";
+        console.log(err);
+        this.config.OnError(err);
+      }
+    }
+
+    // Preparing data for PCKE token request
+    var data = {
+      code_verifier: this.verifier,
+      authorization_code: authorizationCode,
+      challenge_id: parseInt(challengeID),
+      redirect_url: skipRedirectURL
+        ? new URL(window.location.href).origin
+        : this.config.RedirectURL,
+    };
+
+    var self = this;
+
+    // Requesting oauth token from the PKCE endpoint
+    fetch(
+      `${CotterEnum.CotterBackendURL}/verify/get_identity?oauth_token=true`,
+      {
+        method: "POST",
+        headers: {
+          API_KEY_ID: `${self.config.ApiKeyID}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    )
+      .then(function (response) {
+        // If not successful, call OnError and return
+        if (response.status !== 200) {
+          if (self.config.OnError) {
+            var err = response;
+            console.log(err);
+            self.config.OnError(err);
+          }
+          return;
+        }
+
+        // Examine the text in the response
+        response.json().then(function (resp) {
+          // Preparing data to return to the client
+          var data = clientJson;
+          data.token = resp.token;
+          data[self.config.IdentifierField] = resp.identifier.identifier;
+          data.oauth_token = resp.oauth_token;
+
+          // If skipRedirectURL, send the data to the client's OnSuccess function
+          if (skipRedirectURL || !self.config.RedirectURL) {
+            self.config.OnSuccess(data);
+            return;
+          } else {
+            // Otherwise, send POST request to the client's RedirectURL
+            fetch(self.config.RedirectURL, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+            })
+              // Checking client's response
+              .then((redirectResp: Response) => {
+                const contentType = redirectResp.headers.get("content-type");
+                if (
+                  contentType &&
+                  contentType.indexOf("application/json") !== -1
+                ) {
+                  return redirectResp.json().then((redirectRespJSON) => {
+                    self.config.OnSuccess(redirectRespJSON);
+                  });
+                } else {
+                  return redirectResp.text().then((redirectRespText) => {
+                    self.config.OnSuccess(redirectRespText);
+                  });
+                }
+              })
+              .catch(function (error: any) {
+                if (self.config.OnError) {
+                  console.log(error);
+                  self.config.OnError(error);
+                }
+              });
+          }
+        });
+      })
+      .catch((error) => {
+        if (self.config.OnError) {
+          console.log(error);
+          self.config.OnError(error);
+        }
+      });
   }
 
   static StopSubmissionWithError(err: string, iframeID: string) {
@@ -216,5 +338,38 @@ class Cotter {
 
 const isIFrame = (input: HTMLElement | null): input is HTMLIFrameElement =>
   input !== null && input.tagName === "IFRAME";
+
+function dec2hex(dec: any) {
+  return ("0" + dec.toString(16)).substr(-2);
+}
+
+function generateVerifier() {
+  var array = new Uint32Array(56 / 2);
+  window.crypto.getRandomValues(array);
+  return Array.from(array, dec2hex).join("");
+}
+
+function sha256(plain: string) {
+  // returns promise ArrayBuffer
+  const encoder = new TextEncoder();
+  const data = encoder.encode(plain);
+  return window.crypto.subtle.digest("SHA-256", data);
+}
+
+function base64urlencode(a: ArrayBuffer) {
+  var str = "";
+  var bytes = new Uint8Array(a);
+  var len = bytes.byteLength;
+  for (var i = 0; i < len; i++) {
+    str += String.fromCharCode(bytes[i]);
+  }
+  return btoa(str).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+async function challengeFromVerifier(v: string) {
+  var hashed = await sha256(v);
+  var base64encoded = base64urlencode(hashed);
+  return base64encoded;
+}
 
 export default Cotter;
