@@ -33,6 +33,7 @@ interface Config {
   Styles?: Object;
   OnError?: Function;
   OnBegin?: Function;
+  CotterUserID?: String;
 }
 class Cotter {
   config: Config;
@@ -182,13 +183,13 @@ class Cotter {
       ifrm.style.minHeight = "520px";
     }
     ifrm.style.overflow = "scroll";
+
     challengeFromVerifier(this.verifier).then((challenge) => {
-      ifrm.setAttribute(
-        "src",
-        encodeURI(
-          `${CotterEnum.CotterBaseURL}/signup?challenge=${challenge}&type=${this.config.Type}&domain=${this.config.Domain}&api_key=${this.config.ApiKeyID}&redirect_url=${this.config.RedirectURL}&state=${this.state}&id=${this.config.ContainerID}`
-        )
-      );
+      var path = `${CotterEnum.CotterBaseURL}/signup?challenge=${challenge}&type=${this.config.Type}&domain=${this.config.Domain}&api_key=${this.config.ApiKeyID}&redirect_url=${this.config.RedirectURL}&state=${this.state}&id=${this.config.ContainerID}`;
+      if (this.config.CotterUserID) {
+        path = `${path}&cotter_user_id=${this.config.CotterUserID}`;
+      }
+      ifrm.setAttribute("src", encodeURI(path));
     });
     ifrm.setAttribute("allowtransparency", "true");
   }
@@ -263,6 +264,7 @@ class Cotter {
           data.token = resp.token;
           data[self.config.IdentifierField] = resp.identifier.identifier;
           data.oauth_token = resp.oauth_token;
+          data.user = resp.user;
 
           // If skipRedirectURL, send the data to the client's OnSuccess function
           if (skipRedirectURL || !self.config.RedirectURL) {

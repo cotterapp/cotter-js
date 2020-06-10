@@ -30,6 +30,7 @@ interface Config {
     Styles?: Object;
     OnError?: Function;
     OnBegin?: Function;
+    CotterUserID?: String;
 }
 declare class Cotter {
     config: Config;
