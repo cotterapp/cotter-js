@@ -4,3 +4,7 @@ interface VerifyRespondResponse {
   state: string;
   client_json: any;
 }
+
+interface ResponseData extends Response {
+  data?: any;
+}

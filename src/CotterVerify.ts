@@ -246,63 +246,66 @@ class Cotter {
         body: JSON.stringify(data),
       }
     )
-      .then(function (response) {
+      .then(async function (response: ResponseData) {
         // If not successful, call OnError and return
+        var resp = await response.json();
         if (response.status !== 200) {
-          if (self.config.OnError) {
-            var err = response;
-            console.log(err);
-            self.config.OnError(err);
-          }
-          return;
+          response.data = resp;
+          throw response;
         }
 
         // Examine the text in the response
-        response.json().then(function (resp) {
-          // Preparing data to return to the client
-          var data = clientJson;
-          data.token = resp.token;
-          data[self.config.IdentifierField] = resp.identifier.identifier;
-          data.oauth_token = resp.oauth_token;
-          data.user = resp.user;
+        // Preparing data to return to the client
+        var data = clientJson;
+        data.token = resp.token;
+        data[self.config.IdentifierField] = resp.identifier.identifier;
+        data.oauth_token = resp.oauth_token;
+        data.user = resp.user;
 
-          // If skipRedirectURL, send the data to the client's OnSuccess function
-          if (skipRedirectURL || !self.config.RedirectURL) {
-            self.config.OnSuccess(data);
-            return;
-          } else {
-            // Otherwise, send POST request to the client's RedirectURL
-            fetch(self.config.RedirectURL, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(data),
-            })
-              // Checking client's response
-              .then((redirectResp: Response) => {
-                const contentType = redirectResp.headers.get("content-type");
-                if (
-                  contentType &&
-                  contentType.indexOf("application/json") !== -1
-                ) {
-                  return redirectResp.json().then((redirectRespJSON) => {
-                    self.config.OnSuccess(redirectRespJSON);
-                  });
+        // If skipRedirectURL, send the data to the client's OnSuccess function
+        if (skipRedirectURL || !self.config.RedirectURL) {
+          self.config.OnSuccess(data);
+          return;
+        } else {
+          // Otherwise, send POST request to the client's RedirectURL
+          fetch(self.config.RedirectURL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          })
+            // Checking client's response
+            .then(async (redirectResp: ResponseData) => {
+              const contentType = redirectResp.headers.get("content-type");
+              if (
+                contentType &&
+                contentType.indexOf("application/json") !== -1
+              ) {
+                var redirectRespJSON = await redirectResp.json();
+                if (redirectResp.status >= 200 && redirectResp.status < 300) {
+                  self.config.OnSuccess(redirectRespJSON);
                 } else {
-                  return redirectResp.text().then((redirectRespText) => {
-                    self.config.OnSuccess(redirectRespText);
-                  });
+                  redirectResp.data = redirectRespJSON;
+                  throw redirectResp;
                 }
-              })
-              .catch(function (error: any) {
-                if (self.config.OnError) {
-                  console.log(error);
-                  self.config.OnError(error);
+              } else {
+                var redirectRespText = await redirectResp.text();
+                if (redirectResp.status >= 200 && redirectResp.status < 300) {
+                  self.config.OnSuccess(redirectRespText);
+                } else {
+                  redirectResp.data = redirectRespText;
+                  throw redirectResp;
                 }
-              });
-          }
-        });
+              }
+            })
+            .catch(function (error: any) {
+              if (self.config.OnError) {
+                console.log(error);
+                self.config.OnError(error);
+              }
+            });
+        }
       })
       .catch((error) => {
         if (self.config.OnError) {
