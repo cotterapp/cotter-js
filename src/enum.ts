@@ -13,6 +13,9 @@ class CotterEnum {
     ? "https://s.www.cotter.app/api/v0"
     : "https://www.cotter.app/api/v0";
   static DefaultUSCode: string = "+1";
+
+  // default container ID
+  static DefaultContainerID: string = "cotter-form-container";
 }
 
 export default CotterEnum;

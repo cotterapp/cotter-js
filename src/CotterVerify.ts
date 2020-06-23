@@ -1,46 +1,26 @@
 import CotterEnum from "./enum";
-import { challengeFromVerifier, generateVerifier } from "./helper";
+import { Config, VerifyRespondResponse, ResponseData } from "./binder";
+import { 
+  challengeFromVerifier,
+  generateVerifier,
+  verificationProccessPromise
+} from "./helper";
 
-interface Config {
-  ApiKeyID: string;
-  Type: string;
-  ContainerID: string;
-  OnSuccess: Function;
-  IdentifierField: string;
-  CotterBaseURL?: string;
-  CountryCode?: string[];
-  AdditionalFields?: Object[];
-  Domain?: string;
-  ButtonText?: string;
-  ButtonTextColor?: string;
-  ErrorColor?: string;
-  ButtonBorderColor?: string;
-  ButtonWAText?: string;
-  ButtonBackgroundColor?: string;
-  ButtonWATextSubtitle?: string;
-  ButtonWABackgroundColor?: string;
-  ButtonWABorderColor?: string;
-  ButtonWATextColor?: string;
-  ButtonWALogoColor?: string;
-  PhoneChannels?: string[];
-  IdentifierFieldInitialValue?: string;
-  IdentifierFieldDisabled?: string;
-  SkipIdentifierForm?: string;
-  SkipIdentifierFormWithValue?: string;
-  RedirectURL?: string;
-  SkipRedirectURL?: boolean;
-  CaptchaRequired?: boolean;
-  Styles?: Object;
-  OnError?: Function;
-  OnBegin?: Function;
-  CotterUserID?: String;
-}
-class Cotter {
+// default container id
+const cotter_DefaultContainerID = "cotter-form-container";
+
+class CotterVerify {
   config: Config;
   state: string | null;
   loaded: boolean;
   cotterIframeID: string;
   verifier: string;
+  cID: string;
+
+  // Optional string definition
+  verifyError?: any;
+  verifySuccess?: any;
+
   constructor(config: Config) {
     console.log("Using origin: ", new URL(window.location.href).origin);
     this.config = config;
@@ -67,6 +47,13 @@ class Cotter {
     this.cotterIframeID =
       Math.random().toString(36).substring(2, 15) + "cotter-signup-iframe";
 
+    // cID is the id for the Cotter instance. this will prevent postMessage to
+    // be caught by other listener on other CotterVerify instances
+    this.cID =
+      Math.random().toString(36).substring(2, 15) +
+      (this.config.ContainerID || cotter_DefaultContainerID);
+
+
     window.addEventListener("message", (e) => {
       try {
         var data = JSON.parse(e.data);
@@ -81,7 +68,7 @@ class Cotter {
         // skip this message
         return;
       }
-      let cID = this.config.ContainerID;
+      let cID = this.cID;
       switch (data.callbackName) {
         case cID + "FIRST_LOAD":
           var postData = {
@@ -118,9 +105,14 @@ class Cotter {
                   : false,
               captchaRequired: this.config.CaptchaRequired ? true : false,
               styles: this.config.Styles,
+
+              // for magic link
+              authRequestText: this.config.AuthRequestText,
+              authenticationMethod: this.config.AuthenticationMethod,
+              
             },
           };
-          Cotter.sendPost(postData, this.cotterIframeID);
+          CotterVerify.sendPost(postData, this.cotterIframeID);
           break;
         case cID + "LOADED":
           this.loaded = true;
@@ -129,6 +121,7 @@ class Cotter {
           if (this.config.OnSuccess) {
             this.config.OnSuccess(data.payload);
           }
+          this.verifySuccess = data.payload;
           break;
         case cID + "ON_SUBMIT_AUTHORIZATION_CODE":
           this.submitAuthorizationCode(data.payload);
@@ -137,6 +130,7 @@ class Cotter {
           if (this.config.OnError) {
             this.config.OnError(data.payload);
           }
+          this.verifyError = data.payload;
           break;
         case cID + "ON_BEGIN":
           console.log(this.config.OnBegin);
@@ -150,17 +144,17 @@ class Cotter {
             ) {
               this.config.OnBegin(data.payload).then((err: string | null) => {
                 if (!err)
-                  Cotter.ContinueSubmit(data.payload, this.cotterIframeID);
-                else Cotter.StopSubmissionWithError(err, this.cotterIframeID);
+                  CotterVerify.ContinueSubmit(data.payload, this.cotterIframeID);
+                else CotterVerify.StopSubmissionWithError(err, this.cotterIframeID);
               });
             } else {
               let err = this.config.OnBegin(data.payload);
               if (!err)
-                Cotter.ContinueSubmit(data.payload, this.cotterIframeID);
-              else Cotter.StopSubmissionWithError(err, this.cotterIframeID);
+                CotterVerify.ContinueSubmit(data.payload, this.cotterIframeID);
+              else CotterVerify.StopSubmissionWithError(err, this.cotterIframeID);
             }
           } else {
-            Cotter.ContinueSubmit(data.payload, this.cotterIframeID);
+            CotterVerify.ContinueSubmit(data.payload, this.cotterIframeID);
           }
           break;
         default:
@@ -170,8 +164,22 @@ class Cotter {
       }
     });
   }
+
+  showEmailForm() {
+    this.config.IdentifierField = "email";
+    this.config.Type = "EMAIL";
+    return this.showForm();
+  }
+
+  showPhoneForm() {
+    this.config.IdentifierField = "phone";
+    this.config.Type = "PHONE";
+    return this.showForm();
+  }
+
   showForm() {
-    var container = document.getElementById(this.config.ContainerID);
+    const containerID = this.config.ContainerID || cotter_DefaultContainerID;
+    var container = document.getElementById(containerID);
 
     var ifrm = document.createElement("iframe");
     ifrm.setAttribute("id", this.cotterIframeID);
@@ -185,13 +193,15 @@ class Cotter {
     ifrm.style.overflow = "scroll";
 
     challengeFromVerifier(this.verifier).then((challenge) => {
-      var path = `${CotterEnum.CotterBaseURL}/signup?challenge=${challenge}&type=${this.config.Type}&domain=${this.config.Domain}&api_key=${this.config.ApiKeyID}&redirect_url=${this.config.RedirectURL}&state=${this.state}&id=${this.config.ContainerID}`;
+      var path = `${CotterEnum.CotterBaseURL}/signup?challenge=${challenge}&type=${this.config.Type}&domain=${this.config.Domain}&api_key=${this.config.ApiKeyID}&redirect_url=${this.config.RedirectURL}&state=${this.state}&id=${this.cID}`;
       if (this.config.CotterUserID) {
         path = `${path}&cotter_user_id=${this.config.CotterUserID}`;
       }
       ifrm.setAttribute("src", encodeURI(path));
     });
     ifrm.setAttribute("allowtransparency", "true");
+    
+    return verificationProccessPromise(this);
   }
 
   removeForm() {
@@ -234,18 +244,26 @@ class Cotter {
 
     var self = this;
 
-    // Requesting oauth token from the PKCE endpoint
-    fetch(
-      `${CotterEnum.CotterBackendURL}/verify/get_identity?oauth_token=true`,
-      {
-        method: "POST",
-        headers: {
-          API_KEY_ID: `${self.config.ApiKeyID}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      }
-    )
+    const onSuccess = (data: any) => {
+      self.verifySuccess = data;
+      console.log("verifySuccess", data);
+      if (self.config.OnSuccess) self.config.OnSuccess(data);
+    };
+
+    const onError = (error: any) => {
+      self.verifyError = error;
+      console.log("verifyError", error);
+      if (self.config.OnError) self.config.OnError(error);
+    };
+
+    fetch(`${CotterEnum.CotterBackendURL}/verify/get_identity?oauth_token=true`, {
+      method: "POST",
+      headers: {
+        API_KEY_ID: `${self.config.ApiKeyID}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
       .then(async function (response: ResponseData) {
         // If not successful, call OnError and return
         var resp = await response.json();
@@ -264,7 +282,7 @@ class Cotter {
 
         // If skipRedirectURL, send the data to the client's OnSuccess function
         if (skipRedirectURL || !self.config.RedirectURL) {
-          self.config.OnSuccess(data);
+          onSuccess(data);
           return;
         } else {
           // Otherwise, send POST request to the client's RedirectURL
@@ -284,7 +302,7 @@ class Cotter {
               ) {
                 var redirectRespJSON = await redirectResp.json();
                 if (redirectResp.status >= 200 && redirectResp.status < 300) {
-                  self.config.OnSuccess(redirectRespJSON);
+                  onSuccess(redirectRespJSON);
                 } else {
                   redirectResp.data = redirectRespJSON;
                   throw redirectResp;
@@ -292,26 +310,20 @@ class Cotter {
               } else {
                 var redirectRespText = await redirectResp.text();
                 if (redirectResp.status >= 200 && redirectResp.status < 300) {
-                  self.config.OnSuccess(redirectRespText);
+                  onSuccess(redirectRespText);
                 } else {
                   redirectResp.data = redirectRespText;
                   throw redirectResp;
                 }
               }
             })
-            .catch(function (error: any) {
-              if (self.config.OnError) {
-                console.log(error);
-                self.config.OnError(error);
-              }
+            .catch(function (error) {
+              onError(error);
             });
         }
       })
       .catch((error) => {
-        if (self.config.OnError) {
-          console.log(error);
-          self.config.OnError(error);
-        }
+        onError(error);
       });
   }
 
@@ -320,7 +332,7 @@ class Cotter {
       action: "ON_ERROR",
       errorMsg: err,
     };
-    Cotter.sendPost(postData, iframeID);
+    CotterVerify.sendPost(postData, iframeID);
   }
 
   static ContinueSubmit(payload: object, iframeID: string) {
@@ -328,7 +340,7 @@ class Cotter {
       action: "CONTINUE_SUBMIT",
       payload: payload,
     };
-    Cotter.sendPost(postData, iframeID);
+    CotterVerify.sendPost(postData, iframeID);
   }
 
   static sendPost(data: object, iframeID: string) {
@@ -345,4 +357,4 @@ class Cotter {
 const isIFrame = (input: HTMLElement | null): input is HTMLIFrameElement =>
   input !== null && input.tagName === "IFRAME";
 
-export default Cotter;
+export default CotterVerify;

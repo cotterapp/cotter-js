@@ -5,5 +5,6 @@ declare class CotterEnum {
     static CotterAssetsBaseURL: string;
     static CotterBackendURL: string;
     static DefaultUSCode: string;
+    static DefaultContainerID: string;
 }
 export default CotterEnum;
