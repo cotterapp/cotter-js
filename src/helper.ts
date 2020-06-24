@@ -30,3 +30,23 @@ export async function challengeFromVerifier(v: string) {
   var base64encoded = base64urlencode(hashed);
   return base64encoded;
 }
+
+
+// verificationProccessPromise checks if verifySuccess or verifyError is set
+// if either is set, resolve or reject with the payload specified
+export const verificationProccessPromise = (self: { verifySuccess?:string, verifyError?:string }) =>
+  new Promise((resolve, reject) => {
+    // create non-blocking waiting loop
+    const checkMagicLinkProcess = () => {
+      if (self.verifySuccess) {
+        resolve(self.verifySuccess);
+      } else if (self.verifyError) {
+        reject(self.verifyError);
+      } else {
+        setTimeout(checkMagicLinkProcess, 0);
+      }
+    };
+
+    // run the loop
+    checkMagicLinkProcess();
+  });
