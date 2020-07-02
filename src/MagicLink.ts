@@ -1,16 +1,14 @@
 import CotterVerify from "./CotterVerify";
 import CotterEnum from "./enum";
 import { Config } from "./binder";
-import { 
-  challengeFromVerifier,
-  verificationProccessPromise
-} from "./helper";
+import { challengeFromVerifier, verificationProccessPromise } from "./helper";
+import Cotter from ".";
 
 var checkPurple = (url: String) => url + "/assets/images/check-purple.png";
 var warningImage = (url: String) => url + "/assets/images/warning.png";
 var tapLinkImage = (url: String) => url + "/assets/images/tapEmail.png";
 
-const magicLinkAuthReqText = (url:String, channel:String) => ({
+const magicLinkAuthReqText = (url: String, channel: String) => ({
   title: `Approve this login through your ${channel}`,
   subtitle: `A magic link has been sent to your ${channel} to authenticate you`,
   image: tapLinkImage(url),
@@ -22,7 +20,7 @@ const magicLinkAuthReqText = (url:String, channel:String) => ({
 });
 
 class MagicLink extends CotterVerify {
-  constructor(config:Config) {
+  constructor(config: Config) {
     const defaultMagicLinkConfig = {
       AuthenticationMethod: "MAGIC_LINK",
     };
@@ -34,11 +32,12 @@ class MagicLink extends CotterVerify {
   showForm() {
     // set the authentication request config
     this.config.AuthRequestText = magicLinkAuthReqText(
-      CotterEnum.CotterAssetsBaseURL,
+      Cotter.AssetURL,
       this.config.IdentifierField
     );
 
-    const containerID = this.config.ContainerID || CotterEnum.DefaultContainerID;
+    const containerID =
+      this.config.ContainerID || CotterEnum.DefaultContainerID;
     var container = document.getElementById(containerID);
 
     var ifrm = document.createElement("iframe");
@@ -53,7 +52,7 @@ class MagicLink extends CotterVerify {
     ifrm.style.overflow = "scroll";
 
     challengeFromVerifier(this.verifier).then((challenge) => {
-      var path = `${CotterEnum.CotterBaseURL}/login?code_challenge=${challenge}&type=${this.config.Type}&domain=${this.config.Domain}&api_key=${this.config.ApiKeyID}&redirect_url=${this.config.RedirectURL}&state=${this.state}&id=${this.cID}`;
+      var path = `${Cotter.JSURL}/login?code_challenge=${challenge}&type=${this.config.Type}&domain=${this.config.Domain}&api_key=${this.config.ApiKeyID}&redirect_url=${this.config.RedirectURL}&state=${this.state}&id=${this.cID}`;
       if (this.config.CotterUserID) {
         path = `${path}&cotter_user_id=${this.config.CotterUserID}`;
       }

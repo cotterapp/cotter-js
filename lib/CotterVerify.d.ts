@@ -1,4 +1,5 @@
 import { Config, VerifyRespondResponse } from "./binder";
+import TokenHandler from "./TokenHandler";
 declare class CotterVerify {
     config: Config;
     state: string | null;
@@ -8,7 +9,8 @@ declare class CotterVerify {
     cID: string;
     verifyError?: any;
     verifySuccess?: any;
-    constructor(config: Config);
+    tokenHander?: TokenHandler;
+    constructor(config: Config, tokenHandler?: TokenHandler);
     showEmailForm(): Promise<unknown>;
     showPhoneForm(): Promise<unknown>;
     showForm(): Promise<unknown>;
