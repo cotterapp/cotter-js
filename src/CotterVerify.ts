@@ -1,9 +1,9 @@
 import CotterEnum from "./enum";
 import { Config, VerifyRespondResponse, ResponseData } from "./binder";
-import { 
+import {
   challengeFromVerifier,
   generateVerifier,
-  verificationProccessPromise
+  verificationProccessPromise,
 } from "./helper";
 
 // default container id
@@ -52,7 +52,6 @@ class CotterVerify {
     this.cID =
       Math.random().toString(36).substring(2, 15) +
       (this.config.ContainerID || cotter_DefaultContainerID);
-
 
     window.addEventListener("message", (e) => {
       try {
@@ -103,13 +102,16 @@ class CotterVerify {
                 this.config.SkipRedirectURL
                   ? true
                   : false,
-              captchaRequired: this.config.CaptchaRequired ? true : false,
+              captchaRequired: this.config.CaptchaRequired,
               styles: this.config.Styles,
 
               // for magic link
               authRequestText: this.config.AuthRequestText,
               authenticationMethod: this.config.AuthenticationMethod,
-              
+
+              // for terms of service
+              termsOfServiceLink: this.config.TermsOfServiceLink,
+              privacyPolicyLink: this.config.PrivacyPolicyLink,
             },
           };
           CotterVerify.sendPost(postData, this.cotterIframeID);
@@ -144,14 +146,22 @@ class CotterVerify {
             ) {
               this.config.OnBegin(data.payload).then((err: string | null) => {
                 if (!err)
-                  CotterVerify.ContinueSubmit(data.payload, this.cotterIframeID);
-                else CotterVerify.StopSubmissionWithError(err, this.cotterIframeID);
+                  CotterVerify.ContinueSubmit(
+                    data.payload,
+                    this.cotterIframeID
+                  );
+                else
+                  CotterVerify.StopSubmissionWithError(
+                    err,
+                    this.cotterIframeID
+                  );
               });
             } else {
               let err = this.config.OnBegin(data.payload);
               if (!err)
                 CotterVerify.ContinueSubmit(data.payload, this.cotterIframeID);
-              else CotterVerify.StopSubmissionWithError(err, this.cotterIframeID);
+              else
+                CotterVerify.StopSubmissionWithError(err, this.cotterIframeID);
             }
           } else {
             CotterVerify.ContinueSubmit(data.payload, this.cotterIframeID);
@@ -200,7 +210,7 @@ class CotterVerify {
       ifrm.setAttribute("src", encodeURI(path));
     });
     ifrm.setAttribute("allowtransparency", "true");
-    
+
     return verificationProccessPromise(this);
   }
 
@@ -256,14 +266,17 @@ class CotterVerify {
       if (self.config.OnError) self.config.OnError(error);
     };
 
-    fetch(`${CotterEnum.CotterBackendURL}/verify/get_identity?oauth_token=true`, {
-      method: "POST",
-      headers: {
-        API_KEY_ID: `${self.config.ApiKeyID}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    })
+    fetch(
+      `${CotterEnum.CotterBackendURL}/verify/get_identity?oauth_token=true`,
+      {
+        method: "POST",
+        headers: {
+          API_KEY_ID: `${self.config.ApiKeyID}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    )
       .then(async function (response: ResponseData) {
         // If not successful, call OnError and return
         var resp = await response.json();

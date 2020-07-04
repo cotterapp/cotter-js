@@ -44,4 +44,6 @@ export interface Config {
   CotterUserID?: String;
   AuthRequestText: Object;
   AuthenticationMethod: String;
+  TermsOfServiceLink?: String;
+  PrivacyPolicyLink?: String;
 }
