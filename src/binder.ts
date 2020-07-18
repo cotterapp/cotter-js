@@ -73,4 +73,6 @@ export interface Config {
   RegisterWebAuthn?: boolean;
   IdentifierType?: string;
   AuthenticationMethodName?: string;
+  TermsOfServiceLink?: String;
+  PrivacyPolicyLink?: String;
 }

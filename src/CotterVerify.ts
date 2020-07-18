@@ -126,12 +126,16 @@ class CotterVerify {
                 this.config.SkipRedirectURL
                   ? true
                   : false,
-              captchaRequired: this.config.CaptchaRequired ? true : false,
+              captchaRequired: this.config.CaptchaRequired,
               styles: this.config.Styles,
 
               // for magic link
               authRequestText: this.config.AuthRequestText,
               authenticationMethod: this.config.AuthenticationMethod,
+
+              // for terms of service
+              termsOfServiceLink: this.config.TermsOfServiceLink,
+              privacyPolicyLink: this.config.PrivacyPolicyLink,
             },
           };
           CotterVerify.sendPost(postData, this.cotterIframeID);

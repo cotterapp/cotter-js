@@ -1,7 +1,7 @@
 export interface IUser {
   ID: string;
   issuer: string;
-  clientUserID: string;
+  client_user_id: string;
   enrolled: string[];
   identifier: string;
 }

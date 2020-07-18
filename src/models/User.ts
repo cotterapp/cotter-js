@@ -5,7 +5,7 @@ import UserHandler, { IUser } from "../handler/UserHandler";
 class User implements IUser {
   ID: string;
   issuer: string;
-  clientUserID: string;
+  client_user_id: string;
   enrolled: string[];
   identifier: string;
   cotter: Cotter | undefined;
@@ -13,7 +13,7 @@ class User implements IUser {
   constructor(user: IUser) {
     this.ID = user.ID;
     this.issuer = user.issuer;
-    this.clientUserID = user.clientUserID;
+    this.client_user_id = user.client_user_id;
     this.enrolled = user.enrolled;
     this.identifier = user.identifier;
   }
@@ -21,7 +21,7 @@ class User implements IUser {
   update(user: IUser) {
     this.ID = user.ID;
     this.issuer = user.issuer;
-    this.clientUserID = user.clientUserID;
+    this.client_user_id = user.client_user_id;
     this.enrolled = user.enrolled;
     this.identifier = user.identifier;
   }

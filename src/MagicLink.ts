@@ -18,6 +18,7 @@ const magicLinkAuthReqText = (url: String) => ({
   imageError: warningImage(url),
   imageSuccess: checkPurple(url),
   switchOTPText: "Authenticate with OTP instead",
+  default: true,
 });
 
 class MagicLink extends CotterVerify {
@@ -50,7 +51,7 @@ class MagicLink extends CotterVerify {
     ifrm.style.overflow = "scroll";
 
     challengeFromVerifier(this.verifier).then((challenge) => {
-      var path = `${CotterEnum.JSURL}/login?code_challenge=${challenge}&type=${this.config.Type}&domain=${this.config.Domain}&api_key=${this.config.ApiKeyID}&redirect_url=${this.config.RedirectURL}&state=${this.state}&id=${this.cID}`;
+      var path = `${CotterEnum.JSURL}/login?auth_method=MAGIC_LINK&code_challenge=${challenge}&type=${this.config.Type}&domain=${this.config.Domain}&api_key=${this.config.ApiKeyID}&redirect_url=${this.config.RedirectURL}&state=${this.state}&id=${this.cID}`;
       if (this.config.CotterUserID) {
         path = `${path}&cotter_user_id=${this.config.CotterUserID}`;
       }
