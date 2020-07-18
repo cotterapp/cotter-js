@@ -1,3 +1,6 @@
+import { Config } from "./binder";
+import WebAuthn from "./WebAuthn";
+
 function dec2hex(dec: any) {
   return ("0" + dec.toString(16)).substr(-2);
 }
@@ -53,21 +56,59 @@ export async function challengeFromVerifier(v: string) {
 // verificationProccessPromise checks if verifySuccess or verifyError is set
 // if either is set, resolve or reject with the payload specified
 export const verificationProccessPromise = (self: {
-  verifySuccess?: string;
+  verifySuccess?: any;
   verifyError?: string;
+  RegisterWebAuthn?: boolean;
+  config: Config;
+  Identifier?: string;
+  onSuccess: Function;
+  onError: Function;
 }) =>
   new Promise((resolve, reject) => {
     // create non-blocking waiting loop
-    const checkMagicLinkProcess = () => {
+    const checkVerifyProcess = () => {
       if (self.verifySuccess) {
-        resolve(self.verifySuccess);
+        if (self.RegisterWebAuthn) {
+          // This would be set early in the init of CotterVerify by checking if
+          // - WebAuthn is enabled and the user have NO WebAuthn credentials at all
+          // - or
+          // - This is a request specifically to setup a new WebAuthn
+          // (always accompanied by forced email/phone verification)
+          const originalResp = { ...self.verifySuccess };
+          self.verifySuccess = undefined;
+          let web = new WebAuthn({
+            ApiKeyID: self.config.ApiKeyID,
+            Identifier: self.Identifier,
+            OriginalResponse: originalResp,
+            IdentifierType: self.config.Type,
+            Type: "REGISTRATION",
+          });
+          web
+            .show()
+            .then((resp: any) => {
+              self.onSuccess(resp);
+              self.verifySuccess = resp;
+              resolve(self.verifySuccess);
+            })
+            .catch((err) => {
+              self.onError(err);
+              self.verifyError = err;
+              reject(self.verifyError);
+            });
+        } else {
+          resolve(self.verifySuccess);
+        }
       } else if (self.verifyError) {
         reject(self.verifyError);
       } else {
-        setTimeout(checkMagicLinkProcess, 0);
+        setTimeout(checkVerifyProcess, 0);
       }
     };
 
     // run the loop
-    checkMagicLinkProcess();
+    checkVerifyProcess();
   });
+
+export const isIFrame = (
+  input: HTMLElement | null
+): input is HTMLIFrameElement => input !== null && input.tagName === "IFRAME";

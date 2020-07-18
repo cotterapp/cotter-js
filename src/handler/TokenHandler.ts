@@ -1,5 +1,5 @@
 import { CotterAccessToken, CotterIDToken } from "cotter-token-js";
-import API from "./API";
+import API from "../API";
 
 export interface OAuthToken {
   access_token: string;
@@ -12,10 +12,11 @@ class TokenHandler {
   accessToken: string | undefined;
   idToken: string | undefined;
   tokenType: string | undefined;
-  apiKeyID: string;
+  apiKeyID: string | undefined;
 
-  constructor(apiKeyID: string) {
+  withApiKeyID(apiKeyID: string) {
     this.apiKeyID = apiKeyID;
+    return this;
   }
 
   storeTokens(oauthTokens: OAuthToken) {
@@ -84,6 +85,9 @@ class TokenHandler {
   async getTokensFromRefreshToken(): Promise<OAuthToken> {
     console.log("Refreshing token");
     try {
+      if (!this.apiKeyID) {
+        throw "ApiKeyID is undefined, please initialize Cotter with ApiKeyID";
+      }
       var api = new API(this.apiKeyID);
       var resp = await api.getTokensFromRefreshToken();
       this.storeTokens(resp);
@@ -98,8 +102,11 @@ class TokenHandler {
     this.accessToken = undefined;
     this.idToken = undefined;
     this.tokenType = undefined;
-    var api = new API(this.apiKeyID);
     try {
+      if (!this.apiKeyID) {
+        throw "ApiKeyID is undefined, please initialize Cotter with ApiKeyID";
+      }
+      var api = new API(this.apiKeyID);
       await api.removeRefreshToken();
     } catch (err) {
       throw err;

@@ -9,12 +9,28 @@ export interface ResponseData extends Response {
   data?: any;
 }
 
+export interface WebAuthnRegistrationText {
+  title: string;
+  subtitle: string;
+  button: string;
+  buttonSkip: string;
+  theme: string;
+}
+export interface WebAuthnLoginText {
+  title: string;
+  subtitle: string;
+  button: string;
+  buttonSkip: string;
+  theme: string;
+  waiting: string;
+}
+
 export interface Config {
   ApiKeyID: string;
   Type: string;
-  ContainerID: string;
-  OnSuccess: Function;
-  IdentifierField: string;
+  ContainerID?: string;
+  OnSuccess?: Function;
+  IdentifierField?: string;
   CotterBaseURL?: string;
   CountryCode?: string[];
   AdditionalFields?: Object[];
@@ -42,6 +58,19 @@ export interface Config {
   OnError?: Function;
   OnBegin?: Function;
   CotterUserID?: String;
-  AuthRequestText: Object;
-  AuthenticationMethod: String;
+  AuthRequestText?: Object;
+  AuthenticationMethod?: String;
+
+  // For WebAuthn
+  WebAuthnEnabled?: boolean;
+  RegistrationText?: WebAuthnRegistrationText;
+  LoginText?: WebAuthnLoginText;
+  OriginalResponse?: any;
+  ErrorDisplay?: string;
+  CotterBackendURL?: string;
+  AlternativeMethod?: string;
+  Identifier?: string;
+  RegisterWebAuthn?: boolean;
+  IdentifierType?: string;
+  AuthenticationMethodName?: string;
 }

@@ -4,10 +4,12 @@ import {
   challengeFromVerifier,
   generateVerifier,
   verificationProccessPromise,
+  isIFrame,
 } from "./helper";
-import Cotter from ".";
-import User from "./models/User";
-import TokenHandler from "./TokenHandler";
+import TokenHandler from "./handler/TokenHandler";
+import UserHandler from "./handler/UserHandler";
+import WebAuthn from "./WebAuthn";
+import API from "./API";
 
 // default container id
 const cotter_DefaultContainerID = "cotter-form-container";
@@ -24,11 +26,15 @@ class CotterVerify {
   verifyError?: any;
   verifySuccess?: any;
   tokenHander?: TokenHandler;
+  RegisterWebAuthn?: boolean;
+  Identifier?: string;
+  LoginWebAuthn?: boolean;
+  ContinueSubmitData?: any;
 
   constructor(config: Config, tokenHandler?: TokenHandler) {
     console.log("Using origin: ", new URL(window.location.href).origin);
     this.config = config;
-    if (this.config.CotterBaseURL) Cotter.JSURL = this.config.CotterBaseURL;
+    if (this.config.CotterBaseURL) CotterEnum.JSURL = this.config.CotterBaseURL;
     if (!this.config.CountryCode || this.config.CountryCode.length <= 0) {
       this.config.CountryCode = [CotterEnum.DefaultUSCode];
     }
@@ -36,6 +42,10 @@ class CotterVerify {
       this.config.AdditionalFields = [];
     }
     this.config.Domain = new URL(window.location.href).origin;
+
+    if (!this.config.CotterBackendURL) {
+      this.config.CotterBackendURL = CotterEnum.BackendURL;
+    }
 
     // storing access token
     this.tokenHander = tokenHandler;
@@ -59,6 +69,14 @@ class CotterVerify {
       Math.random().toString(36).substring(2, 15) +
       (this.config.ContainerID || cotter_DefaultContainerID);
 
+    // ========== WEBAUTHN SETUP ===========
+    if (this.config.RegisterWebAuthn) {
+      // this.config.RegisterWebAuthn means that the client
+      // is explicitly trying to register this device for WebAuthn
+      this.RegisterWebAuthn = true;
+    }
+    // =====================================
+
     window.addEventListener("message", (e) => {
       try {
         var data = JSON.parse(e.data);
@@ -69,7 +87,7 @@ class CotterVerify {
 
       // there are some additional messages that shouldn't be handled by this
       // listener, such as messages from https://js.stripe.com/
-      if (e.origin !== Cotter.JSURL) {
+      if (e.origin !== CotterEnum.JSURL) {
         // skip this message
         return;
       }
@@ -137,7 +155,6 @@ class CotterVerify {
           this.verifyError = data.payload;
           break;
         case cID + "ON_BEGIN":
-          console.log(this.config.OnBegin);
           // OnBegin method should return the error message
           // if there is no error, return null
           if (!!this.config.OnBegin) {
@@ -147,32 +164,20 @@ class CotterVerify {
               this.config.OnBegin.toString().includes("async")
             ) {
               this.config.OnBegin(data.payload).then((err: string | null) => {
-                if (!err)
-                  CotterVerify.ContinueSubmit(
-                    data.payload,
-                    this.cotterIframeID
-                  );
-                else
-                  CotterVerify.StopSubmissionWithError(
-                    err,
-                    this.cotterIframeID
-                  );
+                if (!err) this.continue(data.payload, this.cotterIframeID);
+                else this.StopSubmissionWithError(err, this.cotterIframeID);
               });
             } else {
               let err = this.config.OnBegin(data.payload);
-              if (!err)
-                CotterVerify.ContinueSubmit(data.payload, this.cotterIframeID);
-              else
-                CotterVerify.StopSubmissionWithError(err, this.cotterIframeID);
+              if (!err) this.continue(data.payload, this.cotterIframeID);
+              else this.StopSubmissionWithError(err, this.cotterIframeID);
             }
           } else {
             CotterVerify.ContinueSubmit(data.payload, this.cotterIframeID);
           }
           break;
         default:
-          console.log(
-            cID + " Received Message with callbackName " + data.callbackName
-          );
+          break;
       }
     });
   }
@@ -205,7 +210,7 @@ class CotterVerify {
     ifrm.style.overflow = "scroll";
 
     challengeFromVerifier(this.verifier).then((challenge) => {
-      var path = `${Cotter.JSURL}/signup?challenge=${challenge}&type=${this.config.Type}&domain=${this.config.Domain}&api_key=${this.config.ApiKeyID}&redirect_url=${this.config.RedirectURL}&state=${this.state}&id=${this.cID}`;
+      var path = `${CotterEnum.JSURL}/signup?challenge=${challenge}&type=${this.config.Type}&domain=${this.config.Domain}&api_key=${this.config.ApiKeyID}&redirect_url=${this.config.RedirectURL}&state=${this.state}&id=${this.cID}`;
       if (this.config.CotterUserID) {
         path = `${path}&cotter_user_id=${this.config.CotterUserID}`;
       }
@@ -219,6 +224,27 @@ class CotterVerify {
   removeForm() {
     var ifrm = document.getElementById(this.cotterIframeID);
     ifrm!.remove();
+  }
+
+  onSuccess(data: object | string) {
+    var postData = {
+      action: "DONE_SUCCESS",
+    };
+    CotterVerify.sendPost(postData, this.cotterIframeID);
+    this.verifySuccess = data;
+    console.log("verifySuccess", data);
+    if (this.config.OnSuccess) this.config.OnSuccess(data);
+  }
+
+  onError(error: object | string) {
+    var postData = {
+      action: "DONE_ERROR",
+      payload: error,
+    };
+    CotterVerify.sendPost(postData, this.cotterIframeID);
+    this.verifyError = error;
+    console.log("verifyError", error);
+    if (this.config.OnError) this.config.OnError(error);
   }
 
   async submitAuthorizationCode(payload: VerifyRespondResponse) {
@@ -256,19 +282,7 @@ class CotterVerify {
 
     var self = this;
 
-    const onSuccess = (data: any) => {
-      self.verifySuccess = data;
-      console.log("verifySuccess", data);
-      if (self.config.OnSuccess) self.config.OnSuccess(data);
-    };
-
-    const onError = (error: any) => {
-      self.verifyError = error;
-      console.log("verifyError", error);
-      if (self.config.OnError) self.config.OnError(error);
-    };
-
-    fetch(`${Cotter.BackendURL}/verify/get_identity?oauth_token=true`, {
+    fetch(`${CotterEnum.BackendURL}/verify/get_identity?oauth_token=true`, {
       method: "POST",
       headers: {
         API_KEY_ID: `${self.config.ApiKeyID}`,
@@ -289,18 +303,21 @@ class CotterVerify {
         // Preparing data to return to the client
         var data = clientJson;
         data.token = resp.token;
-        data[self.config.IdentifierField] = resp.identifier.identifier;
+        data[self.config.IdentifierField || "email"] =
+          resp.identifier.identifier;
         data.oauth_token = resp.oauth_token;
         data.user = resp.user;
-        var user = new User(resp.user);
-        user.store();
+        // Store Identifier in the object for WebAuthn reference
+        self.Identifier = resp.identifier.identifier;
+        UserHandler.store(resp.user);
+        console.log("SHOULD STORE TOKEN", self.tokenHander);
         if (self.tokenHander) {
           self.tokenHander.storeTokens(resp.oauth_token);
         }
 
         // If skipRedirectURL, send the data to the client's OnSuccess function
         if (skipRedirectURL || !self.config.RedirectURL) {
-          onSuccess(data);
+          self.onSuccess(data);
           return;
         } else {
           // Otherwise, send POST request to the client's RedirectURL
@@ -320,7 +337,7 @@ class CotterVerify {
               ) {
                 var redirectRespJSON = await redirectResp.json();
                 if (redirectResp.status >= 200 && redirectResp.status < 300) {
-                  onSuccess(redirectRespJSON);
+                  self.onSuccess(redirectRespJSON);
                 } else {
                   redirectResp.data = redirectRespJSON;
                   throw redirectResp;
@@ -328,7 +345,7 @@ class CotterVerify {
               } else {
                 var redirectRespText = await redirectResp.text();
                 if (redirectResp.status >= 200 && redirectResp.status < 300) {
-                  onSuccess(redirectRespText);
+                  self.onSuccess(redirectRespText);
                 } else {
                   redirectResp.data = redirectRespText;
                   throw redirectResp;
@@ -336,21 +353,108 @@ class CotterVerify {
               }
             })
             .catch(function (error) {
-              onError(error);
+              self.onError(error);
             });
         }
       })
       .catch((error) => {
-        onError(error);
+        self.onError(error);
       });
   }
 
-  static StopSubmissionWithError(err: string, iframeID: string) {
+  StopSubmissionWithError(err: string, iframeID: string) {
     var postData = {
       action: "ON_ERROR",
       errorMsg: err,
     };
     CotterVerify.sendPost(postData, iframeID);
+  }
+
+  async continue(
+    payload: { identifier: string; auth_required?: boolean },
+    iframeID: string
+  ) {
+    // Check for WebAuthn – if we can, we'll authenticate the users using WebAuthn instead
+    // ========== WEBAUTHN CHECK ===========
+    // - (1) if WebAuthn enabled && can perform webauthn: check if user has any webauthn credentialss
+    // - (2A) if User have credentials:
+    //      - (a) if User's identity is NOT EXPIRED => user normally automatically
+    //        log in. We want user to automatically login too,
+    //        even with WebAuthn enabled
+    //      - (b) if User's identity is expired => user normally have to enter
+    //        OTP/MagicLink. Instead, we prompt for WebAuthn
+    // - (2B) if User doesn't have credentials:
+    //      - We want to prompt user to setup WebAuthn at the end of the flow
+
+    const available = await WebAuthn.available();
+    if (this.config.WebAuthnEnabled && !available) {
+      console.log(
+        "WebAuthn is enabled, but the user device doesn't support webauthn"
+      );
+    }
+    if (this.config.WebAuthnEnabled && available) {
+      try {
+        // (1) Check if user has webauthn credential
+        let api = new API(this.config.ApiKeyID);
+        const exists = await api.checkCredentialExist(payload.identifier);
+        console.log("EXOSTS", exists);
+        // (2A) if User have credentials:
+        if (exists) {
+          // (a) if User's identity is NOT EXPIRED => user normally automatically
+          // log in. We want user to automatically login too,
+          // even with WebAuthn enabled
+          if (!payload.auth_required) {
+            this.RegisterWebAuthn = false;
+            this.config.WebAuthnEnabled = false;
+            CotterVerify.ContinueSubmit(payload, iframeID);
+            return;
+          }
+
+          // b) if User's identity is expired => user normally have to enter
+          // OTP/MagicLink. Instead, we prompt for WebAuthn
+          this.LoginWebAuthn = true;
+          this.ContinueSubmitData = payload; // For use if WebAuthn failed
+          // Start WebAuthn Login
+          let web = new WebAuthn({
+            ApiKeyID: this.config.ApiKeyID,
+            Identifier: payload.identifier,
+            IdentifierType: this.config.Type,
+            AlternativeMethod: this.config.AuthenticationMethodName,
+            Type: "LOGIN",
+          });
+
+          web
+            .show()
+            .then((resp: any) => {
+              if (resp.status === WebAuthn.CANCELED) {
+                CotterVerify.ContinueSubmit(payload, iframeID);
+                return;
+              }
+              if (resp.status === WebAuthn.SUCCESS) {
+                this.onSuccess(resp);
+                return;
+              }
+            })
+            .catch((err) => {
+              console.log(err);
+              this.onError(err);
+            });
+        } else {
+          // (2B) if User doesn't have credentials:
+          // - We want to prompt user to setup WebAuthn at the end of the flow
+          this.RegisterWebAuthn = true;
+          CotterVerify.ContinueSubmit(payload, iframeID);
+        }
+        return;
+      } catch (err) {
+        console.log(err);
+        this.onError(err);
+        return;
+      }
+    } else {
+      // WebAuthn not enabled
+      CotterVerify.ContinueSubmit(payload, iframeID);
+    }
   }
 
   static ContinueSubmit(payload: object, iframeID: string) {
@@ -364,12 +468,9 @@ class CotterVerify {
   static sendPost(data: object, iframeID: string) {
     var ifrm = document.getElementById(iframeID);
     if (isIFrame(ifrm) && ifrm.contentWindow) {
-      ifrm!.contentWindow.postMessage(JSON.stringify(data), Cotter.JSURL);
+      ifrm!.contentWindow.postMessage(JSON.stringify(data), CotterEnum.JSURL);
     }
   }
 }
-
-const isIFrame = (input: HTMLElement | null): input is HTMLIFrameElement =>
-  input !== null && input.tagName === "IFRAME";
 
 export default CotterVerify;

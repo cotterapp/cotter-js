@@ -3,6 +3,10 @@ class CotterEnum {
 
   // default container ID
   static DefaultContainerID: string = "cotter-form-container";
+
+  static AssetURL = "https://js.cotter.app";
+  static BackendURL = "https://www.cotter.app/api/v0";
+  static JSURL = "https://js.cotter.app";
 }
 
 export default CotterEnum;
