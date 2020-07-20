@@ -28,7 +28,7 @@ class API {
         },
         withCredentials: true,
       };
-      const path = "/token";
+      const path = `/token/${this.apiKeyID}`;
       const req = {
         grant_type: "refresh_token",
       };
@@ -55,7 +55,7 @@ class API {
         },
         withCredentials: true,
       };
-      const path = "/token";
+      const path = `/token/${this.apiKeyID}`;
       var resp = await axios.delete(`${CotterEnum.BackendURL}${path}`, config);
       return resp.data;
     } catch (err) {
