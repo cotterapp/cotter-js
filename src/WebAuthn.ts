@@ -111,7 +111,7 @@ class WebAuthn {
         </div>
         <div class="cotter-watermark" style="margin-top: 10px">
           <div class="title is-6" style="color: #ffffff"> Secured by </div>
-          <img src="http://localhost:3000/assets/images/cotter_transparent_light.png" class="cotter-logo" style="width: 30px; height: 30px;"/>
+          <img src="${CotterEnum.AssetURL}/assets/images/cotter_transparent_light.png" class="cotter-logo" style="width: 30px; height: 30px;"/>
           <div class="title is-6" style="color: #ffffff"> Cotter </div>
         </div>
       </div>
