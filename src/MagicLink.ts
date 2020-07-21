@@ -2,14 +2,16 @@ import CotterVerify from "./CotterVerify";
 import CotterEnum from "./enum";
 import { Config } from "./binder";
 import { challengeFromVerifier, verificationProccessPromise } from "./helper";
+import TokenHandler from "./handler/TokenHandler";
 
 var checkPurple = (url: String) => url + "/assets/images/check-purple.png";
 var warningImage = (url: String) => url + "/assets/images/warning.png";
 var tapLinkImage = (url: String) => url + "/assets/images/tapEmail.png";
 
-const magicLinkAuthReqText = (url: String, channel: String) => ({
-  title: `Approve this login from your ${channel}`,
-  subtitle: `A magic link has been sent to your ${channel} to authenticate you`,
+const magicLinkAuthReqText = (url: String) => ({
+  title: `Approve this login from your {{type}}`,
+  subtitle: `A magic link has been sent to {{identifier}}`,
+
   image: tapLinkImage(url),
   titleError: "Something went wrong",
   subtitleError: "We are unable to confirm it's you, please try again",
@@ -20,21 +22,18 @@ const magicLinkAuthReqText = (url: String, channel: String) => ({
 });
 
 class MagicLink extends CotterVerify {
-  constructor(config: Config) {
+  constructor(config: Config, tokenHandler?: TokenHandler) {
     const defaultMagicLinkConfig = {
       AuthenticationMethod: "MAGIC_LINK",
     };
 
     // set default magic link, then assign the new configs if any
-    super(Object.assign({ ...defaultMagicLinkConfig }, config));
+    super(Object.assign({ ...defaultMagicLinkConfig }, config), tokenHandler);
   }
 
   showForm() {
     // set the authentication request config
-    this.config.AuthRequestText = magicLinkAuthReqText(
-      CotterEnum.CotterAssetsBaseURL,
-      this.config.IdentifierField
-    );
+    this.config.AuthRequestText = magicLinkAuthReqText(CotterEnum.AssetURL);
 
     const containerID =
       this.config.ContainerID || CotterEnum.DefaultContainerID;
@@ -52,7 +51,7 @@ class MagicLink extends CotterVerify {
     ifrm.style.overflow = "scroll";
 
     challengeFromVerifier(this.verifier).then((challenge) => {
-      var path = `${CotterEnum.CotterBaseURL}/login?auth_method=MAGIC_LINK&code_challenge=${challenge}&type=${this.config.Type}&domain=${this.config.Domain}&api_key=${this.config.ApiKeyID}&redirect_url=${this.config.RedirectURL}&state=${this.state}&id=${this.cID}`;
+      var path = `${CotterEnum.JSURL}/login?auth_method=MAGIC_LINK&code_challenge=${challenge}&type=${this.config.Type}&domain=${this.config.Domain}&api_key=${this.config.ApiKeyID}&redirect_url=${this.config.RedirectURL}&state=${this.state}&id=${this.cID}`;
       if (this.config.CotterUserID) {
         path = `${path}&cotter_user_id=${this.config.CotterUserID}`;
       }

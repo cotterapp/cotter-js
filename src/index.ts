@@ -1,8 +1,7 @@
 import Cotter from "./Cotter";
 import CotterVerify from "./CotterVerify";
+import CotterEnum from "./enum";
 
-export {
-  CotterVerify
-};
+export { CotterVerify, CotterEnum };
 
 export default Cotter;

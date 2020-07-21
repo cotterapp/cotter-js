@@ -1,10 +1,8 @@
 declare class CotterEnum {
-    static CotterBaseURL: string;
-    static DEV: boolean;
-    static STAGING: boolean;
-    static CotterAssetsBaseURL: string;
-    static CotterBackendURL: string;
     static DefaultUSCode: string;
     static DefaultContainerID: string;
+    static AssetURL: string;
+    static BackendURL: string;
+    static JSURL: string;
 }
 export default CotterEnum;
