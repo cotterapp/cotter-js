@@ -368,6 +368,7 @@ class WebAuthn {
         credential,
         origin
       );
+      resp[this.config.IdentifierField || ""] = resp.user.identifier;
       return resp;
     } catch (err) {
       throw err;
