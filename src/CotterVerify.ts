@@ -177,7 +177,7 @@ class CotterVerify {
               else this.StopSubmissionWithError(err, this.cotterIframeID);
             }
           } else {
-            CotterVerify.ContinueSubmit(data.payload, this.cotterIframeID);
+            this.continue(data.payload, this.cotterIframeID);
           }
           break;
         default:
@@ -401,7 +401,6 @@ class CotterVerify {
         // (1) Check if user has webauthn credential
         let api = new API(this.config.ApiKeyID);
         const exists = await api.checkCredentialExist(payload.identifier);
-        console.log("EXOSTS", exists);
         // (2A) if User have credentials:
         if (exists) {
           // (a) if User's identity is NOT EXPIRED => user normally automatically
@@ -422,6 +421,7 @@ class CotterVerify {
           let web = new WebAuthn({
             ApiKeyID: this.config.ApiKeyID,
             Identifier: payload.identifier,
+            IdentifierField: this.config.IdentifierField,
             IdentifierType: this.config.Type,
             AlternativeMethod: this.config.AuthenticationMethodName,
             Type: "LOGIN",

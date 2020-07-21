@@ -79,6 +79,7 @@ export const verificationProccessPromise = (self: {
           let web = new WebAuthn({
             ApiKeyID: self.config.ApiKeyID,
             Identifier: self.Identifier,
+            IdentifierField: self.config.IdentifierField,
             OriginalResponse: originalResp,
             IdentifierType: self.config.Type,
             Type: "REGISTRATION",

@@ -418,6 +418,7 @@ class WebAuthn {
       if (resp && resp.oauth_token && this.tokenHander) {
         this.tokenHander.storeTokens(resp.oauth_token);
       }
+      resp[this.config.IdentifierField || ""] = resp.user.identifier;
       return resp;
     } catch (err) {
       throw err;
