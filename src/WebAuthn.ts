@@ -330,7 +330,11 @@ class WebAuthn {
 
   // ============== CHECK WEBAUTHN EXISTS ===============
   static async available() {
-    return await window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+    if (
+      window.PublicKeyCredential != null &&
+      window.PublicKeyCredential !== undefined
+    )
+      return await window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
   }
 
   // ============== REGISTER WEBAUTHN ===============
