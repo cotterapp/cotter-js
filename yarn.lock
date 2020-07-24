@@ -42,10 +42,10 @@ buffer@^5.6.0:
     base64-js "^1.0.2"
     ieee754 "^1.1.4"
 
-cotter-token-js@^0.1.3:
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/cotter-token-js/-/cotter-token-js-0.1.3.tgz#aa355840f313f7882d82254d682a4b86eb1c6dee"
-  integrity sha512-Z6KEFtGk8M8SahoGMbGeVIa1MBp9iEQvMIdFrvNl83Z8vXScn7/nu2IIt7/2z9GQYZpG4fTWBdNWIWqgnLNwJg==
+cotter-token-js@^0.1.5:
+  version "0.1.5"
+  resolved "https://registry.yarnpkg.com/cotter-token-js/-/cotter-token-js-0.1.5.tgz#ae5ea7bb6ded2586cbba2746e3ba531502c0a91a"
+  integrity sha512-QrRRPFVDrciatjN8FK70kTZLRnBsK9EcpGvPzE9dg+uVJ3vc7ia/kUXNH4CjoFeVwjPwIRZB0p0reNQTWkSh+w==
   dependencies:
     axios "^0.19.2"
     buffer "^5.6.0"
