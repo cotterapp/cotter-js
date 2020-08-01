@@ -35,9 +35,7 @@ class CotterVerify {
     console.log("Using origin: ", new URL(window.location.href).origin);
     this.config = config;
     if (this.config.CotterBaseURL) CotterEnum.JSURL = this.config.CotterBaseURL;
-    if (!this.config.CountryCode || this.config.CountryCode.length <= 0) {
-      this.config.CountryCode = [CotterEnum.DefaultUSCode];
-    }
+
     if (!this.config.AdditionalFields) {
       this.config.AdditionalFields = [];
     }
