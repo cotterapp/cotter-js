@@ -9,6 +9,7 @@ import {
   serverToRequestOptions,
 } from "./models/Options";
 import { base64urlencode } from "./helper";
+import { Payload } from "./binder";
 
 class API {
   apiKeyID: string;
@@ -138,7 +139,7 @@ class API {
     identifier: string,
     credential: any,
     origin: string
-  ): Promise<any> {
+  ): Promise<Payload> {
     try {
       var config = {
         headers: {
@@ -211,7 +212,7 @@ class API {
     credential: any,
     origin: string,
     publicKey: string
-  ): Promise<any> {
+  ): Promise<Payload> {
     try {
       var config = {
         headers: {
