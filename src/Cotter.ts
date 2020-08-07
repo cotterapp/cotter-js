@@ -4,21 +4,23 @@ import TokenHandler from "./handler/TokenHandler";
 import User from "./models/User";
 import WebAuthn from "./WebAuthn";
 import UserHandler from "./handler/UserHandler";
+import { Config } from "./binder";
 
 const tokenHandler = new TokenHandler();
 export default class Cotter extends CotterVerify {
-  signInWithLink: Function;
-  signInWithOTP: Function;
-  signInWithWebAuthnOrLink: Function;
-  signInWithWebAuthnOrOTP: Function;
+  signInWithLink: (onBegin: Function) => MagicLink;
+  signInWithOTP: (onBegin: Function) => CotterVerify;
+  signInWithWebAuthnOrLink: (onBegin: Function) => MagicLink;
+  signInWithWebAuthnOrOTP: (onBegin: Function) => CotterVerify;
   tokenHandler: TokenHandler;
 
   // constructor can be either string or object therefore the type is any
-  constructor(config: any) {
+  constructor(config: Config | string) {
     // in this case config will definitely be the API KEY ID
     if (typeof config === typeof "") {
-      config = { ApiKeyID: config };
+      config = { ApiKeyID: config as string, Type: "" };
     }
+    config = config as Config;
 
     super(config, tokenHandler.withApiKeyID(config.ApiKeyID));
 
