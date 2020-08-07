@@ -31,7 +31,7 @@ export interface Config {
   ApiKeyID: string;
   Type: string;
   ContainerID?: string;
-  OnSuccess?: (payload: Payload) => void;
+  OnSuccess?: (payload: VerifySuccess) => void;
   IdentifierField?: string;
   CotterBaseURL?: string;
   CountryCode?: string[];
@@ -57,7 +57,7 @@ export interface Config {
   SkipRedirectURL?: boolean;
   CaptchaRequired?: boolean;
   Styles?: Styles;
-  OnError?: (Payload: Payload) => void;
+  OnError?: (error: any) => void;
   OnBegin?: (payload: Payload) => Promise<boolean> | boolean;
   CotterUserID?: String;
   AuthRequestText?: Object;

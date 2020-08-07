@@ -44,14 +44,18 @@ export default class Cotter extends CotterVerify {
   }
 
   // constructMagicLink constructs the magic link object with optional onBegin
-  constructMagicLink(onBegin: Function) {
+  constructMagicLink(
+    onBegin: (payload: Payload) => Promise<boolean> | boolean
+  ) {
     if (onBegin) this.config.OnBegin = onBegin;
     this.config.AuthenticationMethod = "MAGIC_LINK";
     this.config.AuthenticationMethodName = "Magic Link";
     return new MagicLink(this.config, this.tokenHander);
   }
 
-  constructOTPVerify(onBegin: Function) {
+  constructOTPVerify(
+    onBegin: (payload: Payload) => Promise<boolean> | boolean
+  ) {
     if (onBegin) this.config.OnBegin = onBegin;
     this.config.AuthenticationMethod = "OTP";
     this.config.AuthenticationMethodName = "Verification Code";
@@ -62,7 +66,9 @@ export default class Cotter extends CotterVerify {
     return await WebAuthn.available();
   }
   // constructMagicLinkWithWebAuthn constructs the magic link to run attempt login with webauthn
-  constructMagicLinkWithWebAuthn(onBegin: Function) {
+  constructMagicLinkWithWebAuthn(
+    onBegin: (payload: Payload) => Promise<boolean> | boolean
+  ) {
     if (onBegin) this.config.OnBegin = onBegin;
     this.config.WebAuthnEnabled = true;
     this.config.AuthenticationMethod = "MAGIC_LINK";
@@ -71,7 +77,9 @@ export default class Cotter extends CotterVerify {
     return new MagicLink(this.config, this.tokenHander);
   }
   // constructOTPVerifyWithWebAuthn constructs the otp to run attempt login with webauthn
-  constructOTPVerifyWithWebAuthn(onBegin: Function) {
+  constructOTPVerifyWithWebAuthn(
+    onBegin: (payload: Payload) => Promise<boolean> | boolean
+  ) {
     if (onBegin) this.config.OnBegin = onBegin;
     this.config.WebAuthnEnabled = true;
     this.config.AuthenticationMethod = "OTP";

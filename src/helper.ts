@@ -1,4 +1,4 @@
-import { Config, VerifySuccess } from "./binder";
+import { Config, VerifySuccess, Payload } from "./binder";
 import WebAuthn from "./WebAuthn";
 
 function dec2hex(dec: any) {
@@ -61,8 +61,8 @@ export const verificationProccessPromise = (self: {
   RegisterWebAuthn?: boolean;
   config: Config;
   Identifier?: string;
-  onSuccess: Function;
-  onError: Function;
+  onSuccess: (success: VerifySuccess) => void;
+  onError: (error: any) => void;
 }) =>
   new Promise<VerifySuccess>((resolve, reject) => {
     // create non-blocking waiting loop
@@ -86,7 +86,7 @@ export const verificationProccessPromise = (self: {
           });
           web
             .show()
-            .then((resp: any) => {
+            .then((resp: VerifySuccess) => {
               self.onSuccess(resp);
               self.verifySuccess = resp;
               resolve(self.verifySuccess);
