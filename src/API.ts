@@ -139,7 +139,7 @@ class API {
     identifier: string,
     credential: any,
     origin: string
-  ): Promise<Payload> {
+  ): Promise<any> {
     try {
       var config = {
         headers: {
@@ -212,7 +212,7 @@ class API {
     credential: any,
     origin: string,
     publicKey: string
-  ): Promise<Payload> {
+  ): Promise<any> {
     try {
       var config = {
         headers: {
