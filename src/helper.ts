@@ -1,4 +1,4 @@
-import { Config } from "./binder";
+import { Config, Payload } from "./binder";
 import WebAuthn from "./WebAuthn";
 
 function dec2hex(dec: any) {
@@ -56,7 +56,7 @@ export async function challengeFromVerifier(v: string) {
 // verificationProccessPromise checks if verifySuccess or verifyError is set
 // if either is set, resolve or reject with the payload specified
 export const verificationProccessPromise = (self: {
-  verifySuccess?: any;
+  verifySuccess?: Payload;
   verifyError?: string;
   RegisterWebAuthn?: boolean;
   config: Config;
@@ -64,7 +64,7 @@ export const verificationProccessPromise = (self: {
   onSuccess: Function;
   onError: Function;
 }) =>
-  new Promise((resolve, reject) => {
+  new Promise<Payload>((resolve, reject) => {
     // create non-blocking waiting loop
     const checkVerifyProcess = () => {
       if (self.verifySuccess) {

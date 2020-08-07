@@ -76,3 +76,18 @@ export interface Config {
   TermsOfServiceLink?: String;
   PrivacyPolicyLink?: String;
 }
+export interface Payload {
+  challenge: string;
+  challenge_id: number;
+  client_json: any;
+  code: string;
+  device_name: string;
+  device_type: string;
+  identifier: string;
+  identifier_type: string;
+  origin: string;
+  public_key: string;
+  redirect_url: string;
+  signature: string;
+  timestamp: string;
+}
