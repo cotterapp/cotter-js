@@ -1,3 +1,5 @@
+import { OAuthToken } from "./handler/TokenHandler";
+import User from "./models/User";
 export interface VerifyRespondResponse {
   authorization_code: string;
   challenge_id: string;
@@ -90,4 +92,12 @@ export interface Payload {
   redirect_url: string;
   signature: string;
   timestamp: string;
+}
+export interface VerifySuccess {
+  email?: String;
+  phone?: String;
+  oauth_token: OAuthToken;
+  user: User;
+  identifier?: String; // only from WebAuthn same as email/phone
+  status?: String; // only from WebAuthn = SUCCESS or CANCELED
 }

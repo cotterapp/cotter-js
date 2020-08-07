@@ -4,14 +4,22 @@ import TokenHandler from "./handler/TokenHandler";
 import User from "./models/User";
 import WebAuthn from "./WebAuthn";
 import UserHandler from "./handler/UserHandler";
-import { Config } from "./binder";
+import { Config, Payload } from "./binder";
 
 const tokenHandler = new TokenHandler();
 export default class Cotter extends CotterVerify {
-  signInWithLink: (onBegin: Function) => MagicLink;
-  signInWithOTP: (onBegin: Function) => CotterVerify;
-  signInWithWebAuthnOrLink: (onBegin: Function) => MagicLink;
-  signInWithWebAuthnOrOTP: (onBegin: Function) => CotterVerify;
+  signInWithLink: (
+    onBegin: (payload: Payload) => Promise<boolean> | boolean
+  ) => MagicLink;
+  signInWithOTP: (
+    onBegin: (payload: Payload) => Promise<boolean> | boolean
+  ) => CotterVerify;
+  signInWithWebAuthnOrLink: (
+    onBegin: (payload: Payload) => Promise<boolean> | boolean
+  ) => MagicLink;
+  signInWithWebAuthnOrOTP: (
+    onBegin: (payload: Payload) => Promise<boolean> | boolean
+  ) => CotterVerify;
   tokenHandler: TokenHandler;
 
   // constructor can be either string or object therefore the type is any
