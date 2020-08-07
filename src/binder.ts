@@ -31,7 +31,7 @@ export interface Config {
   ApiKeyID: string;
   Type: string;
   ContainerID?: string;
-  OnSuccess?: Function;
+  OnSuccess?: (payload: Payload) => void;
   IdentifierField?: string;
   CotterBaseURL?: string;
   CountryCode?: string[];
@@ -56,9 +56,9 @@ export interface Config {
   RedirectURL?: string;
   SkipRedirectURL?: boolean;
   CaptchaRequired?: boolean;
-  Styles?: Object;
-  OnError?: Function;
-  OnBegin?: Function;
+  Styles?: Styles;
+  OnError?: (Payload: Payload) => void;
+  OnBegin?: (payload: Payload) => Promise<boolean> | boolean;
   CotterUserID?: String;
   AuthRequestText?: Object;
   AuthenticationMethod?: String;
@@ -100,4 +100,24 @@ export interface VerifySuccess {
   user: User;
   identifier?: String; // only from WebAuthn same as email/phone
   status?: String; // only from WebAuthn = SUCCESS or CANCELED
+}
+
+export interface Styles {
+  form_container: any;
+  loadingImg: any;
+  input_label: any;
+  verification_label: any;
+  pin_row: any;
+  pin_input: any;
+  verification_subtitle: any;
+  error: any;
+  input_row_container: any;
+  input_row: any;
+  input_text_container_default: any;
+  input_text: any;
+  input_text_container: any;
+  country_code: any;
+  country_code_blank: any;
+  input_text_p: any;
+  check_input: any;
 }
