@@ -1,5 +1,10 @@
 import CotterEnum from "./enum";
-import { Config, VerifyRespondResponse, ResponseData } from "./binder";
+import {
+  Config,
+  VerifyRespondResponse,
+  ResponseData,
+  VerifySuccess,
+} from "./binder";
 import {
   challengeFromVerifier,
   generateVerifier,
@@ -165,12 +170,14 @@ class CotterVerify {
               this.config.OnBegin.constructor.name === "AsyncFunction" ||
               this.config.OnBegin.toString().includes("async")
             ) {
-              this.config.OnBegin(data.payload).then((err: string | null) => {
+              (this.config.OnBegin(data.payload) as Promise<
+                string | null
+              >).then((err: string | null) => {
                 if (!err) this.continue(data.payload, this.cotterIframeID);
                 else this.StopSubmissionWithError(err, this.cotterIframeID);
               });
             } else {
-              let err = this.config.OnBegin(data.payload);
+              let err = this.config.OnBegin(data.payload) as string | null;
               if (!err) this.continue(data.payload, this.cotterIframeID);
               else this.StopSubmissionWithError(err, this.cotterIframeID);
             }
@@ -228,14 +235,14 @@ class CotterVerify {
     ifrm!.remove();
   }
 
-  onSuccess(data: object | string) {
+  onSuccess(data: VerifySuccess | string) {
     var postData = {
       action: "DONE_SUCCESS",
     };
     CotterVerify.sendPost(postData, this.cotterIframeID);
     this.verifySuccess = data;
     console.log("verifySuccess", data);
-    if (this.config.OnSuccess) this.config.OnSuccess(data);
+    if (this.config.OnSuccess) this.config.OnSuccess(data as VerifySuccess);
   }
 
   onError(error: object | string) {

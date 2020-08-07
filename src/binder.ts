@@ -18,6 +18,11 @@ export interface WebAuthnRegistrationText {
   buttonSkip: string;
   theme: string;
 }
+
+export type OnBeginHandler = (
+  payload: Payload
+) => Promise<string | null> | (string | void);
+
 export interface WebAuthnLoginText {
   title: string;
   subtitle: string;
@@ -58,7 +63,7 @@ export interface Config {
   CaptchaRequired?: boolean;
   Styles?: Styles;
   OnError?: (error: any) => void;
-  OnBegin?: (payload: Payload) => Promise<boolean> | boolean;
+  OnBegin?: OnBeginHandler;
   CotterUserID?: String;
   AuthRequestText?: Object;
   AuthenticationMethod?: String;
