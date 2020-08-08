@@ -4,7 +4,7 @@ import TokenHandler from "./handler/TokenHandler";
 import User from "./models/User";
 import WebAuthn from "./WebAuthn";
 import UserHandler from "./handler/UserHandler";
-import { Config, Payload, OnBeginHandler } from "./binder";
+import { Config, OnBeginHandler } from "./binder";
 
 const tokenHandler = new TokenHandler();
 export default class Cotter extends CotterVerify {

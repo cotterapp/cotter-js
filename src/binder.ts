@@ -20,7 +20,7 @@ export interface WebAuthnRegistrationText {
 }
 
 export type OnBeginHandler = (
-  payload: Payload
+  payload: OnBeginPayload
 ) => Promise<string | null> | (string | void);
 
 export interface WebAuthnLoginText {
@@ -83,20 +83,12 @@ export interface Config {
   TermsOfServiceLink?: String;
   PrivacyPolicyLink?: String;
 }
-export interface Payload {
-  challenge: string;
-  challenge_id: number;
-  client_json: any;
-  code: string;
-  device_name: string;
-  device_type: string;
-  identifier: string;
-  identifier_type: string;
-  origin: string;
-  public_key: string;
-  redirect_url: string;
-  signature: string;
-  timestamp: string;
+export interface OnBeginPayload {
+  auth_required: boolean;
+  device_name: string; // User Agent
+  device_type: "BROWSER";
+  identifier: string; // User's email/phone
+  identifier_type: "EMAIL" | "PHONE";
 }
 export interface VerifySuccess {
   email?: String;

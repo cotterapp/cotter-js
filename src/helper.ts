@@ -1,4 +1,4 @@
-import { Config, VerifySuccess, Payload } from "./binder";
+import { Config, VerifySuccess } from "./binder";
 import WebAuthn from "./WebAuthn";
 
 function dec2hex(dec: any) {

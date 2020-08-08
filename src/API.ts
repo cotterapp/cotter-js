@@ -9,7 +9,6 @@ import {
   serverToRequestOptions,
 } from "./models/Options";
 import { base64urlencode } from "./helper";
-import { Payload } from "./binder";
 
 class API {
   apiKeyID: string;
