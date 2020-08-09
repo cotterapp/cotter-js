@@ -76,7 +76,9 @@ class API {
       };
       const path = "/webauthn/exists";
       var resp = await axios.get(
-        `${CotterEnum.BackendURL}${path}?identifier=${identifier}`,
+        `${CotterEnum.BackendURL}${path}?identifier=${encodeURIComponent(
+          identifier
+        )}`,
         config
       );
       console.log("resp data exists", resp.data);
@@ -116,7 +118,9 @@ class API {
       };
       const path = "/webauthn/register/begin";
       var resp = await axios.post(
-        `${CotterEnum.BackendURL}${path}?identifier=${identifier}`,
+        `${CotterEnum.BackendURL}${path}?identifier=${encodeURIComponent(
+          identifier
+        )}`,
         data,
         config
       );
@@ -154,7 +158,9 @@ class API {
       };
       var path = "/webauthn/register/finish";
       var resp = await axios.post(
-        `${CotterEnum.BackendURL}${path}?identifier=${identifier}`,
+        `${CotterEnum.BackendURL}${path}?identifier=${encodeURIComponent(
+          identifier
+        )}`,
         data,
         config
       );
@@ -187,7 +193,9 @@ class API {
       };
       const path = "/webauthn/login/begin";
       var resp = await axios.post(
-        `${CotterEnum.BackendURL}${path}?identifier=${identifier}`,
+        `${CotterEnum.BackendURL}${path}?identifier=${encodeURIComponent(
+          identifier
+        )}`,
         data,
         config
       );
@@ -231,7 +239,9 @@ class API {
       };
       var path = "/webauthn/login/finish";
       var resp = await axios.post(
-        `${CotterEnum.BackendURL}${path}?identifier=${identifier}`,
+        `${CotterEnum.BackendURL}${path}?identifier=${encodeURIComponent(
+          identifier
+        )}`,
         data,
         config
       );
