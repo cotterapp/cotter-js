@@ -6,6 +6,8 @@ export interface OAuthToken {
   id_token: string;
   token_type: string;
   refresh_token: string;
+  expires_in: number;
+  auth_method: string;
 }
 
 class TokenHandler {

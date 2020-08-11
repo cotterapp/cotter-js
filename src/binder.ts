@@ -1,3 +1,5 @@
+import { OAuthToken } from "./handler/TokenHandler";
+import User from "./models/User";
 export interface VerifyRespondResponse {
   authorization_code: string;
   challenge_id: string;
@@ -16,6 +18,11 @@ export interface WebAuthnRegistrationText {
   buttonSkip: string;
   theme: string;
 }
+
+export type OnBeginHandler = (
+  payload: OnBeginPayload
+) => Promise<string | null> | (string | void);
+
 export interface WebAuthnLoginText {
   title: string;
   subtitle: string;
@@ -29,7 +36,7 @@ export interface Config {
   ApiKeyID: string;
   Type: string;
   ContainerID?: string;
-  OnSuccess?: Function;
+  OnSuccess?: (payload: VerifySuccess) => void;
   IdentifierField?: string;
   CotterBaseURL?: string;
   CountryCode?: string[];
@@ -54,9 +61,9 @@ export interface Config {
   RedirectURL?: string;
   SkipRedirectURL?: boolean;
   CaptchaRequired?: boolean;
-  Styles?: Object;
-  OnError?: Function;
-  OnBegin?: Function;
+  Styles?: Styles;
+  OnError?: (error: any) => void;
+  OnBegin?: OnBeginHandler;
   CotterUserID?: String;
   AuthRequestText?: Object;
   AuthenticationMethod?: String;
@@ -75,4 +82,39 @@ export interface Config {
   AuthenticationMethodName?: string;
   TermsOfServiceLink?: String;
   PrivacyPolicyLink?: String;
+}
+export interface OnBeginPayload {
+  auth_required: boolean;
+  device_name: string; // User Agent
+  device_type: "BROWSER";
+  identifier: string; // User's email/phone
+  identifier_type: "EMAIL" | "PHONE";
+}
+export interface VerifySuccess {
+  email?: String;
+  phone?: String;
+  oauth_token: OAuthToken;
+  user: User;
+  identifier?: String; // only from WebAuthn same as email/phone
+  status?: String; // only from WebAuthn = SUCCESS or CANCELED
+}
+
+export interface Styles {
+  form_container: any;
+  loadingImg: any;
+  input_label: any;
+  verification_label: any;
+  pin_row: any;
+  pin_input: any;
+  verification_subtitle: any;
+  error: any;
+  input_row_container: any;
+  input_row: any;
+  input_text_container_default: any;
+  input_text: any;
+  input_text_container: any;
+  country_code: any;
+  country_code_blank: any;
+  input_text_p: any;
+  check_input: any;
 }

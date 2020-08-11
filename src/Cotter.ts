@@ -4,21 +4,23 @@ import TokenHandler from "./handler/TokenHandler";
 import User from "./models/User";
 import WebAuthn from "./WebAuthn";
 import UserHandler from "./handler/UserHandler";
+import { Config, OnBeginHandler } from "./binder";
 
 const tokenHandler = new TokenHandler();
 export default class Cotter extends CotterVerify {
-  signInWithLink: Function;
-  signInWithOTP: Function;
-  signInWithWebAuthnOrLink: Function;
-  signInWithWebAuthnOrOTP: Function;
+  signInWithLink: (onBegin: OnBeginHandler) => MagicLink;
+  signInWithOTP: (onBegin: OnBeginHandler) => CotterVerify;
+  signInWithWebAuthnOrLink: (onBegin: OnBeginHandler) => MagicLink;
+  signInWithWebAuthnOrOTP: (onBegin: OnBeginHandler) => CotterVerify;
   tokenHandler: TokenHandler;
 
   // constructor can be either string or object therefore the type is any
-  constructor(config: any) {
+  constructor(config: Config | string) {
     // in this case config will definitely be the API KEY ID
     if (typeof config === typeof "") {
-      config = { ApiKeyID: config };
+      config = { ApiKeyID: config as string, Type: "" };
     }
+    config = config as Config;
 
     super(config, tokenHandler.withApiKeyID(config.ApiKeyID));
 
@@ -34,14 +36,14 @@ export default class Cotter extends CotterVerify {
   }
 
   // constructMagicLink constructs the magic link object with optional onBegin
-  constructMagicLink(onBegin: Function) {
+  constructMagicLink(onBegin: OnBeginHandler) {
     if (onBegin) this.config.OnBegin = onBegin;
     this.config.AuthenticationMethod = "MAGIC_LINK";
     this.config.AuthenticationMethodName = "Magic Link";
     return new MagicLink(this.config, this.tokenHander);
   }
 
-  constructOTPVerify(onBegin: Function) {
+  constructOTPVerify(onBegin: OnBeginHandler) {
     if (onBegin) this.config.OnBegin = onBegin;
     this.config.AuthenticationMethod = "OTP";
     this.config.AuthenticationMethodName = "Verification Code";
@@ -52,7 +54,7 @@ export default class Cotter extends CotterVerify {
     return await WebAuthn.available();
   }
   // constructMagicLinkWithWebAuthn constructs the magic link to run attempt login with webauthn
-  constructMagicLinkWithWebAuthn(onBegin: Function) {
+  constructMagicLinkWithWebAuthn(onBegin: OnBeginHandler) {
     if (onBegin) this.config.OnBegin = onBegin;
     this.config.WebAuthnEnabled = true;
     this.config.AuthenticationMethod = "MAGIC_LINK";
@@ -61,7 +63,7 @@ export default class Cotter extends CotterVerify {
     return new MagicLink(this.config, this.tokenHander);
   }
   // constructOTPVerifyWithWebAuthn constructs the otp to run attempt login with webauthn
-  constructOTPVerifyWithWebAuthn(onBegin: Function) {
+  constructOTPVerifyWithWebAuthn(onBegin: OnBeginHandler) {
     if (onBegin) this.config.OnBegin = onBegin;
     this.config.WebAuthnEnabled = true;
     this.config.AuthenticationMethod = "OTP";
