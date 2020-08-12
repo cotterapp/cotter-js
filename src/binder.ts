@@ -7,6 +7,11 @@ export interface VerifyRespondResponse {
   client_json: any;
 }
 
+export interface RefreshTokenRequest {
+  grant_type: string;
+  refresh_token?: string;
+}
+
 export interface ResponseData extends Response {
   data?: any;
 }

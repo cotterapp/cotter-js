@@ -1,6 +1,8 @@
 import { CotterAccessToken, CotterIDToken } from "cotter-token-js";
 import API from "../API";
 
+const REFRESH_TOKEN_NAME = "rft";
+
 export interface OAuthToken {
   access_token: string;
   id_token: string;
@@ -22,13 +24,18 @@ class TokenHandler {
   }
 
   storeTokens(oauthTokens: OAuthToken) {
-    console.log("Storing Tokens");
     if (oauthTokens === null || oauthTokens === undefined) {
       throw new Error("oauthTokens are not specified (null or undefined)");
     }
     this.accessToken = oauthTokens.access_token;
     this.idToken = oauthTokens.id_token;
     this.tokenType = oauthTokens.token_type;
+    if (window && window.localStorage) {
+      window.localStorage.setItem(
+        REFRESH_TOKEN_NAME,
+        oauthTokens.refresh_token
+      );
+    }
   }
 
   async getAccessToken(): Promise<CotterAccessToken | null> {
@@ -85,13 +92,16 @@ class TokenHandler {
 
   // Returns access token
   async getTokensFromRefreshToken(): Promise<OAuthToken> {
-    console.log("Refreshing token");
+    let refreshToken = null;
+    if (window && window.localStorage) {
+      refreshToken = window.localStorage.getItem(REFRESH_TOKEN_NAME);
+    }
     try {
       if (!this.apiKeyID) {
         throw "ApiKeyID is undefined, please initialize Cotter with ApiKeyID";
       }
       var api = new API(this.apiKeyID);
-      var resp = await api.getTokensFromRefreshToken();
+      var resp = await api.getTokensFromRefreshToken(refreshToken);
       this.storeTokens(resp);
       return resp;
     } catch (err) {

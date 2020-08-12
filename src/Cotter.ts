@@ -59,7 +59,6 @@ export default class Cotter extends CotterVerify {
     this.config.WebAuthnEnabled = true;
     this.config.AuthenticationMethod = "MAGIC_LINK";
     this.config.AuthenticationMethodName = "Magic Link";
-    console.log("CONSTRU", this.tokenHander);
     return new MagicLink(this.config, this.tokenHander);
   }
   // constructOTPVerifyWithWebAuthn constructs the otp to run attempt login with webauthn

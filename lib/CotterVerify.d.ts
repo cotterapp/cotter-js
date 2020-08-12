@@ -1,4 +1,4 @@
-import { Config, VerifyRespondResponse } from "./binder";
+import { Config, VerifyRespondResponse, VerifySuccess } from "./binder";
 import TokenHandler from "./handler/TokenHandler";
 declare class CotterVerify {
     config: Config;
@@ -15,11 +15,11 @@ declare class CotterVerify {
     LoginWebAuthn?: boolean;
     ContinueSubmitData?: any;
     constructor(config: Config, tokenHandler?: TokenHandler);
-    showEmailForm(): Promise<unknown>;
-    showPhoneForm(): Promise<unknown>;
-    showForm(): Promise<unknown>;
+    showEmailForm(): Promise<VerifySuccess>;
+    showPhoneForm(): Promise<VerifySuccess>;
+    showForm(): Promise<VerifySuccess>;
     removeForm(): void;
-    onSuccess(data: object | string): void;
+    onSuccess(data: VerifySuccess | string): void;
     onError(error: object | string): void;
     submitAuthorizationCode(payload: VerifyRespondResponse): Promise<void>;
     StopSubmissionWithError(err: string, iframeID: string): void;

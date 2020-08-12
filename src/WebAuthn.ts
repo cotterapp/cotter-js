@@ -193,7 +193,6 @@ class WebAuthn {
         return;
       }
       let cID = this.containerID;
-      console.log(cID, data);
       switch (data.callbackName) {
         case cID + "FIRST_LOAD":
           var postData = {
@@ -416,7 +415,6 @@ class WebAuthn {
         publicKey
       );
 
-      console.log("User store", resp);
       if (resp && resp.user) {
         UserHandler.store(resp.user);
       }

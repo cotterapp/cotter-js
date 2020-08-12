@@ -37,7 +37,6 @@ class CotterVerify {
   ContinueSubmitData?: any;
 
   constructor(config: Config, tokenHandler?: TokenHandler) {
-    console.log("Using origin: ", new URL(window.location.href).origin);
     this.config = config;
     if (this.config.CotterBaseURL) CotterEnum.JSURL = this.config.CotterBaseURL;
 
@@ -241,7 +240,6 @@ class CotterVerify {
     };
     CotterVerify.sendPost(postData, this.cotterIframeID);
     this.verifySuccess = data;
-    console.log("verifySuccess", data);
     if (this.config.OnSuccess) this.config.OnSuccess(data as VerifySuccess);
   }
 
@@ -252,7 +250,6 @@ class CotterVerify {
     };
     CotterVerify.sendPost(postData, this.cotterIframeID);
     this.verifyError = error;
-    console.log("verifyError", error);
     if (this.config.OnError) this.config.OnError(error);
   }
 
@@ -274,7 +271,6 @@ class CotterVerify {
     if (state !== this.state) {
       if (this.config.OnError) {
         var err = "State is not the same as the original request.";
-        console.log(err);
         this.config.OnError(err);
       }
     }
@@ -319,7 +315,6 @@ class CotterVerify {
         // Store Identifier in the object for WebAuthn reference
         self.Identifier = resp.identifier.identifier;
         UserHandler.store(resp.user);
-        console.log("SHOULD STORE TOKEN", self.tokenHander);
         if (self.tokenHander) {
           self.tokenHander.storeTokens(resp.oauth_token);
         }
@@ -445,7 +440,6 @@ class CotterVerify {
               }
             })
             .catch((err) => {
-              console.log(err);
               this.onError(err);
             });
         } else {
@@ -456,7 +450,6 @@ class CotterVerify {
         }
         return;
       } catch (err) {
-        console.log(err);
         this.onError(err);
         return;
       }

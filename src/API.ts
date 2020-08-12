@@ -1,14 +1,13 @@
 import CotterEnum from "./enum";
 import axios from "axios";
 import { OAuthToken } from "./handler/TokenHandler";
-import Cotter from ".";
+import { RefreshTokenRequest } from "./binder";
 import {
   serverToCreationOptions,
   CredentialToServerCredentialCreation,
   CredentialToServerCredentialRequest,
   serverToRequestOptions,
 } from "./models/Options";
-import { base64urlencode } from "./helper";
 
 class API {
   apiKeyID: string;
@@ -19,7 +18,9 @@ class API {
 
   // refreshToken should now be stored in httpOnly cookies
   // and no longer needed to be passed in.
-  async getTokensFromRefreshToken(): Promise<OAuthToken> {
+  async getTokensFromRefreshToken(
+    refreshToken: string | null
+  ): Promise<OAuthToken> {
     try {
       var config = {
         headers: {
@@ -29,9 +30,12 @@ class API {
         withCredentials: true,
       };
       const path = `/token/${this.apiKeyID}`;
-      const req = {
+      let req: RefreshTokenRequest = {
         grant_type: "refresh_token",
       };
+      if (refreshToken) {
+        req.refresh_token = refreshToken;
+      }
       var resp = await axios.post(
         `${CotterEnum.BackendURL}${path}`,
         req,
@@ -81,7 +85,7 @@ class API {
         )}`,
         config
       );
-      console.log("resp data exists", resp.data);
+
       if (
         resp.data &&
         resp.data.exists !== null &&
@@ -125,7 +129,6 @@ class API {
         config
       );
       if (resp.data && resp.data.publicKey) {
-        console.log(resp.data);
         return serverToCreationOptions(resp.data.publicKey);
       }
       throw resp;
@@ -166,7 +169,6 @@ class API {
       );
       return resp.data;
     } catch (err) {
-      console.log(err);
       if (err.response) {
         throw err.response.data;
       }
@@ -200,7 +202,6 @@ class API {
         config
       );
       if (resp.data && resp.data.publicKey) {
-        console.log(resp.data);
         return serverToRequestOptions(resp.data.publicKey);
       }
       throw resp;
@@ -247,7 +248,6 @@ class API {
       );
       return resp.data;
     } catch (err) {
-      console.log(err);
       if (err.response) {
         throw err.response.data;
       }
