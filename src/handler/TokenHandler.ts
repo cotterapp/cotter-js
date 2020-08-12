@@ -114,6 +114,9 @@ class TokenHandler {
     this.accessToken = undefined;
     this.idToken = undefined;
     this.tokenType = undefined;
+    if (window && window.localStorage) {
+      window.localStorage.removeItem(REFRESH_TOKEN_NAME);
+    }
     try {
       if (!this.apiKeyID) {
         throw "ApiKeyID is undefined, please initialize Cotter with ApiKeyID";
