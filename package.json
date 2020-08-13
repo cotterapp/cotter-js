@@ -7,10 +7,8 @@
   "scripts": {
     "prepublish": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build:umd": "cross-env FILE_NAME=cotter-js webpack",
-    "build:umd:min": "cross-env NODE_ENV=production npm run build:umd",
-    "clean": "rimraf lib dist",
-    "build": "npm run clean && tsc && npm run build:umd && npm run build:umd:min"
+    "clean": "rimraf _bundles lib lib-esm",
+    "build": "npm run clean && tsc && tsc -m es6 --outDir lib-esm && webpack"
   },
   "repository": {
     "type": "git",
@@ -29,8 +27,8 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "cross-env": "^7.0.2",
     "rimraf": "^3.0.2",
+    "ts-loader": "^8.0.2",
     "typescript": "^3.8.3",
     "webpack": "^4.44.1",
     "webpack-cli": "^3.3.12"

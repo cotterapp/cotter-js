@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -35,12 +34,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-var enum_1 = require("./enum");
-var helper_1 = require("./helper");
-var UserHandler_1 = require("./handler/UserHandler");
-var WebAuthn_1 = require("./WebAuthn");
-var API_1 = require("./API");
+import CotterEnum from "./enum";
+import { challengeFromVerifier, generateVerifier, verificationProccessPromise, isIFrame, } from "./helper";
+import UserHandler from "./handler/UserHandler";
+import WebAuthn from "./WebAuthn";
+import API from "./API";
 // default container id
 var cotter_DefaultContainerID = "cotter-form-container";
 var CotterVerify = /** @class */ (function () {
@@ -48,13 +46,13 @@ var CotterVerify = /** @class */ (function () {
         var _this = this;
         this.config = config;
         if (this.config.CotterBaseURL)
-            enum_1.default.JSURL = this.config.CotterBaseURL;
+            CotterEnum.JSURL = this.config.CotterBaseURL;
         if (!this.config.AdditionalFields) {
             this.config.AdditionalFields = [];
         }
         this.config.Domain = new URL(window.location.href).origin;
         if (!this.config.CotterBackendURL) {
-            this.config.CotterBackendURL = enum_1.default.BackendURL;
+            this.config.CotterBackendURL = CotterEnum.BackendURL;
         }
         // storing access token
         this.tokenHander = tokenHandler;
@@ -64,7 +62,7 @@ var CotterVerify = /** @class */ (function () {
             localStorage.setItem("COTTER_STATE", this.state);
         }
         // SUPPORT PKCE
-        this.verifier = helper_1.generateVerifier();
+        this.verifier = generateVerifier();
         this.loaded = false;
         this.cotterIframeID =
             Math.random().toString(36).substring(2, 15) + "cotter-signup-iframe";
@@ -90,7 +88,7 @@ var CotterVerify = /** @class */ (function () {
             }
             // there are some additional messages that shouldn't be handled by this
             // listener, such as messages from https://js.stripe.com/
-            if (e.origin !== enum_1.default.JSURL) {
+            if (e.origin !== CotterEnum.JSURL) {
                 // skip this message
                 return;
             }
@@ -213,15 +211,15 @@ var CotterVerify = /** @class */ (function () {
             ifrm.style.minHeight = "520px";
         }
         ifrm.style.overflow = "scroll";
-        helper_1.challengeFromVerifier(this.verifier).then(function (challenge) {
-            var path = enum_1.default.JSURL + "/signup?challenge=" + challenge + "&type=" + _this.config.Type + "&domain=" + _this.config.Domain + "&api_key=" + _this.config.ApiKeyID + "&redirect_url=" + _this.config.RedirectURL + "&state=" + _this.state + "&id=" + _this.cID;
+        challengeFromVerifier(this.verifier).then(function (challenge) {
+            var path = CotterEnum.JSURL + "/signup?challenge=" + challenge + "&type=" + _this.config.Type + "&domain=" + _this.config.Domain + "&api_key=" + _this.config.ApiKeyID + "&redirect_url=" + _this.config.RedirectURL + "&state=" + _this.state + "&id=" + _this.cID;
             if (_this.config.CotterUserID) {
                 path = path + "&cotter_user_id=" + _this.config.CotterUserID;
             }
             ifrm.setAttribute("src", encodeURI(path));
         });
         ifrm.setAttribute("allowtransparency", "true");
-        return helper_1.verificationProccessPromise(this);
+        return verificationProccessPromise(this);
     };
     CotterVerify.prototype.removeForm = function () {
         var ifrm = document.getElementById(this.cotterIframeID);
@@ -275,7 +273,7 @@ var CotterVerify = /** @class */ (function () {
                         : this.config.RedirectURL,
                 };
                 self = this;
-                fetch(enum_1.default.BackendURL + "/verify/get_identity?oauth_token=true", {
+                fetch(CotterEnum.BackendURL + "/verify/get_identity?oauth_token=true", {
                     method: "POST",
                     headers: {
                         API_KEY_ID: "" + self.config.ApiKeyID,
@@ -305,7 +303,7 @@ var CotterVerify = /** @class */ (function () {
                                     data.user = resp.user;
                                     // Store Identifier in the object for WebAuthn reference
                                     self.Identifier = resp.identifier.identifier;
-                                    UserHandler_1.default.store(resp.user);
+                                    UserHandler.store(resp.user);
                                     if (self.tokenHander) {
                                         self.tokenHander.storeTokens(resp.oauth_token);
                                     }
@@ -387,7 +385,7 @@ var CotterVerify = /** @class */ (function () {
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, WebAuthn_1.default.available()];
+                    case 0: return [4 /*yield*/, WebAuthn.available()];
                     case 1:
                         available = _a.sent();
                         if (this.config.WebAuthnEnabled && !available) {
@@ -397,7 +395,7 @@ var CotterVerify = /** @class */ (function () {
                         _a.label = 2;
                     case 2:
                         _a.trys.push([2, 4, , 5]);
-                        api = new API_1.default(this.config.ApiKeyID);
+                        api = new API(this.config.ApiKeyID);
                         return [4 /*yield*/, api.checkCredentialExist(payload.identifier)];
                     case 3:
                         exists = _a.sent();
@@ -416,7 +414,7 @@ var CotterVerify = /** @class */ (function () {
                             // OTP/MagicLink. Instead, we prompt for WebAuthn
                             this.LoginWebAuthn = true;
                             this.ContinueSubmitData = payload; // For use if WebAuthn failed
-                            web = new WebAuthn_1.default({
+                            web = new WebAuthn({
                                 ApiKeyID: this.config.ApiKeyID,
                                 Identifier: payload.identifier,
                                 IdentifierField: this.config.IdentifierField,
@@ -427,11 +425,11 @@ var CotterVerify = /** @class */ (function () {
                             web
                                 .show()
                                 .then(function (resp) {
-                                if (resp.status === WebAuthn_1.default.CANCELED) {
+                                if (resp.status === WebAuthn.CANCELED) {
                                     CotterVerify.ContinueSubmit(payload, iframeID);
                                     return;
                                 }
-                                if (resp.status === WebAuthn_1.default.SUCCESS) {
+                                if (resp.status === WebAuthn.SUCCESS) {
                                     _this.onSuccess(resp);
                                     return;
                                 }
@@ -470,11 +468,11 @@ var CotterVerify = /** @class */ (function () {
     };
     CotterVerify.sendPost = function (data, iframeID) {
         var ifrm = document.getElementById(iframeID);
-        if (helper_1.isIFrame(ifrm) && ifrm.contentWindow) {
-            ifrm.contentWindow.postMessage(JSON.stringify(data), enum_1.default.JSURL);
+        if (isIFrame(ifrm) && ifrm.contentWindow) {
+            ifrm.contentWindow.postMessage(JSON.stringify(data), CotterEnum.JSURL);
         }
     };
     return CotterVerify;
 }());
-exports.default = CotterVerify;
+export default CotterVerify;
 //# sourceMappingURL=CotterVerify.js.map

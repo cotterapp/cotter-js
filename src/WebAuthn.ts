@@ -45,7 +45,7 @@ class WebAuthn {
   // - ApiKeyID
   // - Identifier
   constructor(config: Config, tokenHandler?: TokenHandler) {
-    this.config = config || {};
+    this.config = config;
 
     // These are not directly called by client, so client can't set customization in code
     this.config.RegistrationText = defaultWebAuthnRegistrationText;

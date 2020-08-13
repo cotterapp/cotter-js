@@ -1,13 +1,15 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "moduleResolution": "node",
     "module": "commonjs",
-    "declaration": true,
-    "outDir": "./lib",
+    "target": "es5",
     "lib": ["es2015", "dom"],
-    "strict": true,
-    "esModuleInterop": true,
+    "outDir": "./lib",
+    "allowSyntheticDefaultImports": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "forceConsistentCasingInFileNames": true,
     "sourceMap": true,
+    "declaration": true,
     "allowJs": true
   },
   "include": ["src"],
