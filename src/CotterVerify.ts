@@ -164,22 +164,16 @@ class CotterVerify {
           // OnBegin method should return the error message
           // if there is no error, return null
           if (!!this.config.OnBegin) {
-            // if OnBegin is async
-            if (
-              this.config.OnBegin.constructor.name === "AsyncFunction" ||
-              this.config.OnBegin.toString().includes("async")
-            ) {
-              (this.config.OnBegin(data.payload) as Promise<
-                string | null
-              >).then((err: string | null) => {
+            let ret = this.config.OnBegin(data.payload);
+            Promise.resolve(ret || null)
+              .then((err: string | null) => {
                 if (!err) this.continue(data.payload, this.cotterIframeID);
                 else this.StopSubmissionWithError(err, this.cotterIframeID);
+              })
+              .catch((e) => {
+                console.log("The OnBegin function throws an error: ", e);
+                throw "The OnBegin function throws an error: " + e;
               });
-            } else {
-              let err = this.config.OnBegin(data.payload) as string | null;
-              if (!err) this.continue(data.payload, this.cotterIframeID);
-              else this.StopSubmissionWithError(err, this.cotterIframeID);
-            }
           } else {
             this.continue(data.payload, this.cotterIframeID);
           }
