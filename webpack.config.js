@@ -2,7 +2,7 @@ var path = require("path");
 var webpack = require("webpack");
 
 var PATHS = {
-  entryPoint: path.resolve(__dirname, "src/index.ts"),
+  entryPoint: path.resolve(__dirname, "src/indexmin.ts"),
   dist: path.resolve(__dirname, "dist"),
 };
 
@@ -23,6 +23,7 @@ var config = {
     path: PATHS.dist,
     filename: "[name].js",
     libraryTarget: "umd",
+    library: "Cotter",
     umdNamedDefine: true,
   },
   // Add resolve for `tsx` and `ts` files, otherwise Webpack would
