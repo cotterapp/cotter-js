@@ -10,3 +10,4 @@ dist
 # Dependency directory
 node_modules
 /lib
+/lib-esm

@@ -3,7 +3,7 @@ var webpack = require("webpack");
 
 var PATHS = {
   entryPoint: path.resolve(__dirname, "src/index.ts"),
-  bundles: path.resolve(__dirname, "_bundles"),
+  dist: path.resolve(__dirname, "dist"),
 };
 
 var config = {
@@ -20,7 +20,7 @@ var config = {
   // We target a UMD and name it MyLib. When including the bundle in the browser
   // it will be accessible at `window.MyLib`
   output: {
-    path: PATHS.bundles,
+    path: PATHS.dist,
     filename: "[name].js",
     libraryTarget: "umd",
     library: "Cotter",
