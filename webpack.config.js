@@ -23,7 +23,6 @@ var config = {
     path: PATHS.dist,
     filename: "[name].js",
     libraryTarget: "umd",
-    library: "Cotter",
     umdNamedDefine: true,
   },
   // Add resolve for `tsx` and `ts` files, otherwise Webpack would
