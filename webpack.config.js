@@ -2,7 +2,7 @@ var path = require("path");
 var webpack = require("webpack");
 
 var PATHS = {
-  entryPoint: path.resolve(__dirname, "src/indexmin.ts"),
+  entryPoint: path.resolve(__dirname, "src/indexumd.ts"),
   dist: path.resolve(__dirname, "dist"),
 };
 
