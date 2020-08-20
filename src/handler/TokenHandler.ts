@@ -105,25 +105,25 @@ class TokenHandler {
   async getTokensFromRefreshToken(): Promise<OAuthToken> {
     return new Promise<OAuthToken>((resolve, reject) => {
       const checkTokenFetchProcess = () => {
-        if (this.tokenFetchingState === TOKEN_FETCHING_STATES.initial) {
-          this.getTokensFromRefreshTokenAPI();
-        } else if (
-          this.tokenFetchingState === TOKEN_FETCHING_STATES.ready &&
-          this.fetchTokenResp
-        ) {
-          resolve(this.fetchTokenResp);
-          return;
-        } else if (
-          this.tokenFetchingState === TOKEN_FETCHING_STATES.errorRetry
-        ) {
-          this.tokenFetchingState = TOKEN_FETCHING_STATES.initial;
-          reject();
-          return;
-        } else if (
-          this.tokenFetchingState === TOKEN_FETCHING_STATES.errorFatal
-        ) {
-          reject();
-          return;
+        switch (this.tokenFetchingState) {
+          case TOKEN_FETCHING_STATES.initial:
+            this.getTokensFromRefreshTokenAPI();
+            break;
+          case TOKEN_FETCHING_STATES.ready:
+            if (this.fetchTokenResp) {
+              resolve(this.fetchTokenResp);
+              return;
+            }
+            break;
+          case TOKEN_FETCHING_STATES.errorRetry:
+            this.tokenFetchingState = TOKEN_FETCHING_STATES.initial;
+            reject();
+            return;
+          case TOKEN_FETCHING_STATES.errorFatal:
+            reject();
+            return;
+          default:
+            break;
         }
         setTimeout(checkTokenFetchProcess, 0);
       };
