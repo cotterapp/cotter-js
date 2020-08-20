@@ -412,14 +412,17 @@ class CotterVerify {
           this.LoginWebAuthn = true;
           this.ContinueSubmitData = payload; // For use if WebAuthn failed
           // Start WebAuthn Login
-          let web = new WebAuthn({
-            ApiKeyID: this.config.ApiKeyID,
-            Identifier: payload.identifier,
-            IdentifierField: this.config.IdentifierField,
-            IdentifierType: this.config.Type,
-            AlternativeMethod: this.config.AuthenticationMethodName,
-            Type: "LOGIN",
-          });
+          let web = new WebAuthn(
+            {
+              ApiKeyID: this.config.ApiKeyID,
+              Identifier: payload.identifier,
+              IdentifierField: this.config.IdentifierField,
+              IdentifierType: this.config.Type,
+              AlternativeMethod: this.config.AuthenticationMethodName,
+              Type: "LOGIN",
+            },
+            this.tokenHander
+          );
 
           web
             .show()

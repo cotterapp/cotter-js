@@ -3,6 +3,14 @@ import API from "../API";
 
 const REFRESH_TOKEN_NAME = "rft";
 
+const TOKEN_FETCHING_STATES = {
+  initial: 1,
+  fetching: 2,
+  errorRetry: 3,
+  errorFatal: 4,
+  ready: 5,
+};
+
 export interface OAuthToken {
   access_token: string;
   id_token: string;
@@ -17,6 +25,8 @@ class TokenHandler {
   idToken: string | undefined;
   tokenType: string | undefined;
   apiKeyID: string | undefined;
+  tokenFetchingState: number = TOKEN_FETCHING_STATES.initial;
+  fetchTokenResp?: OAuthToken | null;
 
   withApiKeyID(apiKeyID: string) {
     this.apiKeyID = apiKeyID;
@@ -36,6 +46,7 @@ class TokenHandler {
         oauthTokens.refresh_token
       );
     }
+    this.tokenFetchingState = TOKEN_FETCHING_STATES.initial;
   }
 
   async getAccessToken(): Promise<CotterAccessToken | null> {
@@ -54,11 +65,11 @@ class TokenHandler {
     ) {
       try {
         var resp = await this.getTokensFromRefreshToken();
+        accessToken = resp.access_token;
       } catch (err) {
         // No refresh token in cookie or some other error
         return null;
       }
-      accessToken = resp.access_token;
     }
     this.accessToken = accessToken;
     return new CotterAccessToken(accessToken);
@@ -80,18 +91,50 @@ class TokenHandler {
     ) {
       try {
         var resp = await this.getTokensFromRefreshToken();
+        idToken = resp.id_token;
       } catch (err) {
         // No refresh token in cookie or some other error
         return null;
       }
-      idToken = resp.id_token;
     }
     this.idToken = idToken;
     return new CotterIDToken(idToken);
   }
 
-  // Returns access token
+  // Refresh tokens only when needed.
   async getTokensFromRefreshToken(): Promise<OAuthToken> {
+    return new Promise<OAuthToken>((resolve, reject) => {
+      const checkTokenFetchProcess = () => {
+        switch (this.tokenFetchingState) {
+          case TOKEN_FETCHING_STATES.initial:
+            this.getTokensFromRefreshTokenAPI();
+            break;
+          case TOKEN_FETCHING_STATES.ready:
+            if (this.fetchTokenResp) {
+              resolve(this.fetchTokenResp);
+              return;
+            }
+            break;
+          case TOKEN_FETCHING_STATES.errorRetry:
+            this.tokenFetchingState = TOKEN_FETCHING_STATES.initial;
+            reject();
+            return;
+          case TOKEN_FETCHING_STATES.errorFatal:
+            reject();
+            return;
+          default:
+            break;
+        }
+        setTimeout(checkTokenFetchProcess, 0);
+      };
+      checkTokenFetchProcess();
+    });
+  }
+
+  // Returns access token
+  async getTokensFromRefreshTokenAPI(): Promise<void> {
+    this.tokenFetchingState = TOKEN_FETCHING_STATES.fetching;
+    this.fetchTokenResp = null;
     let refreshToken = null;
     if (window && window.localStorage) {
       refreshToken = window.localStorage.getItem(REFRESH_TOKEN_NAME);
@@ -103,9 +146,16 @@ class TokenHandler {
       var api = new API(this.apiKeyID);
       var resp = await api.getTokensFromRefreshToken(refreshToken);
       this.storeTokens(resp);
-      return resp;
+      this.tokenFetchingState = TOKEN_FETCHING_STATES.ready;
+      this.fetchTokenResp = resp;
+      return;
     } catch (err) {
-      throw err;
+      if (err.msg.includes("not valid")) {
+        this.tokenFetchingState = TOKEN_FETCHING_STATES.errorFatal;
+      } else {
+        this.tokenFetchingState = TOKEN_FETCHING_STATES.errorRetry;
+      }
+      return;
     }
   }
 

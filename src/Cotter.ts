@@ -76,21 +76,27 @@ export default class Cotter extends CotterVerify {
     this.config.RegisterWebAuthn = true;
     const available = await WebAuthn.available();
     if (!available) {
-      let web = new WebAuthn({
+      let web = new WebAuthn(
+        {
+          ApiKeyID: this.config.ApiKeyID,
+          Identifier: identifier,
+          Type: "REGISTRATION",
+          ErrorDisplay: "The browser or user device doesn't support WebAuthn.",
+          RegisterWebAuthn: true,
+        },
+        this.tokenHander
+      );
+      return await web.show();
+    }
+    let web = new WebAuthn(
+      {
         ApiKeyID: this.config.ApiKeyID,
         Identifier: identifier,
         Type: "REGISTRATION",
-        ErrorDisplay: "The browser or user device doesn't support WebAuthn.",
         RegisterWebAuthn: true,
-      });
-      return await web.show();
-    }
-    let web = new WebAuthn({
-      ApiKeyID: this.config.ApiKeyID,
-      Identifier: identifier,
-      Type: "REGISTRATION",
-      RegisterWebAuthn: true,
-    });
+      },
+      this.tokenHander
+    );
     return await web.show();
   }
 
