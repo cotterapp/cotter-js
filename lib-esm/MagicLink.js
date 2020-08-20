@@ -1,0 +1,82 @@
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+import CotterVerify from "./CotterVerify";
+import CotterEnum from "./enum";
+import { challengeFromVerifier, verificationProccessPromise } from "./helper";
+var checkPurple = function (url) { return url + "/assets/images/check-purple.png"; };
+var warningImage = function (url) { return url + "/assets/images/warning.png"; };
+var tapLinkImage = function (url) { return url + "/assets/images/tapEmail.png"; };
+var magicLinkAuthReqText = function (url) { return ({
+    title: "Approve this login from your {{type}}",
+    subtitle: "A magic link has been sent to {{identifier}}",
+    image: tapLinkImage(url),
+    titleError: "Something went wrong",
+    subtitleError: "We are unable to confirm it's you, please try again",
+    imageError: warningImage(url),
+    imageSuccess: checkPurple(url),
+    switchOTPText: "Authenticate with OTP instead",
+    default: true,
+}); };
+var MagicLink = /** @class */ (function (_super) {
+    __extends(MagicLink, _super);
+    function MagicLink(config, tokenHandler) {
+        var _this = this;
+        var defaultMagicLinkConfig = {
+            AuthenticationMethod: "MAGIC_LINK",
+        };
+        // set default magic link, then assign the new configs if any
+        _this = _super.call(this, Object.assign(__assign({}, defaultMagicLinkConfig), config), tokenHandler) || this;
+        return _this;
+    }
+    MagicLink.prototype.showForm = function () {
+        var _this = this;
+        // set the authentication request config
+        this.config.AuthRequestText = magicLinkAuthReqText(CotterEnum.AssetURL);
+        var containerID = this.config.ContainerID || CotterEnum.DefaultContainerID;
+        var container = document.getElementById(containerID);
+        var ifrm = document.createElement("iframe");
+        ifrm.setAttribute("id", this.cotterIframeID);
+        ifrm.style.border = "0";
+        container.appendChild(ifrm);
+        ifrm.style.width = "100%";
+        ifrm.style.height = "100%";
+        if (this.config.CaptchaRequired) {
+            ifrm.style.minHeight = "520px";
+        }
+        ifrm.style.overflow = "scroll";
+        challengeFromVerifier(this.verifier).then(function (challenge) {
+            var path = CotterEnum.JSURL + "/login?auth_method=MAGIC_LINK&code_challenge=" + challenge + "&type=" + _this.config.Type + "&domain=" + _this.config.Domain + "&api_key=" + _this.config.ApiKeyID + "&redirect_url=" + _this.config.RedirectURL + "&state=" + _this.state + "&id=" + _this.cID;
+            if (_this.config.CotterUserID) {
+                path = path + "&cotter_user_id=" + _this.config.CotterUserID;
+            }
+            ifrm.setAttribute("src", encodeURI(path));
+        });
+        ifrm.setAttribute("allowtransparency", "true");
+        return verificationProccessPromise(this);
+    };
+    return MagicLink;
+}(CotterVerify));
+export default MagicLink;
+//# sourceMappingURL=MagicLink.js.map

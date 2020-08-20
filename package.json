@@ -1,13 +1,14 @@
 {
   "name": "cotter",
-  "version": "0.3.13",
+  "version": "0.3.14",
   "description": "Cotter web SDK for JavaScript",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
     "prepublish": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
+    "clean": "rimraf dist lib lib-esm",
+    "build": "npm run clean && tsc && tsc -m es6 --outDir lib-esm && webpack"
   },
   "repository": {
     "type": "git",
@@ -26,10 +27,16 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "typescript": "^3.8.3"
+    "rimraf": "^3.0.2",
+    "ts-loader": "^8.0.2",
+    "typescript": "^3.8.3",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12"
   },
   "files": [
-    "lib/**/*"
+    "lib/**/*",
+    "lib-esm",
+    "dist"
   ],
   "dependencies": {
     "axios": "^0.19.2",

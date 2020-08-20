@@ -1,5 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 var CotterEnum = /** @class */ (function () {
     function CotterEnum() {
     }
@@ -11,5 +9,5 @@ var CotterEnum = /** @class */ (function () {
     CotterEnum.JSURL = "https://js.cotter.app";
     return CotterEnum;
 }());
-exports.default = CotterEnum;
+export default CotterEnum;
 //# sourceMappingURL=enum.js.map
