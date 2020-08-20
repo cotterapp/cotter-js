@@ -6,8 +6,9 @@ const REFRESH_TOKEN_NAME = "rft";
 const TOKEN_FETCHING_STATES = {
   initial: 1,
   fetching: 2,
-  error: 3,
-  ready: 4,
+  errorRetry: 3,
+  errorFatal: 4,
+  ready: 5,
 };
 
 export interface OAuthToken {
@@ -112,8 +113,15 @@ class TokenHandler {
         ) {
           resolve(this.fetchTokenResp);
           return;
-        } else if (this.tokenFetchingState === TOKEN_FETCHING_STATES.error) {
+        } else if (
+          this.tokenFetchingState === TOKEN_FETCHING_STATES.errorRetry
+        ) {
           this.tokenFetchingState = TOKEN_FETCHING_STATES.initial;
+          reject();
+          return;
+        } else if (
+          this.tokenFetchingState === TOKEN_FETCHING_STATES.errorFatal
+        ) {
           reject();
           return;
         }
@@ -142,7 +150,11 @@ class TokenHandler {
       this.fetchTokenResp = resp;
       return;
     } catch (err) {
-      this.tokenFetchingState = TOKEN_FETCHING_STATES.error;
+      if (err.msg.includes("not valid")) {
+        this.tokenFetchingState = TOKEN_FETCHING_STATES.errorFatal;
+      } else {
+        this.tokenFetchingState = TOKEN_FETCHING_STATES.errorRetry;
+      }
       return;
     }
   }
