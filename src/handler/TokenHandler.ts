@@ -124,7 +124,7 @@ class TokenHandler {
   }
 
   // Returns access token
-  async getTokensFromRefreshTokenAPI(): Promise<OAuthToken> {
+  async getTokensFromRefreshTokenAPI(): Promise<void> {
     this.tokenFetchingState = TOKEN_FETCHING_STATES.fetching;
     this.fetchTokenResp = null;
     let refreshToken = null;
@@ -140,10 +140,10 @@ class TokenHandler {
       this.storeTokens(resp);
       this.tokenFetchingState = TOKEN_FETCHING_STATES.ready;
       this.fetchTokenResp = resp;
-      return resp;
+      return;
     } catch (err) {
       this.tokenFetchingState = TOKEN_FETCHING_STATES.error;
-      throw err;
+      return;
     }
   }
 
