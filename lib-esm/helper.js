@@ -119,7 +119,7 @@ export var verificationProccessPromise = function (self) {
                         OriginalResponse: originalResp,
                         IdentifierType: self.config.Type,
                         Type: "REGISTRATION",
-                    });
+                    }, self.tokenHandler);
                     web
                         .show()
                         .then(function (resp) {

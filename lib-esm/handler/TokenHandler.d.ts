@@ -12,11 +12,14 @@ declare class TokenHandler {
     idToken: string | undefined;
     tokenType: string | undefined;
     apiKeyID: string | undefined;
+    tokenFetchingState: number;
+    fetchTokenResp?: OAuthToken | null;
     withApiKeyID(apiKeyID: string): this;
     storeTokens(oauthTokens: OAuthToken): void;
     getAccessToken(): Promise<CotterAccessToken | null>;
     getIDToken(): Promise<CotterIDToken | null>;
     getTokensFromRefreshToken(): Promise<OAuthToken>;
+    getTokensFromRefreshTokenAPI(): Promise<void>;
     removeTokens(): Promise<void>;
 }
 export default TokenHandler;

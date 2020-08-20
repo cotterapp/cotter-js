@@ -1,5 +1,6 @@
 import { Config, VerifySuccess } from "./binder";
 import WebAuthn from "./WebAuthn";
+import TokenHandler from "./handler/TokenHandler";
 
 function dec2hex(dec: any) {
   return ("0" + dec.toString(16)).substr(-2);
@@ -61,6 +62,7 @@ export const verificationProccessPromise = (self: {
   RegisterWebAuthn?: boolean;
   config: Config;
   Identifier?: string;
+  tokenHandler?: TokenHandler;
   onSuccess: (success: VerifySuccess) => void;
   onError: (error: any) => void;
 }) =>
@@ -76,14 +78,17 @@ export const verificationProccessPromise = (self: {
           // (always accompanied by forced email/phone verification)
           const originalResp = { ...self.verifySuccess };
           self.verifySuccess = undefined;
-          let web = new WebAuthn({
-            ApiKeyID: self.config.ApiKeyID,
-            Identifier: self.Identifier,
-            IdentifierField: self.config.IdentifierField,
-            OriginalResponse: originalResp,
-            IdentifierType: self.config.Type,
-            Type: "REGISTRATION",
-          });
+          let web = new WebAuthn(
+            {
+              ApiKeyID: self.config.ApiKeyID,
+              Identifier: self.Identifier,
+              IdentifierField: self.config.IdentifierField,
+              OriginalResponse: originalResp,
+              IdentifierType: self.config.Type,
+              Type: "REGISTRATION",
+            },
+            self.tokenHandler
+          );
           web
             .show()
             .then((resp: VerifySuccess) => {
