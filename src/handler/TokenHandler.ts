@@ -150,7 +150,7 @@ class TokenHandler {
       this.fetchTokenResp = resp;
       return;
     } catch (err) {
-      if (err.msg.includes("not valid")) {
+      if (err.msg?.includes("not valid")) {
         this.tokenFetchingState = TOKEN_FETCHING_STATES.errorFatal;
       } else {
         this.tokenFetchingState = TOKEN_FETCHING_STATES.errorRetry;

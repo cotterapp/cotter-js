@@ -166,10 +166,11 @@ var TokenHandler = /** @class */ (function () {
     };
     // Returns access token
     TokenHandler.prototype.getTokensFromRefreshTokenAPI = function () {
+        var _a;
         return __awaiter(this, void 0, void 0, function () {
             var refreshToken, api, resp, err_3;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         this.tokenFetchingState = TOKEN_FETCHING_STATES.fetching;
                         this.fetchTokenResp = null;
@@ -177,23 +178,23 @@ var TokenHandler = /** @class */ (function () {
                         if (window && window.localStorage) {
                             refreshToken = window.localStorage.getItem(REFRESH_TOKEN_NAME);
                         }
-                        _a.label = 1;
+                        _b.label = 1;
                     case 1:
-                        _a.trys.push([1, 3, , 4]);
+                        _b.trys.push([1, 3, , 4]);
                         if (!this.apiKeyID) {
                             throw "ApiKeyID is undefined, please initialize Cotter with ApiKeyID";
                         }
                         api = new API(this.apiKeyID);
                         return [4 /*yield*/, api.getTokensFromRefreshToken(refreshToken)];
                     case 2:
-                        resp = _a.sent();
+                        resp = _b.sent();
                         this.storeTokens(resp);
                         this.tokenFetchingState = TOKEN_FETCHING_STATES.ready;
                         this.fetchTokenResp = resp;
                         return [2 /*return*/];
                     case 3:
-                        err_3 = _a.sent();
-                        if (err_3.msg.includes("not valid")) {
+                        err_3 = _b.sent();
+                        if ((_a = err_3.msg) === null || _a === void 0 ? void 0 : _a.includes("not valid")) {
                             this.tokenFetchingState = TOKEN_FETCHING_STATES.errorFatal;
                         }
                         else {
