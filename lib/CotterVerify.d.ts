@@ -6,6 +6,7 @@ declare class CotterVerify {
     loaded: boolean;
     cotterIframeID: string;
     verifier: string;
+    challenge: string;
     cID: string;
     verifyError?: any;
     verifySuccess?: any;
@@ -15,13 +16,14 @@ declare class CotterVerify {
     LoginWebAuthn?: boolean;
     ContinueSubmitData?: any;
     constructor(config: Config, tokenHandler?: TokenHandler);
+    handleRedirect(): Promise<void>;
     showEmailForm(): Promise<VerifySuccess>;
     showPhoneForm(): Promise<VerifySuccess>;
     showForm(): Promise<VerifySuccess>;
     removeForm(): void;
     onSuccess(data: VerifySuccess | string): void;
     onError(error: object | string): void;
-    submitAuthorizationCode(payload: VerifyRespondResponse): Promise<void>;
+    submitAuthorizationCode(payload: VerifyRespondResponse, code_verifier: string, redirect_url?: string): Promise<void>;
     StopSubmissionWithError(err: string, iframeID: string): void;
     continue(payload: {
         identifier: string;

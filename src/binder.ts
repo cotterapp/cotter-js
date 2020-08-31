@@ -72,6 +72,8 @@ export interface Config {
   CotterUserID?: String;
   AuthRequestText?: Object;
   AuthenticationMethod?: String;
+  TermsOfServiceLink?: String;
+  PrivacyPolicyLink?: String;
 
   // For WebAuthn
   WebAuthnEnabled?: boolean;
@@ -85,8 +87,9 @@ export interface Config {
   RegisterWebAuthn?: boolean;
   IdentifierType?: string;
   AuthenticationMethodName?: string;
-  TermsOfServiceLink?: String;
-  PrivacyPolicyLink?: String;
+
+  // For Social Login
+  SocialConnectText?: SocialLoginConnectText;
 }
 export interface OnBeginPayload {
   auth_required: boolean;
@@ -122,4 +125,12 @@ export interface Styles {
   country_code_blank: any;
   input_text_p: any;
   check_input: any;
+}
+
+export interface SocialLoginConnectText {
+  title: string;
+  subtitle: string;
+  button: string;
+  buttonSkip: string;
+  theme: string;
 }

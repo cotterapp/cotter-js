@@ -45,11 +45,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-import MicroModal from "./components/MicroModal";
 import CotterEnum from "./enum";
 import { isIFrame, verificationProccessPromise } from "./helper";
 import API from "./API";
 import UserHandler from "./handler/UserHandler";
+import ModalMaker from "./components/ModalMaker";
 var defaultWebAuthnRegistrationText = {
     title: "Sign-in faster.",
     subtitle: "Setup {{method}} to sign-in faster the next time you log in.",
@@ -97,55 +97,24 @@ var WebAuthn = /** @class */ (function () {
         this.containerID =
             Math.random().toString(36).substring(2, 15) + "cotter-webauthn-container";
         this.cancelDivID = "modal-cotterWebAuthn-close-form";
+        this.modalID = "modal-cotterWebAuthn";
         this.init();
     }
     WebAuthn.prototype.init = function () {
-        var _this = this;
-        // Setup Font
-        var fontStyle = document.createElement("link");
-        fontStyle.rel = "stylesheet";
-        fontStyle.href =
-            "https://fonts.googleapis.com/css?family=Lato:700&display=swap";
-        document.head.appendChild(fontStyle);
-        var modalStyle = document.createElement("link");
-        modalStyle.rel = "stylesheet";
-        modalStyle.href = CotterEnum.AssetURL + "/lib/modal.css";
-        document.head.appendChild(modalStyle);
-        var div = document.createElement("div");
-        div.className = "modal micromodal-slide";
-        div.id = "modal-cotterWebAuthn";
-        var att = document.createAttribute("aria-hidden");
-        att.value = "true";
-        div.setAttributeNode(att);
+        var path = CotterEnum.JSURL + "/webauthn?type=" + this.config.Type + "&domain=" + this.config.Domain + "&api_key=" + this.config.ApiKeyID + "&state=" + this.state + "&id=" + this.containerID + "&identifier=" + this.config.Identifier;
+        this.Modal = new ModalMaker(this.modalID, this.containerID, this.cotterIframeID, this.cancelDivID, path);
         var modalDiv = "\n    <div class=\"modal__overlay\" tabindex=\"-1\" id=\"" + this.cancelDivID + "\" >\n      <div id=\"modal-container\" class=\"modal__container\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"modal-cotterWebAuthn-title\">\n        <div id=\"modal-content-content\" class=\"modal-content-content modal__container-webAuthn\">\n          <div id=\"modal-content\" class=\"modal__content modal__content-webAuthn\" >\n            <div id=\"" + this.containerID + "\" class=\"modal-frame-webAuthn\"></div>\n          </div>\n        </div>\n        <div class=\"cotter-watermark\" style=\"margin-top: 10px\">\n          <div class=\"title is-6\" style=\"color: #ffffff\"> Secured by </div>\n          <img src=\"" + CotterEnum.AssetURL + "/assets/images/cotter_transparent_light.png\" class=\"cotter-logo\" style=\"width: 30px; height: 30px;\"/>\n          <div class=\"title is-6\" style=\"color: #ffffff\"> Cotter </div>\n        </div>\n      </div>\n    </div>\n    ";
-        div.innerHTML = modalDiv;
-        document.body.appendChild(div);
-        // set close form for cotter modal
-        var closeDiv = document.getElementById(this.cancelDivID);
-        if (closeDiv) {
-            closeDiv.onclick = function () {
-                _this.cancel();
-            };
-        }
-        // Load modal
-        MicroModal.init({
-            awaitOpenAnimation: true,
-            awaitCloseAnimation: true,
-        });
+        var onCloseDiv = this.cancel.bind(this);
+        this.Modal.initModal(onCloseDiv, modalDiv);
         this.initEventHandler();
-    };
-    WebAuthn.prototype.removeSelf = function () {
-        var cotterWebAuthn = document.getElementById("modal-cotterWebAuthn");
-        if (cotterWebAuthn)
-            cotterWebAuthn.remove();
     };
     WebAuthn.prototype.onSuccess = function (data, status) {
         if (status === void 0) { status = WebAuthn.SUCCESS; }
-        this.close();
+        this.Modal.closeModal();
         this.verifySuccess = __assign({ status: status }, data);
     };
     WebAuthn.prototype.onError = function (error) {
-        this.close();
+        this.Modal.closeModal();
         this.verifyError = error;
     };
     WebAuthn.prototype.onErrorDisplay = function (error) {
@@ -237,48 +206,10 @@ var WebAuthn = /** @class */ (function () {
             ifrm.contentWindow.postMessage(JSON.stringify(data), CotterEnum.JSURL);
         }
     };
-    WebAuthn.prototype.loadIframe = function () {
-        var containerID = this.containerID;
-        var container = document.getElementById(containerID);
-        if (container) {
-        }
-        var ifrm = document.createElement("iframe");
-        ifrm.setAttribute("id", this.cotterIframeID);
-        ifrm.style.border = "0";
-        container.appendChild(ifrm);
-        ifrm.style.width = "100%";
-        ifrm.style.height = "100%";
-        if (this.config.CaptchaRequired) {
-            ifrm.style.minHeight = "520px";
-        }
-        ifrm.style.overflow = "scroll";
-        var path = CotterEnum.JSURL + "/webauthn?type=" + this.config.Type + "&domain=" + this.config.Domain + "&api_key=" + this.config.ApiKeyID + "&state=" + this.state + "&id=" + this.containerID + "&identifier=" + this.config.Identifier;
-        ifrm.setAttribute("src", encodeURI(path));
-        ifrm.setAttribute("allowtransparency", "true");
-    };
-    WebAuthn.prototype.removeIframe = function () {
-        var ifrm = document.getElementById(this.cotterIframeID);
-        ifrm.remove();
-    };
     WebAuthn.prototype.show = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var self_1;
             return __generator(this, function (_a) {
-                try {
-                    this.activeModal = MicroModal.show("modal-cotterWebAuthn", {});
-                }
-                catch (e) {
-                    if (e instanceof TypeError) {
-                        self_1 = this;
-                        setTimeout(function () { return self_1.show(); }, 0);
-                    }
-                    else {
-                        console.error(e);
-                    }
-                }
-                finally {
-                    this.loadIframe(); // setup iframe
-                }
+                this.Modal.showModal();
                 return [2 /*return*/, verificationProccessPromise(this)];
             });
         });
@@ -291,14 +222,6 @@ var WebAuthn = /** @class */ (function () {
             return;
         }
         this.onSuccess(this.originalResponse, WebAuthn.CANCELED);
-    };
-    WebAuthn.prototype.close = function () {
-        if (this.activeModal)
-            this.activeModal.closeModalById("modal-cotterWebAuthn");
-        else
-            MicroModal.close("modal-cotterWebAuthn");
-        this.removeIframe();
-        this.removeSelf();
     };
     // Opening Registration
     WebAuthn.prototype.startRegistration = function () {

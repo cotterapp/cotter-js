@@ -254,6 +254,42 @@ class API {
       throw err;
     }
   }
+
+  // =====================
+  //      Social Login
+  // =====================
+  async loginAndConnect(
+    tokenID: string,
+    userID: string,
+    provider: any
+  ): Promise<any> {
+    try {
+      var config = {
+        headers: {
+          API_KEY_ID: this.apiKeyID,
+          "Content-type": "application/json",
+        },
+        withCredentials: true,
+      };
+      const data = {
+        token_id: tokenID,
+        user_id: userID,
+        identity_provider: provider,
+      };
+      var path = "/oauth/token/connect";
+      var resp = await axios.post(
+        `${CotterEnum.BackendURL}${path}`,
+        data,
+        config
+      );
+      return resp.data;
+    } catch (err) {
+      if (err.response) {
+        throw err.response.data;
+      }
+      throw err;
+    }
+  }
 }
 
 export default API;

@@ -1,6 +1,6 @@
 import { Config } from "./binder";
 import TokenHandler from "./handler/TokenHandler";
-import { Modal } from "./components/MicroModal";
+import ModalMaker from "./components/ModalMaker";
 declare class WebAuthn {
     static CANCELED: string;
     static SUCCESS: string;
@@ -8,6 +8,7 @@ declare class WebAuthn {
     loaded: boolean;
     cotterIframeID: string;
     containerID: string;
+    modalID: string;
     cancelDivID: string;
     state: string | null;
     verifyError?: any;
@@ -15,20 +16,16 @@ declare class WebAuthn {
     tokenHander?: TokenHandler;
     originalResponse?: any;
     displayedError?: string;
-    activeModal?: Modal | null;
+    Modal: ModalMaker;
     constructor(config: Config, tokenHandler?: TokenHandler);
     init(): void;
-    removeSelf(): void;
     onSuccess(data: any, status?: string): void;
     onError(error: any): void;
     onErrorDisplay(error: any): void;
     initEventHandler(): void;
     static sendPost(data: object, iframeID: string): void;
-    loadIframe(): void;
-    removeIframe(): void;
     show(): Promise<import("./binder").VerifySuccess>;
     cancel(): void;
-    close(): void;
     startRegistration(): void;
     startLogin(): void;
     static available(): Promise<boolean>;

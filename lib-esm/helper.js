@@ -101,6 +101,7 @@ export function challengeFromVerifier(v) {
 // if either is set, resolve or reject with the payload specified
 export var verificationProccessPromise = function (self) {
     return new Promise(function (resolve, reject) {
+        console.log("PROMISE SUCCESS");
         // create non-blocking waiting loop
         var checkVerifyProcess = function () {
             if (self.verifySuccess) {
