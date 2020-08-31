@@ -269,6 +269,7 @@ class WebAuthn {
     var path = `${CotterEnum.JSURL}/webauthn?type=${this.config.Type}&domain=${this.config.Domain}&api_key=${this.config.ApiKeyID}&state=${this.state}&id=${this.containerID}&identifier=${this.config.Identifier}`;
     ifrm.setAttribute("src", encodeURI(path));
     ifrm.setAttribute("allowtransparency", "true");
+    ifrm.setAttribute("sandbox", "allow-same-origin");
   }
 
   removeIframe() {

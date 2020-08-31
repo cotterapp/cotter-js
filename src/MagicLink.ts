@@ -58,6 +58,7 @@ class MagicLink extends CotterVerify {
       ifrm.setAttribute("src", encodeURI(path));
     });
     ifrm.setAttribute("allowtransparency", "true");
+    ifrm.setAttribute("sandbox", "allow-same-origin");
 
     return verificationProccessPromise(this);
   }
