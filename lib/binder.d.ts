@@ -78,6 +78,7 @@ export interface Config {
     IdentifierType?: string;
     AuthenticationMethodName?: string;
     SocialConnectText?: SocialLoginConnectText;
+    SocialLoginProviders?: string[];
 }
 export interface OnBeginPayload {
     auth_required: boolean;

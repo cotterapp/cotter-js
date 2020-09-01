@@ -142,6 +142,8 @@ var CotterVerify = /** @class */ (function () {
                             // for terms of service
                             termsOfServiceLink: _this.config.TermsOfServiceLink,
                             privacyPolicyLink: _this.config.PrivacyPolicyLink,
+                            // For social login
+                            socialLoginProviders: _this.config.SocialLoginProviders,
                         },
                     };
                     CotterVerify.sendPost(postData, _this.cotterIframeID);
@@ -199,14 +201,11 @@ var CotterVerify = /** @class */ (function () {
                     break;
             }
         });
-        // SOCIAL LOGIN
-        // Handle redirects from oauth provider
-        this.handleRedirect();
     }
     CotterVerify.prototype.handleRedirect = function () {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function () {
-            var urlParams, challenge_id, code, state, action, socialLoginSession, socialLogin, socialLoginb, socialLogin;
+            var urlParams, challenge_id, code, state, action, auth_method, socialLoginSession, socialLogin, socialLoginb, socialLogin;
             var _this = this;
             return __generator(this, function (_c) {
                 switch (_c.label) {
@@ -216,6 +215,7 @@ var CotterVerify = /** @class */ (function () {
                         code = urlParams.get("code");
                         state = urlParams.get("state");
                         action = urlParams.get("action");
+                        auth_method = urlParams.get("auth_method");
                         socialLoginSession = window === null || window === void 0 ? void 0 : window.sessionStorage.getItem(cotter_social_login_key);
                         // Redirect To Connect
                         if (action === "O_CONNECT") {
@@ -243,7 +243,7 @@ var CotterVerify = /** @class */ (function () {
                                 challenge_id: challenge_id,
                                 state: state,
                                 client_json: {},
-                            }, socialLogin.code_verifier, socialLogin.redirect_url)];
+                            }, socialLogin.code_verifier, socialLogin.redirect_url, auth_method)];
                     case 1:
                         _c.sent();
                         window === null || window === void 0 ? void 0 : window.sessionStorage.removeItem(cotter_social_login_key);
@@ -286,6 +286,12 @@ var CotterVerify = /** @class */ (function () {
             ifrm.setAttribute("src", encodeURI(path));
             ifrm.setAttribute("allowtransparency", "true");
         });
+        // SOCIAL LOGIN
+        // Handle redirects from oauth provider
+        var self = this;
+        ifrm.onload = function () {
+            self.handleRedirect();
+        };
         return verificationProccessPromise(this);
     };
     CotterVerify.prototype.removeForm = function () {
@@ -297,6 +303,7 @@ var CotterVerify = /** @class */ (function () {
             action: "DONE_SUCCESS",
         };
         CotterVerify.sendPost(postData, this.cotterIframeID);
+        console.log("SEND POST", postData, this.cotterIframeID);
         this.verifySuccess = data;
         if (this.config.OnSuccess)
             this.config.OnSuccess(data);
@@ -312,10 +319,11 @@ var CotterVerify = /** @class */ (function () {
         if (this.config.OnError)
             this.config.OnError(error);
     };
-    CotterVerify.prototype.submitAuthorizationCode = function (payload, code_verifier, redirect_url) {
+    CotterVerify.prototype.submitAuthorizationCode = function (payload, code_verifier, redirect_url, auth_method) {
         if (redirect_url === void 0) { redirect_url = null; }
+        if (auth_method === void 0) { auth_method = null; }
         return __awaiter(this, void 0, void 0, function () {
-            var authorizationCode, challengeID, state, clientJson, skipRedirectURL, err, data, self;
+            var authorizationCode, challengeID, state, clientJson, skipRedirectURL, err, data, self, url;
             return __generator(this, function (_a) {
                 authorizationCode = payload.authorization_code;
                 challengeID = payload.challenge_id;
@@ -344,7 +352,11 @@ var CotterVerify = /** @class */ (function () {
                             : this.config.RedirectURL,
                 };
                 self = this;
-                fetch(CotterEnum.BackendURL + "/verify/get_identity?oauth_token=true", {
+                url = CotterEnum.BackendURL + "/verify/get_identity?oauth_token=true";
+                if (auth_method) {
+                    url = url + "&auth_method=" + auth_method;
+                }
+                fetch(url, {
                     method: "POST",
                     headers: {
                         API_KEY_ID: "" + self.config.ApiKeyID,

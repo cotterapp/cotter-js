@@ -147,6 +147,9 @@ class CotterVerify {
               // for terms of service
               termsOfServiceLink: this.config.TermsOfServiceLink,
               privacyPolicyLink: this.config.PrivacyPolicyLink,
+
+              // For social login
+              socialLoginProviders: this.config.SocialLoginProviders,
             },
           };
           CotterVerify.sendPost(postData, this.cotterIframeID);
@@ -212,10 +215,6 @@ class CotterVerify {
           break;
       }
     });
-
-    // SOCIAL LOGIN
-    // Handle redirects from oauth provider
-    this.handleRedirect();
   }
 
   async handleRedirect() {
@@ -224,6 +223,7 @@ class CotterVerify {
     const code = urlParams.get("code");
     const state = urlParams.get("state");
     const action = urlParams.get("action");
+    const auth_method = urlParams.get("auth_method");
     const socialLoginSession = window?.sessionStorage.getItem(
       cotter_social_login_key
     );
@@ -259,7 +259,8 @@ class CotterVerify {
           client_json: {},
         },
         socialLogin.code_verifier,
-        socialLogin.redirect_url
+        socialLogin.redirect_url,
+        auth_method
       );
       window?.sessionStorage.removeItem(cotter_social_login_key);
       history.pushState({}, null, window?.location?.href?.split("?")[0]);
@@ -302,6 +303,12 @@ class CotterVerify {
       ifrm.setAttribute("allowtransparency", "true");
     });
 
+    // SOCIAL LOGIN
+    // Handle redirects from oauth provider
+    const self = this;
+    ifrm.onload = function () {
+      self.handleRedirect();
+    };
     return verificationProccessPromise(this);
   }
 
@@ -315,6 +322,7 @@ class CotterVerify {
       action: "DONE_SUCCESS",
     };
     CotterVerify.sendPost(postData, this.cotterIframeID);
+    console.log("SEND POST", postData, this.cotterIframeID);
     this.verifySuccess = data;
     if (this.config.OnSuccess) this.config.OnSuccess(data as VerifySuccess);
   }
@@ -333,7 +341,8 @@ class CotterVerify {
   async submitAuthorizationCode(
     payload: VerifyRespondResponse,
     code_verifier: string,
-    redirect_url: string = null
+    redirect_url: string = null,
+    auth_method: string = null
   ) {
     // Getting code from payload
     var authorizationCode = payload.authorization_code;
@@ -369,8 +378,11 @@ class CotterVerify {
     };
 
     var self = this;
-
-    fetch(`${CotterEnum.BackendURL}/verify/get_identity?oauth_token=true`, {
+    var url = `${CotterEnum.BackendURL}/verify/get_identity?oauth_token=true`;
+    if (auth_method) {
+      url = `${url}&auth_method=${auth_method}`;
+    }
+    fetch(url, {
       method: "POST",
       headers: {
         API_KEY_ID: `${self.config.ApiKeyID}`,

@@ -90,6 +90,7 @@ export interface Config {
 
   // For Social Login
   SocialConnectText?: SocialLoginConnectText;
+  SocialLoginProviders?: string[];
 }
 export interface OnBeginPayload {
   auth_required: boolean;

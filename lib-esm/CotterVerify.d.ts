@@ -23,7 +23,7 @@ declare class CotterVerify {
     removeForm(): void;
     onSuccess(data: VerifySuccess | string): void;
     onError(error: object | string): void;
-    submitAuthorizationCode(payload: VerifyRespondResponse, code_verifier: string, redirect_url?: string): Promise<void>;
+    submitAuthorizationCode(payload: VerifyRespondResponse, code_verifier: string, redirect_url?: string, auth_method?: string): Promise<void>;
     StopSubmissionWithError(err: string, iframeID: string): void;
     continue(payload: {
         identifier: string;

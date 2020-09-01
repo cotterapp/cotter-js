@@ -74,6 +74,12 @@ var MagicLink = /** @class */ (function (_super) {
             ifrm.setAttribute("src", encodeURI(path));
         });
         ifrm.setAttribute("allowtransparency", "true");
+        // SOCIAL LOGIN
+        // Handle redirects from oauth provider
+        var self = this;
+        ifrm.onload = function () {
+            self.handleRedirect();
+        };
         return verificationProccessPromise(this);
     };
     return MagicLink;
