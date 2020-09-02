@@ -1,7 +1,6 @@
 import CotterEnum from "./enum";
 import { isIFrame, verificationProccessPromise } from "./helper";
-import { Config } from "./binder";
-import TokenHandler from "./handler/TokenHandler";
+import { Config, SocialLoginProviders } from "./binder";
 import ModalMaker from "./components/ModalMaker";
 import API from "./API";
 
@@ -41,6 +40,19 @@ class SocialLogin {
     codeChallenge = encodeURIComponent(codeChallenge);
     return `${CotterEnum.BackendURL}/oauth/credential/login/${provider}?api_key_id=${apiKeyId}&state=${state}&redirect_url=${redirectURL}&code_challenge=${codeChallenge}`;
   }
+
+  static getConnectURL(
+    provider: SocialLoginProviders,
+    apiKeyId: string,
+    accessToken: string,
+    redirectURL: string
+  ) {
+    apiKeyId = encodeURIComponent(apiKeyId);
+    accessToken = encodeURIComponent(accessToken);
+    redirectURL = encodeURIComponent(redirectURL);
+    return `${CotterEnum.BackendURL}/oauth/credential/connect/${provider}?api_key_id=${apiKeyId}&access_token=${accessToken}&redirect_url=${redirectURL}`;
+  }
+
   constructor(config: Config) {
     this.config = config;
 

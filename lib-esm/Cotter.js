@@ -53,6 +53,7 @@ import TokenHandler from "./handler/TokenHandler";
 import User from "./models/User";
 import WebAuthn from "./WebAuthn";
 import UserHandler from "./handler/UserHandler";
+import SocialLogin from "./SocialLogin";
 var tokenHandler = new TokenHandler();
 var Cotter = /** @class */ (function (_super) {
     __extends(Cotter, _super);
@@ -177,6 +178,18 @@ var Cotter = /** @class */ (function (_super) {
     // Get User
     Cotter.prototype.getLoggedInUser = function () {
         return User.getLoggedInUser(this);
+    };
+    // Social Login
+    // This should redirect to the oauth login page,
+    // then redirect back to the `redirectURL` provided
+    // with `error` query parameter if there's an error
+    // ex. http://something.com/currentpage?error=some_error
+    Cotter.prototype.connectSocialLogin = function (provider, userAccessToken, redirectURL) {
+        var _a;
+        var connectURL = SocialLogin.getConnectURL(provider, this.config.ApiKeyID, userAccessToken, redirectURL || ((_a = window === null || window === void 0 ? void 0 : window.location) === null || _a === void 0 ? void 0 : _a.href));
+        if (window) {
+            window.location.href = connectURL;
+        }
     };
     return Cotter;
 }(CotterVerify));

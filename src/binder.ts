@@ -135,3 +135,5 @@ export interface SocialLoginConnectText {
   buttonSkip: string;
   theme: string;
 }
+
+export type SocialLoginProviders = "GITHUB";

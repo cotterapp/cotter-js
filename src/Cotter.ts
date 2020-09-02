@@ -4,7 +4,8 @@ import TokenHandler from "./handler/TokenHandler";
 import User from "./models/User";
 import WebAuthn from "./WebAuthn";
 import UserHandler from "./handler/UserHandler";
-import { Config, OnBeginHandler } from "./binder";
+import { Config, OnBeginHandler, SocialLoginProviders } from "./binder";
+import SocialLogin from "./SocialLogin";
 
 const tokenHandler = new TokenHandler();
 export default class Cotter extends CotterVerify {
@@ -113,5 +114,26 @@ export default class Cotter extends CotterVerify {
   // Get User
   getLoggedInUser() {
     return User.getLoggedInUser(this);
+  }
+
+  // Social Login
+  // This should redirect to the oauth login page,
+  // then redirect back to the `redirectURL` provided
+  // with `error` query parameter if there's an error
+  // ex. http://something.com/currentpage?error=some_error
+  connectSocialLogin(
+    provider: SocialLoginProviders,
+    userAccessToken: string,
+    redirectURL?: string
+  ) {
+    const connectURL = SocialLogin.getConnectURL(
+      provider,
+      this.config.ApiKeyID,
+      userAccessToken,
+      redirectURL || window?.location?.href
+    );
+    if (window) {
+      window.location.href = connectURL;
+    }
   }
 }

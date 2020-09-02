@@ -70,6 +70,12 @@ var SocialLogin = /** @class */ (function () {
         codeChallenge = encodeURIComponent(codeChallenge);
         return CotterEnum.BackendURL + "/oauth/credential/login/" + provider + "?api_key_id=" + apiKeyId + "&state=" + state + "&redirect_url=" + redirectURL + "&code_challenge=" + codeChallenge;
     };
+    SocialLogin.getConnectURL = function (provider, apiKeyId, accessToken, redirectURL) {
+        apiKeyId = encodeURIComponent(apiKeyId);
+        accessToken = encodeURIComponent(accessToken);
+        redirectURL = encodeURIComponent(redirectURL);
+        return CotterEnum.BackendURL + "/oauth/credential/connect/" + provider + "?api_key_id=" + apiKeyId + "&access_token=" + accessToken + "&redirect_url=" + redirectURL;
+    };
     SocialLogin.prototype.init = function () {
         var url = new URL(window.location.href);
         var iframeURL = new URL(CotterEnum.JSURL + "/social_connect");

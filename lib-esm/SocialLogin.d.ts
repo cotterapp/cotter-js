@@ -1,4 +1,4 @@
-import { Config } from "./binder";
+import { Config, SocialLoginProviders } from "./binder";
 import ModalMaker from "./components/ModalMaker";
 declare class SocialLogin {
     loaded: boolean;
@@ -11,6 +11,7 @@ declare class SocialLogin {
     verifySuccess?: any;
     config: Config;
     static getAuthorizeURL(provider: string, apiKeyId: string, state: string, redirectURL: string, codeChallenge: string): string;
+    static getConnectURL(provider: SocialLoginProviders, apiKeyId: string, accessToken: string, redirectURL: string): string;
     constructor(config: Config);
     init(): void;
     initEventHandler(): void;
