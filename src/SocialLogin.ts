@@ -198,7 +198,6 @@ class SocialLogin {
       // redirect to url
       this.onSuccess(resp);
     } catch (err) {
-      console.log("SocialLogin.loginAndConnect", err);
       this.onError(err);
     }
   }

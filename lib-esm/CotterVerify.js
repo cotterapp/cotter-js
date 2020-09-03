@@ -158,7 +158,6 @@ var CotterVerify = /** @class */ (function () {
                     _this.verifySuccess = data.payload;
                     break;
                 case cID + "ON_SUBMIT_AUTHORIZATION_CODE":
-                    console.log("ON_SUBMIT_AUTHORIZATION_CODE", _this.verifier);
                     _this.submitAuthorizationCode(data.payload, _this.verifier);
                     break;
                 case cID + "ON_SOCIAL_LOGIN_REQUEST":
@@ -226,7 +225,6 @@ var CotterVerify = /** @class */ (function () {
                                 _this.onSuccess(resp);
                             })
                                 .catch(function (err) {
-                                console.log("new SocialLogin catch", err);
                                 _this.onError(err);
                             });
                         }
@@ -303,7 +301,6 @@ var CotterVerify = /** @class */ (function () {
             action: "DONE_SUCCESS",
         };
         CotterVerify.sendPost(postData, this.cotterIframeID);
-        console.log("SEND POST", postData, this.cotterIframeID);
         this.verifySuccess = data;
         if (this.config.OnSuccess)
             this.config.OnSuccess(data);
@@ -315,7 +312,6 @@ var CotterVerify = /** @class */ (function () {
         };
         CotterVerify.sendPost(postData, this.cotterIframeID);
         this.verifyError = error;
-        console.log("this.verifyError", error);
         if (this.config.OnError)
             this.config.OnError(error);
     };

@@ -67,7 +67,6 @@ export const verificationProccessPromise = (self: {
   onError: (error: any) => void;
 }) =>
   new Promise<VerifySuccess>((resolve, reject) => {
-    console.log("PROMISE SUCCESS");
     // create non-blocking waiting loop
     const checkVerifyProcess = () => {
       if (self.verifySuccess) {

@@ -183,7 +183,6 @@ var SocialLogin = /** @class */ (function () {
                         return [3 /*break*/, 4];
                     case 3:
                         err_1 = _a.sent();
-                        console.log("SocialLogin.loginAndConnect", err_1);
                         this.onError(err_1);
                         return [3 /*break*/, 4];
                     case 4: return [2 /*return*/];
