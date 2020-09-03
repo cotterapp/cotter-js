@@ -56,8 +56,9 @@ class SocialLogin {
   constructor(config: Config) {
     this.config = config;
 
-    // These are not directly called by client, so client can't set customization in code
-    this.config.SocialConnectText = defaultSocialConnectText;
+    if (!this.config.SocialConnectText) {
+      this.config.SocialConnectText = defaultSocialConnectText;
+    }
 
     this.loaded = false;
 
