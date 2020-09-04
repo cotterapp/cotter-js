@@ -64,6 +64,8 @@ export interface Config {
     CotterUserID?: String;
     AuthRequestText?: Object;
     AuthenticationMethod?: String;
+    TermsOfServiceLink?: String;
+    PrivacyPolicyLink?: String;
     WebAuthnEnabled?: boolean;
     RegistrationText?: WebAuthnRegistrationText;
     LoginText?: WebAuthnLoginText;
@@ -75,8 +77,8 @@ export interface Config {
     RegisterWebAuthn?: boolean;
     IdentifierType?: string;
     AuthenticationMethodName?: string;
-    TermsOfServiceLink?: String;
-    PrivacyPolicyLink?: String;
+    SocialConnectText?: SocialLoginConnectText;
+    SocialLoginProviders?: string[];
 }
 export interface OnBeginPayload {
     auth_required: boolean;
@@ -112,3 +114,11 @@ export interface Styles {
     input_text_p: any;
     check_input: any;
 }
+export interface SocialLoginConnectText {
+    title: string;
+    subtitle: string;
+    button: string;
+    buttonSkip: string;
+    theme: string;
+}
+export declare type SocialLoginProviders = "GITHUB";

@@ -15,16 +15,21 @@ import TokenHandler from "./handler/TokenHandler";
 import UserHandler from "./handler/UserHandler";
 import WebAuthn from "./WebAuthn";
 import API from "./API";
+import SocialLogin from "./SocialLogin";
 
 // default container id
 const cotter_DefaultContainerID = "cotter-form-container";
+// key in session store for code verifier
+// (used in Social Login, need to store due to redirects)
+const cotter_social_login_key = "cotter_slk";
 
 class CotterVerify {
   config: Config;
   state: string | null;
   loaded: boolean;
   cotterIframeID: string;
-  verifier: string;
+  verifier: string; // code verifier
+  challenge: string; // code challenge
   cID: string;
 
   // Optional string definition
@@ -60,6 +65,10 @@ class CotterVerify {
 
     // SUPPORT PKCE
     this.verifier = generateVerifier();
+
+    challengeFromVerifier(this.verifier).then((challenge) => {
+      this.challenge = challenge;
+    });
 
     this.loaded = false;
     this.cotterIframeID =
@@ -138,6 +147,9 @@ class CotterVerify {
               // for terms of service
               termsOfServiceLink: this.config.TermsOfServiceLink,
               privacyPolicyLink: this.config.PrivacyPolicyLink,
+
+              // For social login
+              socialLoginProviders: this.config.SocialLoginProviders,
             },
           };
           CotterVerify.sendPost(postData, this.cotterIframeID);
@@ -152,7 +164,27 @@ class CotterVerify {
           this.verifySuccess = data.payload;
           break;
         case cID + "ON_SUBMIT_AUTHORIZATION_CODE":
-          this.submitAuthorizationCode(data.payload);
+          this.submitAuthorizationCode(data.payload, this.verifier);
+          break;
+        case cID + "ON_SOCIAL_LOGIN_REQUEST":
+          window?.sessionStorage.setItem(
+            cotter_social_login_key,
+            btoa(
+              JSON.stringify({
+                code_verifier: this.verifier,
+                redirect_url: window.location.href,
+              })
+            )
+          );
+          const url = SocialLogin.getAuthorizeURL(
+            data.payload?.provider,
+            this.config.ApiKeyID,
+            this.state,
+            window.location.href,
+            this.challenge
+          );
+          // Redirect to social login
+          window.location.href = url;
           break;
         case cID + "ON_ERROR":
           if (this.config.OnError) {
@@ -182,6 +214,55 @@ class CotterVerify {
           break;
       }
     });
+  }
+
+  async handleRedirect() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const challenge_id = urlParams.get("challenge_id");
+    const code = urlParams.get("code");
+    const state = urlParams.get("state");
+    const action = urlParams.get("action");
+    const auth_method = urlParams.get("auth_method");
+    const socialLoginSession = window?.sessionStorage.getItem(
+      cotter_social_login_key
+    );
+    // Redirect To Connect
+    if (action === "O_CONNECT") {
+      const socialLogin = new SocialLogin(this.config);
+      socialLogin
+        .show()
+        .then((resp: any) => {
+          this.onSuccess(resp);
+        })
+        .catch((err) => {
+          this.onError(err);
+        });
+    }
+    // Redirect To Login
+    if (
+      challenge_id?.length > 0 &&
+      code?.length > 0 &&
+      state?.length > 0 &&
+      socialLoginSession?.length > 0
+    ) {
+      const socialLoginb = atob(socialLoginSession);
+      const socialLogin = socialLoginb ? JSON.parse(socialLoginb) : {};
+      this.config.RedirectURL = socialLogin.redirect_url;
+      this.config.SkipRedirectURL = true;
+      await this.submitAuthorizationCode(
+        {
+          authorization_code: code,
+          challenge_id: challenge_id,
+          state: state,
+          client_json: {},
+        },
+        socialLogin.code_verifier,
+        socialLogin.redirect_url,
+        auth_method
+      );
+      window?.sessionStorage.removeItem(cotter_social_login_key);
+      history.pushState({}, null, window?.location?.href?.split("?")[0]);
+    }
   }
 
   showEmailForm() {
@@ -217,9 +298,15 @@ class CotterVerify {
         path = `${path}&cotter_user_id=${this.config.CotterUserID}`;
       }
       ifrm.setAttribute("src", encodeURI(path));
+      ifrm.setAttribute("allowtransparency", "true");
     });
-    ifrm.setAttribute("allowtransparency", "true");
 
+    // SOCIAL LOGIN
+    // Handle redirects from oauth provider
+    const self = this;
+    ifrm.onload = function () {
+      self.handleRedirect();
+    };
     return verificationProccessPromise(this);
   }
 
@@ -247,7 +334,12 @@ class CotterVerify {
     if (this.config.OnError) this.config.OnError(error);
   }
 
-  async submitAuthorizationCode(payload: VerifyRespondResponse) {
+  async submitAuthorizationCode(
+    payload: VerifyRespondResponse,
+    code_verifier: string,
+    redirect_url: string = null,
+    auth_method: string = null
+  ) {
     // Getting code from payload
     var authorizationCode = payload.authorization_code;
     var challengeID = payload.challenge_id;
@@ -271,17 +363,22 @@ class CotterVerify {
 
     // Preparing data for PCKE token request
     var data = {
-      code_verifier: this.verifier,
+      code_verifier: code_verifier,
       authorization_code: authorizationCode,
       challenge_id: parseInt(challengeID),
-      redirect_url: skipRedirectURL
+      redirect_url: redirect_url
+        ? redirect_url
+        : skipRedirectURL
         ? new URL(window.location.href).origin
         : this.config.RedirectURL,
     };
 
     var self = this;
-
-    fetch(`${CotterEnum.BackendURL}/verify/get_identity?oauth_token=true`, {
+    var url = `${CotterEnum.BackendURL}/verify/get_identity?oauth_token=true`;
+    if (auth_method) {
+      url = `${url}&auth_method=${auth_method}`;
+    }
+    fetch(url, {
       method: "POST",
       headers: {
         API_KEY_ID: `${self.config.ApiKeyID}`,
@@ -302,12 +399,11 @@ class CotterVerify {
         // Preparing data to return to the client
         var data = clientJson;
         data.token = resp.token;
-        data[self.config.IdentifierField || "email"] =
-          resp.identifier.identifier;
+        data[self.config.IdentifierField || "email"] = resp.user.identifier;
         data.oauth_token = resp.oauth_token;
         data.user = resp.user;
         // Store Identifier in the object for WebAuthn reference
-        self.Identifier = resp.identifier.identifier;
+        self.Identifier = resp.user.identifier;
         UserHandler.store(resp.user);
         if (self.tokenHander) {
           self.tokenHander.storeTokens(resp.oauth_token);

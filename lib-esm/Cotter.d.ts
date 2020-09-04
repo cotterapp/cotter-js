@@ -2,7 +2,7 @@ import CotterVerify from "./CotterVerify";
 import MagicLink from "./MagicLink";
 import TokenHandler from "./handler/TokenHandler";
 import User from "./models/User";
-import { Config, OnBeginHandler } from "./binder";
+import { Config, OnBeginHandler, SocialLoginProviders } from "./binder";
 export default class Cotter extends CotterVerify {
     signInWithLink: (onBegin?: OnBeginHandler) => MagicLink;
     signInWithOTP: (onBegin?: OnBeginHandler) => CotterVerify;
@@ -18,4 +18,5 @@ export default class Cotter extends CotterVerify {
     registerWebAuthn(identifier: string): Promise<import("./binder").VerifySuccess>;
     logOut(): Promise<void>;
     getLoggedInUser(): User;
+    connectSocialLogin(provider: SocialLoginProviders, userAccessToken: string, redirectURL?: string): void;
 }

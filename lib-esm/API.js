@@ -296,6 +296,44 @@ var API = /** @class */ (function () {
             });
         });
     };
+    // =====================
+    //      Social Login
+    // =====================
+    API.prototype.loginAndConnect = function (tokenID, userID, provider) {
+        return __awaiter(this, void 0, void 0, function () {
+            var config, data, path, resp, err_8;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        config = {
+                            headers: {
+                                API_KEY_ID: this.apiKeyID,
+                                "Content-type": "application/json",
+                            },
+                            withCredentials: true,
+                        };
+                        data = {
+                            token_id: tokenID,
+                            user_id: userID,
+                            identity_provider: provider,
+                        };
+                        path = "/oauth/token/connect";
+                        return [4 /*yield*/, axios.post("" + CotterEnum.BackendURL + path, data, config)];
+                    case 1:
+                        resp = _a.sent();
+                        return [2 /*return*/, resp.data];
+                    case 2:
+                        err_8 = _a.sent();
+                        if (err_8.response) {
+                            throw err_8.response.data;
+                        }
+                        throw err_8;
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
     return API;
 }());
 export default API;

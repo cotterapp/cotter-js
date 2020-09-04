@@ -59,6 +59,12 @@ class MagicLink extends CotterVerify {
     });
     ifrm.setAttribute("allowtransparency", "true");
 
+    // SOCIAL LOGIN
+    // Handle redirects from oauth provider
+    const self = this;
+    ifrm.onload = function () {
+      self.handleRedirect();
+    };
     return verificationProccessPromise(this);
   }
 }

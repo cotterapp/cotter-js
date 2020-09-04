@@ -39,8 +39,12 @@ import { challengeFromVerifier, generateVerifier, verificationProccessPromise, i
 import UserHandler from "./handler/UserHandler";
 import WebAuthn from "./WebAuthn";
 import API from "./API";
+import SocialLogin from "./SocialLogin";
 // default container id
 var cotter_DefaultContainerID = "cotter-form-container";
+// key in session store for code verifier
+// (used in Social Login, need to store due to redirects)
+var cotter_social_login_key = "cotter_slk";
 var CotterVerify = /** @class */ (function () {
     function CotterVerify(config, tokenHandler) {
         var _this = this;
@@ -63,6 +67,9 @@ var CotterVerify = /** @class */ (function () {
         }
         // SUPPORT PKCE
         this.verifier = generateVerifier();
+        challengeFromVerifier(this.verifier).then(function (challenge) {
+            _this.challenge = challenge;
+        });
         this.loaded = false;
         this.cotterIframeID =
             Math.random().toString(36).substring(2, 15) + "cotter-signup-iframe";
@@ -79,6 +86,7 @@ var CotterVerify = /** @class */ (function () {
         }
         // =====================================
         window.addEventListener("message", function (e) {
+            var _a;
             try {
                 var data = JSON.parse(e.data);
             }
@@ -134,6 +142,8 @@ var CotterVerify = /** @class */ (function () {
                             // for terms of service
                             termsOfServiceLink: _this.config.TermsOfServiceLink,
                             privacyPolicyLink: _this.config.PrivacyPolicyLink,
+                            // For social login
+                            socialLoginProviders: _this.config.SocialLoginProviders,
                         },
                     };
                     CotterVerify.sendPost(postData, _this.cotterIframeID);
@@ -148,7 +158,16 @@ var CotterVerify = /** @class */ (function () {
                     _this.verifySuccess = data.payload;
                     break;
                 case cID + "ON_SUBMIT_AUTHORIZATION_CODE":
-                    _this.submitAuthorizationCode(data.payload);
+                    _this.submitAuthorizationCode(data.payload, _this.verifier);
+                    break;
+                case cID + "ON_SOCIAL_LOGIN_REQUEST":
+                    window === null || window === void 0 ? void 0 : window.sessionStorage.setItem(cotter_social_login_key, btoa(JSON.stringify({
+                        code_verifier: _this.verifier,
+                        redirect_url: window.location.href,
+                    })));
+                    var url = SocialLogin.getAuthorizeURL((_a = data.payload) === null || _a === void 0 ? void 0 : _a.provider, _this.config.ApiKeyID, _this.state, window.location.href, _this.challenge);
+                    // Redirect to social login
+                    window.location.href = url;
                     break;
                 case cID + "ON_ERROR":
                     if (_this.config.OnError) {
@@ -182,6 +201,57 @@ var CotterVerify = /** @class */ (function () {
             }
         });
     }
+    CotterVerify.prototype.handleRedirect = function () {
+        var _a, _b;
+        return __awaiter(this, void 0, void 0, function () {
+            var urlParams, challenge_id, code, state, action, auth_method, socialLoginSession, socialLogin, socialLoginb, socialLogin;
+            var _this = this;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        urlParams = new URLSearchParams(window.location.search);
+                        challenge_id = urlParams.get("challenge_id");
+                        code = urlParams.get("code");
+                        state = urlParams.get("state");
+                        action = urlParams.get("action");
+                        auth_method = urlParams.get("auth_method");
+                        socialLoginSession = window === null || window === void 0 ? void 0 : window.sessionStorage.getItem(cotter_social_login_key);
+                        // Redirect To Connect
+                        if (action === "O_CONNECT") {
+                            socialLogin = new SocialLogin(this.config);
+                            socialLogin
+                                .show()
+                                .then(function (resp) {
+                                _this.onSuccess(resp);
+                            })
+                                .catch(function (err) {
+                                _this.onError(err);
+                            });
+                        }
+                        if (!((challenge_id === null || challenge_id === void 0 ? void 0 : challenge_id.length) > 0 &&
+                            (code === null || code === void 0 ? void 0 : code.length) > 0 &&
+                            (state === null || state === void 0 ? void 0 : state.length) > 0 &&
+                            (socialLoginSession === null || socialLoginSession === void 0 ? void 0 : socialLoginSession.length) > 0)) return [3 /*break*/, 2];
+                        socialLoginb = atob(socialLoginSession);
+                        socialLogin = socialLoginb ? JSON.parse(socialLoginb) : {};
+                        this.config.RedirectURL = socialLogin.redirect_url;
+                        this.config.SkipRedirectURL = true;
+                        return [4 /*yield*/, this.submitAuthorizationCode({
+                                authorization_code: code,
+                                challenge_id: challenge_id,
+                                state: state,
+                                client_json: {},
+                            }, socialLogin.code_verifier, socialLogin.redirect_url, auth_method)];
+                    case 1:
+                        _c.sent();
+                        window === null || window === void 0 ? void 0 : window.sessionStorage.removeItem(cotter_social_login_key);
+                        history.pushState({}, null, (_b = (_a = window === null || window === void 0 ? void 0 : window.location) === null || _a === void 0 ? void 0 : _a.href) === null || _b === void 0 ? void 0 : _b.split("?")[0]);
+                        _c.label = 2;
+                    case 2: return [2 /*return*/];
+                }
+            });
+        });
+    };
     CotterVerify.prototype.showEmailForm = function () {
         this.config.IdentifierField = "email";
         this.config.Type = "EMAIL";
@@ -212,8 +282,14 @@ var CotterVerify = /** @class */ (function () {
                 path = path + "&cotter_user_id=" + _this.config.CotterUserID;
             }
             ifrm.setAttribute("src", encodeURI(path));
+            ifrm.setAttribute("allowtransparency", "true");
         });
-        ifrm.setAttribute("allowtransparency", "true");
+        // SOCIAL LOGIN
+        // Handle redirects from oauth provider
+        var self = this;
+        ifrm.onload = function () {
+            self.handleRedirect();
+        };
         return verificationProccessPromise(this);
     };
     CotterVerify.prototype.removeForm = function () {
@@ -239,9 +315,11 @@ var CotterVerify = /** @class */ (function () {
         if (this.config.OnError)
             this.config.OnError(error);
     };
-    CotterVerify.prototype.submitAuthorizationCode = function (payload) {
+    CotterVerify.prototype.submitAuthorizationCode = function (payload, code_verifier, redirect_url, auth_method) {
+        if (redirect_url === void 0) { redirect_url = null; }
+        if (auth_method === void 0) { auth_method = null; }
         return __awaiter(this, void 0, void 0, function () {
-            var authorizationCode, challengeID, state, clientJson, skipRedirectURL, err, data, self;
+            var authorizationCode, challengeID, state, clientJson, skipRedirectURL, err, data, self, url;
             return __generator(this, function (_a) {
                 authorizationCode = payload.authorization_code;
                 challengeID = payload.challenge_id;
@@ -260,15 +338,21 @@ var CotterVerify = /** @class */ (function () {
                     }
                 }
                 data = {
-                    code_verifier: this.verifier,
+                    code_verifier: code_verifier,
                     authorization_code: authorizationCode,
                     challenge_id: parseInt(challengeID),
-                    redirect_url: skipRedirectURL
-                        ? new URL(window.location.href).origin
-                        : this.config.RedirectURL,
+                    redirect_url: redirect_url
+                        ? redirect_url
+                        : skipRedirectURL
+                            ? new URL(window.location.href).origin
+                            : this.config.RedirectURL,
                 };
                 self = this;
-                fetch(CotterEnum.BackendURL + "/verify/get_identity?oauth_token=true", {
+                url = CotterEnum.BackendURL + "/verify/get_identity?oauth_token=true";
+                if (auth_method) {
+                    url = url + "&auth_method=" + auth_method;
+                }
+                fetch(url, {
                     method: "POST",
                     headers: {
                         API_KEY_ID: "" + self.config.ApiKeyID,
@@ -292,12 +376,11 @@ var CotterVerify = /** @class */ (function () {
                                     }
                                     data = clientJson;
                                     data.token = resp.token;
-                                    data[self.config.IdentifierField || "email"] =
-                                        resp.identifier.identifier;
+                                    data[self.config.IdentifierField || "email"] = resp.user.identifier;
                                     data.oauth_token = resp.oauth_token;
                                     data.user = resp.user;
                                     // Store Identifier in the object for WebAuthn reference
-                                    self.Identifier = resp.identifier.identifier;
+                                    self.Identifier = resp.user.identifier;
                                     UserHandler.store(resp.user);
                                     if (self.tokenHander) {
                                         self.tokenHander.storeTokens(resp.oauth_token);
