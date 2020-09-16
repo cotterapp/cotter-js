@@ -146,6 +146,7 @@ var CotterVerify = /** @class */ (function () {
                             socialLoginProviders: _this.config.SocialLoginProviders,
                         },
                     };
+                    _this.handleRedirect();
                     CotterVerify.sendPost(postData, _this.cotterIframeID);
                     break;
                 case cID + "LOADED":
@@ -204,7 +205,7 @@ var CotterVerify = /** @class */ (function () {
     CotterVerify.prototype.handleRedirect = function () {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function () {
-            var urlParams, challenge_id, code, state, action, auth_method, socialLoginSession, socialLogin, socialLoginb, socialLogin;
+            var urlParams, challenge_id, code, state, action, auth_method, socialLoginSession, socialLogin, socialLoginb, socialLogin, challenge, idType, id, clientJSON, payload, postData;
             var _this = this;
             return __generator(this, function (_c) {
                 switch (_c.label) {
@@ -247,7 +248,27 @@ var CotterVerify = /** @class */ (function () {
                         window === null || window === void 0 ? void 0 : window.sessionStorage.removeItem(cotter_social_login_key);
                         history.pushState({}, null, (_b = (_a = window === null || window === void 0 ? void 0 : window.location) === null || _a === void 0 ? void 0 : _a.href) === null || _b === void 0 ? void 0 : _b.split("?")[0]);
                         _c.label = 2;
-                    case 2: return [2 /*return*/];
+                    case 2:
+                        if (auth_method === "MAGIC_LINK") {
+                            challenge = urlParams.get("challenge");
+                            idType = urlParams.get("id_type");
+                            id = urlParams.get("id");
+                            clientJSON = urlParams.get("client_json");
+                            this.config.SkipRedirectURL = true;
+                            payload = {
+                                challenge: challenge,
+                                challenge_id: challenge_id,
+                                client_json: JSON.parse(clientJSON),
+                                identifierType: idType,
+                                identifier: id,
+                            };
+                            postData = {
+                                action: "HANDLE_MAGIC_LINK_REDIRECT",
+                                payload: payload,
+                            };
+                            CotterVerify.sendPost(postData, this.cotterIframeID);
+                        }
+                        return [2 /*return*/];
                 }
             });
         });
@@ -284,12 +305,6 @@ var CotterVerify = /** @class */ (function () {
             ifrm.setAttribute("src", encodeURI(path));
             ifrm.setAttribute("allowtransparency", "true");
         });
-        // SOCIAL LOGIN
-        // Handle redirects from oauth provider
-        var self = this;
-        ifrm.onload = function () {
-            self.handleRedirect();
-        };
         return verificationProccessPromise(this);
     };
     CotterVerify.prototype.removeForm = function () {
@@ -348,7 +363,7 @@ var CotterVerify = /** @class */ (function () {
                             : this.config.RedirectURL,
                 };
                 self = this;
-                url = CotterEnum.BackendURL + "/verify/get_identity?oauth_token=true";
+                url = self.config.CotterBackendURL + "/verify/get_identity?oauth_token=true";
                 if (auth_method) {
                     url = url + "&auth_method=" + auth_method;
                 }

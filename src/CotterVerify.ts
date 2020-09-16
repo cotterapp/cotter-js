@@ -152,6 +152,7 @@ class CotterVerify {
               socialLoginProviders: this.config.SocialLoginProviders,
             },
           };
+          this.handleRedirect();
           CotterVerify.sendPost(postData, this.cotterIframeID);
           break;
         case cID + "LOADED":
@@ -263,6 +264,30 @@ class CotterVerify {
       window?.sessionStorage.removeItem(cotter_social_login_key);
       history.pushState({}, null, window?.location?.href?.split("?")[0]);
     }
+
+    if (
+      auth_method === "MAGIC_LINK"
+    ) {
+      const challenge = urlParams.get("challenge")
+      const idType = urlParams.get("id_type")
+      const id = urlParams.get("id")
+      const clientJSON = urlParams.get("client_json")
+      this.config.SkipRedirectURL = true
+
+      const payload = {
+        challenge: challenge,
+        challenge_id: challenge_id,
+        client_json: JSON.parse(clientJSON),
+        identifierType: idType,
+        identifier: id,
+      }
+
+      var postData = {
+        action: "HANDLE_MAGIC_LINK_REDIRECT",
+        payload: payload,
+      };
+      CotterVerify.sendPost(postData, this.cotterIframeID);
+    }
   }
 
   showEmailForm() {
@@ -301,12 +326,6 @@ class CotterVerify {
       ifrm.setAttribute("allowtransparency", "true");
     });
 
-    // SOCIAL LOGIN
-    // Handle redirects from oauth provider
-    const self = this;
-    ifrm.onload = function () {
-      self.handleRedirect();
-    };
     return verificationProccessPromise(this);
   }
 
