@@ -60,10 +60,16 @@ var CotterVerify = /** @class */ (function () {
         }
         // storing access token
         this.tokenHander = tokenHandler;
-        this.state = localStorage.getItem("COTTER_STATE");
-        if (!localStorage.getItem("COTTER_STATE")) {
-            this.state = Math.random().toString(36).substring(2, 15);
-            localStorage.setItem("COTTER_STATE", this.state);
+        var newState = Math.random().toString(36).substring(2, 15);
+        try {
+            this.state = localStorage.getItem("COTTER_STATE");
+            if (!localStorage.getItem("COTTER_STATE")) {
+                this.state = newState;
+                localStorage.setItem("COTTER_STATE", this.state);
+            }
+        }
+        catch (e) {
+            this.state = newState;
         }
         // SUPPORT PKCE
         this.verifier = generateVerifier();

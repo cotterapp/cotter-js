@@ -40,12 +40,12 @@ class TokenHandler {
     this.accessToken = oauthTokens.access_token;
     this.idToken = oauthTokens.id_token;
     this.tokenType = oauthTokens.token_type;
-    if (window && window.localStorage) {
-      window.localStorage.setItem(
+    try {
+      window?.localStorage?.setItem(
         REFRESH_TOKEN_NAME,
         oauthTokens.refresh_token
       );
-    }
+    } catch (e) {}
     this.tokenFetchingState = TOKEN_FETCHING_STATES.initial;
   }
 
@@ -136,8 +136,11 @@ class TokenHandler {
     this.tokenFetchingState = TOKEN_FETCHING_STATES.fetching;
     this.fetchTokenResp = null;
     let refreshToken = null;
-    if (window && window.localStorage) {
-      refreshToken = window.localStorage.getItem(REFRESH_TOKEN_NAME);
+    try {
+      refreshToken = window?.localStorage?.getItem(REFRESH_TOKEN_NAME);
+    } catch (e) {
+      this.tokenFetchingState = TOKEN_FETCHING_STATES.errorFatal;
+      return;
     }
     try {
       if (!this.apiKeyID) {
@@ -164,9 +167,9 @@ class TokenHandler {
     this.accessToken = undefined;
     this.idToken = undefined;
     this.tokenType = undefined;
-    if (window && window.localStorage) {
-      window.localStorage.removeItem(REFRESH_TOKEN_NAME);
-    }
+    try {
+      window?.localStorage?.removeItem(REFRESH_TOKEN_NAME);
+    } catch (e) {}
     try {
       if (!this.apiKeyID) {
         throw "ApiKeyID is undefined, please initialize Cotter with ApiKeyID";
