@@ -393,7 +393,7 @@ class CotterVerify {
     };
 
     var self = this;
-    var url = `${self.config.CotterBackendURL}/verify/get_identity?oauth_token=true`;
+    var url = `${CotterEnum.BackendURL}/verify/get_identity?oauth_token=true`;
     if (auth_method) {
       url = `${url}&auth_method=${auth_method}`;
     }
