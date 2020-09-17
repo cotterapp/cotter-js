@@ -1,4 +1,5 @@
 # Cotter JS SDK
+[![npm version](https://badge.fury.io/js/cotter.svg)](https://badge.fury.io/js/cotter)
 
 Cotter's JS SDK for Passwordless Authentication using Email/Phone Number. To read more about Cotter, get started with our 📚 integration guides and example projects.
 
