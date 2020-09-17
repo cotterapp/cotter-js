@@ -79,6 +79,7 @@ export interface Config {
     AuthenticationMethodName?: string;
     SocialConnectText?: SocialLoginConnectText;
     SocialLoginProviders?: string[];
+    RedirectMagicLink?: boolean;
 }
 export interface OnBeginPayload {
     auth_required: boolean;

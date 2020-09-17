@@ -91,6 +91,9 @@ export interface Config {
   // For Social Login
   SocialConnectText?: SocialLoginConnectText;
   SocialLoginProviders?: string[];
+
+  // Redirect Magic Link to login
+  RedirectMagicLink?: boolean; // default true
 }
 export interface OnBeginPayload {
   auth_required: boolean;
