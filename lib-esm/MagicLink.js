@@ -46,6 +46,9 @@ var MagicLink = /** @class */ (function (_super) {
         var defaultMagicLinkConfig = {
             AuthenticationMethod: "MAGIC_LINK",
         };
+        if (config.RedirectMagicLink !== false) {
+            config.RedirectMagicLink = true;
+        }
         // set default magic link, then assign the new configs if any
         _this = _super.call(this, Object.assign(__assign({}, defaultMagicLinkConfig), config), tokenHandler) || this;
         return _this;
@@ -66,20 +69,17 @@ var MagicLink = /** @class */ (function (_super) {
             ifrm.style.minHeight = "520px";
         }
         ifrm.style.overflow = "scroll";
+        if (!this.config.RedirectURL)
+            this.config.RedirectURL = window.location.href;
+        this.config.SkipRedirectURL = true;
         challengeFromVerifier(this.verifier).then(function (challenge) {
-            var path = CotterEnum.JSURL + "/login?auth_method=MAGIC_LINK&code_challenge=" + challenge + "&type=" + _this.config.Type + "&domain=" + _this.config.Domain + "&api_key=" + _this.config.ApiKeyID + "&redirect_url=" + _this.config.RedirectURL + "&state=" + _this.state + "&id=" + _this.cID;
+            var path = CotterEnum.JSURL + "/login?auth_method=MAGIC_LINK&code_challenge=" + challenge + "&type=" + _this.config.Type + "&domain=" + _this.config.Domain + "&api_key=" + _this.config.ApiKeyID + "&redirect_url=" + encodeURIComponent(_this.config.RedirectURL) + "&state=" + _this.state + "&id=" + _this.cID + "&redirect_link=" + _this.config.RedirectMagicLink;
             if (_this.config.CotterUserID) {
                 path = path + "&cotter_user_id=" + _this.config.CotterUserID;
             }
             ifrm.setAttribute("src", encodeURI(path));
         });
         ifrm.setAttribute("allowtransparency", "true");
-        // SOCIAL LOGIN
-        // Handle redirects from oauth provider
-        var self = this;
-        ifrm.onload = function () {
-            self.handleRedirect();
-        };
         return verificationProccessPromise(this);
     };
     return MagicLink;

@@ -27,6 +27,10 @@ class MagicLink extends CotterVerify {
       AuthenticationMethod: "MAGIC_LINK",
     };
 
+    if (config.RedirectMagicLink !== false) {
+      config.RedirectMagicLink = true;
+    }
+
     // set default magic link, then assign the new configs if any
     super(Object.assign({ ...defaultMagicLinkConfig }, config), tokenHandler);
   }
@@ -50,8 +54,20 @@ class MagicLink extends CotterVerify {
     }
     ifrm.style.overflow = "scroll";
 
+    if (!this.config.RedirectURL)
+      this.config.RedirectURL = window.location.href;
+    this.config.SkipRedirectURL = true;
+
     challengeFromVerifier(this.verifier).then((challenge) => {
-      var path = `${CotterEnum.JSURL}/login?auth_method=MAGIC_LINK&code_challenge=${challenge}&type=${this.config.Type}&domain=${this.config.Domain}&api_key=${this.config.ApiKeyID}&redirect_url=${this.config.RedirectURL}&state=${this.state}&id=${this.cID}`;
+      var path = `${
+        CotterEnum.JSURL
+      }/login?auth_method=MAGIC_LINK&code_challenge=${challenge}&type=${
+        this.config.Type
+      }&domain=${this.config.Domain}&api_key=${
+        this.config.ApiKeyID
+      }&redirect_url=${encodeURIComponent(this.config.RedirectURL)}&state=${
+        this.state
+      }&id=${this.cID}&redirect_link=${this.config.RedirectMagicLink}`;
       if (this.config.CotterUserID) {
         path = `${path}&cotter_user_id=${this.config.CotterUserID}`;
       }
@@ -59,12 +75,6 @@ class MagicLink extends CotterVerify {
     });
     ifrm.setAttribute("allowtransparency", "true");
 
-    // SOCIAL LOGIN
-    // Handle redirects from oauth provider
-    const self = this;
-    ifrm.onload = function () {
-      self.handleRedirect();
-    };
     return verificationProccessPromise(this);
   }
 }
