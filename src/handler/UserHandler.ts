@@ -9,9 +9,13 @@ export interface IUser {
 export default class UserHandler {
   static STORAGE_KEY = "COTTER_USER";
   static store(user: IUser) {
-    localStorage.setItem(UserHandler.STORAGE_KEY, JSON.stringify(user));
+    try {
+      localStorage.setItem(UserHandler.STORAGE_KEY, JSON.stringify(user));
+    } catch (e) {}
   }
   static remove() {
-    localStorage.removeItem(UserHandler.STORAGE_KEY);
+    try {
+      localStorage.removeItem(UserHandler.STORAGE_KEY);
+    } catch (e) {}
   }
 }
