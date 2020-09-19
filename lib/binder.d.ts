@@ -122,4 +122,4 @@ export interface SocialLoginConnectText {
     buttonSkip: string;
     theme: string;
 }
-export declare type SocialLoginProviders = "GITHUB";
+export declare type SocialLoginProviders = "GITHUB" | "GOOGLE";
