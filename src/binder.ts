@@ -139,4 +139,4 @@ export interface SocialLoginConnectText {
   theme: string;
 }
 
-export type SocialLoginProviders = "GITHUB";
+export type SocialLoginProviders = "GITHUB" | "GOOGLE";
