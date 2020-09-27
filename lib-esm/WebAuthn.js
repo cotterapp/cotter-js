@@ -45,6 +45,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+import { IDENTIFIER_TYPE } from "./binder";
 import CotterEnum from "./enum";
 import { isIFrame, verificationProccessPromise } from "./helper";
 import API from "./API";
@@ -360,7 +361,7 @@ var WebAuthn = /** @class */ (function () {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
                         api = new API(this.config.ApiKeyID);
-                        return [4 /*yield*/, api.finishWebAuthnLogin(identifier, this.config.IdentifierType || "EMAIL", credential, origin, publicKey)];
+                        return [4 /*yield*/, api.finishWebAuthnLogin(identifier, this.config.IdentifierType || IDENTIFIER_TYPE.EMAIL, credential, origin, publicKey)];
                     case 1:
                         resp = _a.sent();
                         if (resp && resp.user) {

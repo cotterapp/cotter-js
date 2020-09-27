@@ -35,7 +35,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 import CotterEnum from "./enum";
-import { AUTHENTICATION_METHOD, } from "./binder";
+import { AUTHENTICATION_METHOD, IDENTIFIER_TYPE, } from "./binder";
 import { challengeFromVerifier, generateVerifier, verificationProccessPromise, isIFrame, } from "./helper";
 import UserHandler from "./handler/UserHandler";
 import WebAuthn from "./WebAuthn";
@@ -282,12 +282,12 @@ var CotterVerify = /** @class */ (function () {
     };
     CotterVerify.prototype.showEmailForm = function () {
         this.config.IdentifierField = "email";
-        this.config.Type = "EMAIL";
+        this.config.Type = IDENTIFIER_TYPE.EMAIL;
         return this.showForm();
     };
     CotterVerify.prototype.showPhoneForm = function () {
         this.config.IdentifierField = "phone";
-        this.config.Type = "PHONE";
+        this.config.Type = IDENTIFIER_TYPE.PHONE;
         return this.showForm();
     };
     CotterVerify.prototype.showForm = function () {
