@@ -5,6 +5,7 @@ import {
   ResponseData,
   VerifySuccess,
   AUTHENTICATION_METHOD,
+  IDENTIFIER_TYPE,
 } from "./binder";
 import {
   challengeFromVerifier,
@@ -296,13 +297,13 @@ class CotterVerify {
 
   showEmailForm() {
     this.config.IdentifierField = "email";
-    this.config.Type = "EMAIL";
+    this.config.Type = IDENTIFIER_TYPE.EMAIL;
     return this.showForm();
   }
 
   showPhoneForm() {
     this.config.IdentifierField = "phone";
-    this.config.Type = "PHONE";
+    this.config.Type = IDENTIFIER_TYPE.PHONE;
     return this.showForm();
   }
 

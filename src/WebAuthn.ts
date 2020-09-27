@@ -1,4 +1,4 @@
-import { Config } from "./binder";
+import { Config, IDENTIFIER_TYPE } from "./binder";
 import TokenHandler from "./handler/TokenHandler";
 import MicroModal, { Modal } from "./components/MicroModal";
 import CotterEnum from "./enum";
@@ -341,7 +341,7 @@ class WebAuthn {
       let api = new API(this.config.ApiKeyID);
       let resp = await api.finishWebAuthnLogin(
         identifier,
-        this.config.IdentifierType || "EMAIL",
+        this.config.IdentifierType || IDENTIFIER_TYPE.EMAIL,
         credential,
         origin,
         publicKey
