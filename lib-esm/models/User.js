@@ -51,10 +51,6 @@ var User = /** @class */ (function () {
         this.enrolled = user.enrolled;
         this.identifier = user.identifier;
     };
-    User.prototype.withCotter = function (cotter) {
-        this.cotter = cotter;
-        return this;
-    };
     User.getLoggedInUser = function (cotter) {
         var userStr = null;
         try {
@@ -64,7 +60,6 @@ var User = /** @class */ (function () {
         if (userStr) {
             var userJson = JSON.parse(userStr);
             var user = new User(userJson);
-            user.withCotter(cotter);
             return user;
         }
         return null;

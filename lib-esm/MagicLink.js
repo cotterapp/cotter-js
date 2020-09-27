@@ -24,6 +24,7 @@ var __assign = (this && this.__assign) || function () {
 };
 import CotterVerify from "./CotterVerify";
 import CotterEnum from "./enum";
+import { AUTHENTICATION_METHOD } from "./binder";
 import { challengeFromVerifier, verificationProccessPromise } from "./helper";
 var checkPurple = function (url) { return url + "/assets/images/check-purple.png"; };
 var warningImage = function (url) { return url + "/assets/images/warning.png"; };
@@ -44,7 +45,7 @@ var MagicLink = /** @class */ (function (_super) {
     function MagicLink(config, tokenHandler) {
         var _this = this;
         var defaultMagicLinkConfig = {
-            AuthenticationMethod: "MAGIC_LINK",
+            AuthenticationMethod: AUTHENTICATION_METHOD.MAGIC_LINK,
         };
         if (config.RedirectMagicLink !== false) {
             config.RedirectMagicLink = true;

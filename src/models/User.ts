@@ -26,11 +26,6 @@ class User implements IUser {
     this.identifier = user.identifier;
   }
 
-  withCotter(cotter: Cotter): User {
-    this.cotter = cotter;
-    return this;
-  }
-
   static getLoggedInUser(cotter: Cotter): User | null {
     var userStr = null;
     try {
@@ -39,7 +34,6 @@ class User implements IUser {
     if (userStr) {
       var userJson = JSON.parse(userStr);
       var user = new User(userJson);
-      user.withCotter(cotter);
       return user;
     }
     return null;

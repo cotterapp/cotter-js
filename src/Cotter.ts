@@ -4,7 +4,12 @@ import TokenHandler from "./handler/TokenHandler";
 import User from "./models/User";
 import WebAuthn from "./WebAuthn";
 import UserHandler from "./handler/UserHandler";
-import { Config, OnBeginHandler, SocialLoginProviders } from "./binder";
+import {
+  AUTHENTICATION_METHOD,
+  Config,
+  OnBeginHandler,
+  SocialLoginProviders,
+} from "./binder";
 import SocialLogin from "./SocialLogin";
 
 const tokenHandler = new TokenHandler();
@@ -39,14 +44,14 @@ export default class Cotter extends CotterVerify {
   // constructMagicLink constructs the magic link object with optional onBegin
   constructMagicLink(onBegin?: OnBeginHandler) {
     if (onBegin) this.config.OnBegin = onBegin;
-    this.config.AuthenticationMethod = "MAGIC_LINK";
+    this.config.AuthenticationMethod = AUTHENTICATION_METHOD.MAGIC_LINK;
     this.config.AuthenticationMethodName = "Magic Link";
     return new MagicLink(this.config, this.tokenHander);
   }
 
   constructOTPVerify(onBegin?: OnBeginHandler) {
     if (onBegin) this.config.OnBegin = onBegin;
-    this.config.AuthenticationMethod = "OTP";
+    this.config.AuthenticationMethod = AUTHENTICATION_METHOD.OTP;
     this.config.AuthenticationMethodName = "Verification Code";
     return new CotterVerify(this.config, this.tokenHander);
   }
@@ -58,7 +63,7 @@ export default class Cotter extends CotterVerify {
   constructMagicLinkWithWebAuthn(onBegin?: OnBeginHandler) {
     if (onBegin) this.config.OnBegin = onBegin;
     this.config.WebAuthnEnabled = true;
-    this.config.AuthenticationMethod = "MAGIC_LINK";
+    this.config.AuthenticationMethod = AUTHENTICATION_METHOD.MAGIC_LINK;
     this.config.AuthenticationMethodName = "Magic Link";
     return new MagicLink(this.config, this.tokenHander);
   }
@@ -66,7 +71,7 @@ export default class Cotter extends CotterVerify {
   constructOTPVerifyWithWebAuthn(onBegin?: OnBeginHandler) {
     if (onBegin) this.config.OnBegin = onBegin;
     this.config.WebAuthnEnabled = true;
-    this.config.AuthenticationMethod = "OTP";
+    this.config.AuthenticationMethod = AUTHENTICATION_METHOD.OTP;
     this.config.AuthenticationMethodName = "Verification Code";
     return new CotterVerify(this.config, this.tokenHander);
   }

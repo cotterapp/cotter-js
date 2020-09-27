@@ -4,6 +4,7 @@ import {
   VerifyRespondResponse,
   ResponseData,
   VerifySuccess,
+  AUTHENTICATION_METHOD,
 } from "./binder";
 import {
   challengeFromVerifier,
@@ -270,14 +271,12 @@ class CotterVerify {
       history.pushState({}, null, window?.location?.href?.split("?")[0]);
     }
 
-    if (
-      auth_method === "MAGIC_LINK"
-    ) {
-      const challenge = urlParams.get("challenge")
-      const idType = urlParams.get("id_type")
-      const id = urlParams.get("id")
-      const clientJSON = urlParams.get("client_json")
-      this.config.SkipRedirectURL = true
+    if (auth_method === AUTHENTICATION_METHOD.MAGIC_LINK) {
+      const challenge = urlParams.get("challenge");
+      const idType = urlParams.get("id_type");
+      const id = urlParams.get("id");
+      const clientJSON = urlParams.get("client_json");
+      this.config.SkipRedirectURL = true;
 
       const payload = {
         challenge: challenge,
@@ -285,7 +284,7 @@ class CotterVerify {
         client_json: JSON.parse(clientJSON),
         identifierType: idType,
         identifier: id,
-      }
+      };
 
       var postData = {
         action: "HANDLE_MAGIC_LINK_REDIRECT",
