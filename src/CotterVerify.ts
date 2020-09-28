@@ -4,6 +4,8 @@ import {
   VerifyRespondResponse,
   ResponseData,
   VerifySuccess,
+  AUTHENTICATION_METHOD,
+  IDENTIFIER_TYPE,
 } from "./binder";
 import {
   challengeFromVerifier,
@@ -57,10 +59,15 @@ class CotterVerify {
     // storing access token
     this.tokenHander = tokenHandler;
 
-    this.state = localStorage.getItem("COTTER_STATE");
-    if (!localStorage.getItem("COTTER_STATE")) {
-      this.state = Math.random().toString(36).substring(2, 15);
-      localStorage.setItem("COTTER_STATE", this.state);
+    const newState = Math.random().toString(36).substring(2, 15);
+    try {
+      this.state = localStorage.getItem("COTTER_STATE");
+      if (!localStorage.getItem("COTTER_STATE")) {
+        this.state = newState;
+        localStorage.setItem("COTTER_STATE", this.state);
+      }
+    } catch (e) {
+      this.state = newState;
     }
 
     // SUPPORT PKCE
@@ -265,14 +272,12 @@ class CotterVerify {
       history.pushState({}, null, window?.location?.href?.split("?")[0]);
     }
 
-    if (
-      auth_method === "MAGIC_LINK"
-    ) {
-      const challenge = urlParams.get("challenge")
-      const idType = urlParams.get("id_type")
-      const id = urlParams.get("id")
-      const clientJSON = urlParams.get("client_json")
-      this.config.SkipRedirectURL = true
+    if (auth_method === AUTHENTICATION_METHOD.MAGIC_LINK) {
+      const challenge = urlParams.get("challenge");
+      const idType = urlParams.get("id_type");
+      const id = urlParams.get("id");
+      const clientJSON = urlParams.get("client_json");
+      this.config.SkipRedirectURL = true;
 
       const payload = {
         challenge: challenge,
@@ -280,7 +285,7 @@ class CotterVerify {
         client_json: JSON.parse(clientJSON),
         identifierType: idType,
         identifier: id,
-      }
+      };
 
       var postData = {
         action: "HANDLE_MAGIC_LINK_REDIRECT",
@@ -292,13 +297,13 @@ class CotterVerify {
 
   showEmailForm() {
     this.config.IdentifierField = "email";
-    this.config.Type = "EMAIL";
+    this.config.Type = IDENTIFIER_TYPE.EMAIL;
     return this.showForm();
   }
 
   showPhoneForm() {
     this.config.IdentifierField = "phone";
-    this.config.Type = "PHONE";
+    this.config.Type = IDENTIFIER_TYPE.PHONE;
     return this.showForm();
   }
 

@@ -71,7 +71,7 @@ export interface Config {
   OnBegin?: OnBeginHandler;
   CotterUserID?: String;
   AuthRequestText?: Object;
-  AuthenticationMethod?: String;
+  AuthenticationMethod?: AUTHENTICATION_METHOD;
   TermsOfServiceLink?: String;
   PrivacyPolicyLink?: String;
 
@@ -95,12 +95,21 @@ export interface Config {
   // Redirect Magic Link to login
   RedirectMagicLink?: boolean; // default true
 }
+
+export enum IDENTIFIER_TYPE {
+  EMAIL = "EMAIL",
+  PHONE = "PHONE",
+}
+export enum AUTHENTICATION_METHOD {
+  MAGIC_LINK = "MAGIC_LINK",
+  OTP = "OTP",
+}
 export interface OnBeginPayload {
   auth_required: boolean;
   device_name: string; // User Agent
   device_type: "BROWSER";
   identifier: string; // User's email/phone
-  identifier_type: "EMAIL" | "PHONE";
+  identifier_type: IDENTIFIER_TYPE;
 }
 export interface VerifySuccess {
   email?: String;
@@ -139,4 +148,4 @@ export interface SocialLoginConnectText {
   theme: string;
 }
 
-export type SocialLoginProviders = "GITHUB";
+export type SocialLoginProviders = "GITHUB" | "GOOGLE";

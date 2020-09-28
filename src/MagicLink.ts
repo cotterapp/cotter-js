@@ -1,6 +1,6 @@
 import CotterVerify from "./CotterVerify";
 import CotterEnum from "./enum";
-import { Config } from "./binder";
+import { AUTHENTICATION_METHOD, Config } from "./binder";
 import { challengeFromVerifier, verificationProccessPromise } from "./helper";
 import TokenHandler from "./handler/TokenHandler";
 
@@ -24,7 +24,7 @@ const magicLinkAuthReqText = (url: String) => ({
 class MagicLink extends CotterVerify {
   constructor(config: Config, tokenHandler?: TokenHandler) {
     const defaultMagicLinkConfig = {
-      AuthenticationMethod: "MAGIC_LINK",
+      AuthenticationMethod: AUTHENTICATION_METHOD.MAGIC_LINK,
     };
 
     if (config.RedirectMagicLink !== false) {

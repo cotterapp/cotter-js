@@ -1,4 +1,4 @@
-import { Config } from "./binder";
+import { Config, IDENTIFIER_TYPE } from "./binder";
 import TokenHandler from "./handler/TokenHandler";
 import MicroModal, { Modal } from "./components/MicroModal";
 import CotterEnum from "./enum";
@@ -63,10 +63,15 @@ class WebAuthn {
       this.displayedError = this.config.ErrorDisplay;
     }
 
-    this.state = localStorage.getItem("COTTER_STATE");
-    if (!localStorage.getItem("COTTER_STATE")) {
-      this.state = Math.random().toString(36).substring(2, 15);
-      localStorage.setItem("COTTER_STATE", this.state);
+    const newState = Math.random().toString(36).substring(2, 15);
+    try {
+      this.state = localStorage.getItem("COTTER_STATE");
+      if (!localStorage.getItem("COTTER_STATE")) {
+        this.state = newState;
+        localStorage.setItem("COTTER_STATE", this.state);
+      }
+    } catch (e) {
+      this.state = newState;
     }
 
     this.config.Domain = new URL(window.location.href).origin;
@@ -336,7 +341,7 @@ class WebAuthn {
       let api = new API(this.config.ApiKeyID);
       let resp = await api.finishWebAuthnLogin(
         identifier,
-        this.config.IdentifierType || "EMAIL",
+        this.config.IdentifierType || IDENTIFIER_TYPE.EMAIL,
         credential,
         origin,
         publicKey

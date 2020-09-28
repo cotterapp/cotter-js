@@ -53,6 +53,7 @@ import TokenHandler from "./handler/TokenHandler";
 import User from "./models/User";
 import WebAuthn from "./WebAuthn";
 import UserHandler from "./handler/UserHandler";
+import { AUTHENTICATION_METHOD, } from "./binder";
 import SocialLogin from "./SocialLogin";
 var tokenHandler = new TokenHandler();
 var Cotter = /** @class */ (function (_super) {
@@ -79,14 +80,14 @@ var Cotter = /** @class */ (function (_super) {
     Cotter.prototype.constructMagicLink = function (onBegin) {
         if (onBegin)
             this.config.OnBegin = onBegin;
-        this.config.AuthenticationMethod = "MAGIC_LINK";
+        this.config.AuthenticationMethod = AUTHENTICATION_METHOD.MAGIC_LINK;
         this.config.AuthenticationMethodName = "Magic Link";
         return new MagicLink(this.config, this.tokenHander);
     };
     Cotter.prototype.constructOTPVerify = function (onBegin) {
         if (onBegin)
             this.config.OnBegin = onBegin;
-        this.config.AuthenticationMethod = "OTP";
+        this.config.AuthenticationMethod = AUTHENTICATION_METHOD.OTP;
         this.config.AuthenticationMethodName = "Verification Code";
         return new CotterVerify(this.config, this.tokenHander);
     };
@@ -106,7 +107,7 @@ var Cotter = /** @class */ (function (_super) {
         if (onBegin)
             this.config.OnBegin = onBegin;
         this.config.WebAuthnEnabled = true;
-        this.config.AuthenticationMethod = "MAGIC_LINK";
+        this.config.AuthenticationMethod = AUTHENTICATION_METHOD.MAGIC_LINK;
         this.config.AuthenticationMethodName = "Magic Link";
         return new MagicLink(this.config, this.tokenHander);
     };
@@ -115,7 +116,7 @@ var Cotter = /** @class */ (function (_super) {
         if (onBegin)
             this.config.OnBegin = onBegin;
         this.config.WebAuthnEnabled = true;
-        this.config.AuthenticationMethod = "OTP";
+        this.config.AuthenticationMethod = AUTHENTICATION_METHOD.OTP;
         this.config.AuthenticationMethodName = "Verification Code";
         return new CotterVerify(this.config, this.tokenHander);
     };

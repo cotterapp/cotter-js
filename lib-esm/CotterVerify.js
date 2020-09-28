@@ -35,6 +35,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 import CotterEnum from "./enum";
+import { AUTHENTICATION_METHOD, IDENTIFIER_TYPE, } from "./binder";
 import { challengeFromVerifier, generateVerifier, verificationProccessPromise, isIFrame, } from "./helper";
 import UserHandler from "./handler/UserHandler";
 import WebAuthn from "./WebAuthn";
@@ -60,10 +61,16 @@ var CotterVerify = /** @class */ (function () {
         }
         // storing access token
         this.tokenHander = tokenHandler;
-        this.state = localStorage.getItem("COTTER_STATE");
-        if (!localStorage.getItem("COTTER_STATE")) {
-            this.state = Math.random().toString(36).substring(2, 15);
-            localStorage.setItem("COTTER_STATE", this.state);
+        var newState = Math.random().toString(36).substring(2, 15);
+        try {
+            this.state = localStorage.getItem("COTTER_STATE");
+            if (!localStorage.getItem("COTTER_STATE")) {
+                this.state = newState;
+                localStorage.setItem("COTTER_STATE", this.state);
+            }
+        }
+        catch (e) {
+            this.state = newState;
         }
         // SUPPORT PKCE
         this.verifier = generateVerifier();
@@ -249,7 +256,7 @@ var CotterVerify = /** @class */ (function () {
                         history.pushState({}, null, (_b = (_a = window === null || window === void 0 ? void 0 : window.location) === null || _a === void 0 ? void 0 : _a.href) === null || _b === void 0 ? void 0 : _b.split("?")[0]);
                         _c.label = 2;
                     case 2:
-                        if (auth_method === "MAGIC_LINK") {
+                        if (auth_method === AUTHENTICATION_METHOD.MAGIC_LINK) {
                             challenge = urlParams.get("challenge");
                             idType = urlParams.get("id_type");
                             id = urlParams.get("id");
@@ -275,12 +282,12 @@ var CotterVerify = /** @class */ (function () {
     };
     CotterVerify.prototype.showEmailForm = function () {
         this.config.IdentifierField = "email";
-        this.config.Type = "EMAIL";
+        this.config.Type = IDENTIFIER_TYPE.EMAIL;
         return this.showForm();
     };
     CotterVerify.prototype.showPhoneForm = function () {
         this.config.IdentifierField = "phone";
-        this.config.Type = "PHONE";
+        this.config.Type = IDENTIFIER_TYPE.PHONE;
         return this.showForm();
     };
     CotterVerify.prototype.showForm = function () {

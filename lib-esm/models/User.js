@@ -51,16 +51,15 @@ var User = /** @class */ (function () {
         this.enrolled = user.enrolled;
         this.identifier = user.identifier;
     };
-    User.prototype.withCotter = function (cotter) {
-        this.cotter = cotter;
-        return this;
-    };
     User.getLoggedInUser = function (cotter) {
-        var userStr = localStorage.getItem(UserHandler.STORAGE_KEY);
+        var userStr = null;
+        try {
+            userStr = localStorage.getItem(UserHandler.STORAGE_KEY);
+        }
+        catch (e) { }
         if (userStr) {
             var userJson = JSON.parse(userStr);
             var user = new User(userJson);
-            user.withCotter(cotter);
             return user;
         }
         return null;
