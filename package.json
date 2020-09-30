@@ -1,6 +1,6 @@
 {
   "name": "cotter",
-  "version": "0.3.22-beta.1",
+  "version": "0.3.22-beta.2",
   "description": "Cotter web SDK for JavaScript",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
