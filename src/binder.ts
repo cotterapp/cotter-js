@@ -45,7 +45,7 @@ export interface Config {
   IdentifierField?: string;
   CotterBaseURL?: string;
   CountryCode?: string[];
-  AdditionalFields?: Object[];
+  AdditionalFields?: AdditionalField[];
   Domain?: string;
   ButtonText?: string;
   ButtonTextColor?: string;
@@ -94,6 +94,14 @@ export interface Config {
 
   // Redirect Magic Link to login
   RedirectMagicLink?: boolean; // default true
+}
+
+export interface AdditionalField {
+  label: string;
+  name: string;
+  type?: string; // Same as HTML input types
+  placeholder?: string;
+  initial_value?: string | number;
 }
 
 export enum IDENTIFIER_TYPE {

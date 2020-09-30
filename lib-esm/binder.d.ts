@@ -37,7 +37,7 @@ export interface Config {
     IdentifierField?: string;
     CotterBaseURL?: string;
     CountryCode?: string[];
-    AdditionalFields?: Object[];
+    AdditionalFields?: AdditionalField[];
     Domain?: string;
     ButtonText?: string;
     ButtonTextColor?: string;
@@ -80,6 +80,13 @@ export interface Config {
     SocialConnectText?: SocialLoginConnectText;
     SocialLoginProviders?: string[];
     RedirectMagicLink?: boolean;
+}
+export interface AdditionalField {
+    label: string;
+    name: string;
+    type?: string;
+    placeholder?: string;
+    initial_value?: string | number;
 }
 export declare enum IDENTIFIER_TYPE {
     EMAIL = "EMAIL",
