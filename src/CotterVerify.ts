@@ -5,7 +5,7 @@ import {
   ResponseData,
   VerifySuccess,
   AUTHENTICATION_METHOD,
-  IDENTIFIER_TYPE,
+  IDENTIFIER_TYPE, SOCIAL_LOGIN_ACTION
 } from "./binder";
 import {
   challengeFromVerifier,
@@ -138,10 +138,10 @@ class CotterVerify {
                 .SkipIdentifierFormWithValue,
               skipRedirectURL:
                 this.config.RedirectURL === null ||
-                this.config.RedirectURL === undefined ||
-                (this.config.RedirectURL &&
-                  this.config.RedirectURL.length <= 0) ||
-                this.config.SkipRedirectURL
+                  this.config.RedirectURL === undefined ||
+                  (this.config.RedirectURL &&
+                    this.config.RedirectURL.length <= 0) ||
+                  this.config.SkipRedirectURL
                   ? true
                   : false,
               captchaRequired: this.config.CaptchaRequired,
@@ -235,7 +235,7 @@ class CotterVerify {
       cotter_social_login_key
     );
     // Redirect To Connect
-    if (action === "O_CONNECT") {
+    if (action === SOCIAL_LOGIN_ACTION.CONNECT) {
       const socialLogin = new SocialLogin(this.config);
       socialLogin
         .show()
@@ -393,8 +393,8 @@ class CotterVerify {
       redirect_url: redirect_url
         ? redirect_url
         : skipRedirectURL
-        ? new URL(window.location.href).origin
-        : this.config.RedirectURL,
+          ? new URL(window.location.href).origin
+          : this.config.RedirectURL,
     };
 
     var self = this;

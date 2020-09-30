@@ -8,6 +8,7 @@ import {
   CredentialToServerCredentialRequest,
   serverToRequestOptions,
 } from "./models/Options";
+import SocialLogin from "./SocialLogin";
 
 class API {
   apiKeyID: string;
@@ -276,6 +277,10 @@ class API {
         user_id: userID,
         identity_provider: provider,
       };
+      try {
+        const loginStateSess = sessionStorage.getItem(SocialLogin.OAUTH_SESSION_NAME)
+        data['login_state'] = JSON.parse(atob(loginStateSess))
+      } catch (e) { }
       var path = "/oauth/token/connect";
       var resp = await axios.post(
         `${CotterEnum.BackendURL}${path}`,
