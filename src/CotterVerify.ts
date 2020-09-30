@@ -23,7 +23,6 @@ import SocialLogin from "./SocialLogin";
 const cotter_DefaultContainerID = "cotter-form-container";
 // key in session store for code verifier
 // (used in Social Login, need to store due to redirects)
-const cotter_social_login_key = "cotter_slk";
 
 class CotterVerify {
   config: Config;
@@ -176,7 +175,7 @@ class CotterVerify {
           break;
         case cID + "ON_SOCIAL_LOGIN_REQUEST":
           window?.sessionStorage.setItem(
-            cotter_social_login_key,
+            SocialLogin.LOGIN_KEY,
             btoa(
               JSON.stringify({
                 code_verifier: this.verifier,
@@ -232,7 +231,7 @@ class CotterVerify {
     const action = urlParams.get("action");
     const auth_method = urlParams.get("auth_method");
     const socialLoginSession = window?.sessionStorage.getItem(
-      cotter_social_login_key
+      SocialLogin.LOGIN_KEY
     );
     // Redirect To Connect
     if (action === SOCIAL_LOGIN_ACTION.CONNECT) {
@@ -268,7 +267,7 @@ class CotterVerify {
         socialLogin.redirect_url,
         auth_method
       );
-      window?.sessionStorage.removeItem(cotter_social_login_key);
+      window?.sessionStorage.removeItem(SocialLogin.LOGIN_KEY);
       history.pushState({}, null, window?.location?.href?.split("?")[0]);
     }
 

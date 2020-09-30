@@ -35,7 +35,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 import CotterEnum from "./enum";
-import { AUTHENTICATION_METHOD, IDENTIFIER_TYPE, } from "./binder";
+import { AUTHENTICATION_METHOD, IDENTIFIER_TYPE, SOCIAL_LOGIN_ACTION } from "./binder";
 import { challengeFromVerifier, generateVerifier, verificationProccessPromise, isIFrame, } from "./helper";
 import UserHandler from "./handler/UserHandler";
 import WebAuthn from "./WebAuthn";
@@ -225,7 +225,7 @@ var CotterVerify = /** @class */ (function () {
                         auth_method = urlParams.get("auth_method");
                         socialLoginSession = window === null || window === void 0 ? void 0 : window.sessionStorage.getItem(cotter_social_login_key);
                         // Redirect To Connect
-                        if (action === "O_CONNECT") {
+                        if (action === SOCIAL_LOGIN_ACTION.CONNECT) {
                             socialLogin = new SocialLogin(this.config);
                             socialLogin
                                 .show()

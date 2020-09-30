@@ -14,7 +14,8 @@ const defaultSocialConnectText = {
 };
 
 class SocialLogin {
-  static OAUTH_SESSION_NAME = "oauth_sess"
+  static LOGIN_KEY = "cotter_slk"          // to save code verifier etc
+  static OAUTH_SESSION_NAME = "oauth_sess" // to store data that's supposed to be on the cookies from server
   loaded: boolean;
   cotterIframeID: string;
   containerID: string;
@@ -44,6 +45,7 @@ class SocialLogin {
       client_redirect_url: redirectURL,
       client_state: state,
       action: SOCIAL_LOGIN_ACTION.LOGIN,
+      company_id: apiKeyId,
     }
     const loginStateSess = btoa(JSON.stringify(loginState))
     try {

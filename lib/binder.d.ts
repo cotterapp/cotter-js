@@ -138,3 +138,7 @@ export interface SocialLoginConnectText {
     theme: string;
 }
 export declare type SocialLoginProviders = "GITHUB" | "GOOGLE";
+export declare enum SOCIAL_LOGIN_ACTION {
+    LOGIN = "O_LOGIN",
+    CONNECT = "O_CONNECT"
+}
