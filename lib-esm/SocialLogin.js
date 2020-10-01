@@ -75,6 +75,7 @@ var SocialLogin = /** @class */ (function () {
             client_redirect_url: redirectURL,
             client_state: state,
             action: SOCIAL_LOGIN_ACTION.LOGIN,
+            company_id: apiKeyId,
         };
         var loginStateSess = btoa(JSON.stringify(loginState));
         try {
@@ -202,7 +203,8 @@ var SocialLogin = /** @class */ (function () {
             });
         });
     };
-    SocialLogin.OAUTH_SESSION_NAME = "oauth_sess";
+    SocialLogin.LOGIN_KEY = "cotter_slk"; // to save code verifier etc
+    SocialLogin.OAUTH_SESSION_NAME = "oauth_sess"; // to store data that's supposed to be on the cookies from server
     return SocialLogin;
 }());
 export default SocialLogin;

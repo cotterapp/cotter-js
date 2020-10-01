@@ -1,6 +1,7 @@
 import { Config, SocialLoginProviders } from "./binder";
 import ModalMaker from "./components/ModalMaker";
 declare class SocialLogin {
+    static LOGIN_KEY: string;
     static OAUTH_SESSION_NAME: string;
     loaded: boolean;
     cotterIframeID: string;

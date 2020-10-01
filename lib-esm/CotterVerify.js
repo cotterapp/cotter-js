@@ -45,7 +45,6 @@ import SocialLogin from "./SocialLogin";
 var cotter_DefaultContainerID = "cotter-form-container";
 // key in session store for code verifier
 // (used in Social Login, need to store due to redirects)
-var cotter_social_login_key = "cotter_slk";
 var CotterVerify = /** @class */ (function () {
     function CotterVerify(config, tokenHandler) {
         var _this = this;
@@ -169,7 +168,7 @@ var CotterVerify = /** @class */ (function () {
                     _this.submitAuthorizationCode(data.payload, _this.verifier);
                     break;
                 case cID + "ON_SOCIAL_LOGIN_REQUEST":
-                    window === null || window === void 0 ? void 0 : window.sessionStorage.setItem(cotter_social_login_key, btoa(JSON.stringify({
+                    window === null || window === void 0 ? void 0 : window.sessionStorage.setItem(SocialLogin.LOGIN_KEY, btoa(JSON.stringify({
                         code_verifier: _this.verifier,
                         redirect_url: window.location.href,
                     })));
@@ -223,7 +222,7 @@ var CotterVerify = /** @class */ (function () {
                         state = urlParams.get("state");
                         action = urlParams.get("action");
                         auth_method = urlParams.get("auth_method");
-                        socialLoginSession = window === null || window === void 0 ? void 0 : window.sessionStorage.getItem(cotter_social_login_key);
+                        socialLoginSession = window === null || window === void 0 ? void 0 : window.sessionStorage.getItem(SocialLogin.LOGIN_KEY);
                         // Redirect To Connect
                         if (action === SOCIAL_LOGIN_ACTION.CONNECT) {
                             socialLogin = new SocialLogin(this.config);
@@ -252,7 +251,7 @@ var CotterVerify = /** @class */ (function () {
                             }, socialLogin.code_verifier, socialLogin.redirect_url, auth_method)];
                     case 1:
                         _c.sent();
-                        window === null || window === void 0 ? void 0 : window.sessionStorage.removeItem(cotter_social_login_key);
+                        window === null || window === void 0 ? void 0 : window.sessionStorage.removeItem(SocialLogin.LOGIN_KEY);
                         history.pushState({}, null, (_b = (_a = window === null || window === void 0 ? void 0 : window.location) === null || _a === void 0 ? void 0 : _a.href) === null || _b === void 0 ? void 0 : _b.split("?")[0]);
                         _c.label = 2;
                     case 2:
