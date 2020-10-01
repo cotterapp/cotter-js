@@ -65,11 +65,7 @@ var SocialLogin = /** @class */ (function () {
         this.init();
     }
     SocialLogin.getAuthorizeURL = function (provider, apiKeyId, state, redirectURL, codeChallenge) {
-        provider = encodeURIComponent(provider);
-        apiKeyId = encodeURIComponent(apiKeyId);
-        state = encodeURIComponent(state);
-        redirectURL = encodeURIComponent(redirectURL);
-        codeChallenge = encodeURIComponent(codeChallenge);
+        // Store state in session storage
         var loginState = {
             client_code_challenge: codeChallenge,
             client_redirect_url: redirectURL,
@@ -82,6 +78,12 @@ var SocialLogin = /** @class */ (function () {
             sessionStorage.setItem(SocialLogin.OAUTH_SESSION_NAME, loginStateSess);
         }
         catch (e) { }
+        // Send data to backend
+        provider = encodeURIComponent(provider);
+        apiKeyId = encodeURIComponent(apiKeyId);
+        state = encodeURIComponent(state);
+        redirectURL = encodeURIComponent(redirectURL);
+        codeChallenge = encodeURIComponent(codeChallenge);
         return CotterEnum.BackendURL + "/oauth/credential/login/" + provider + "?api_key_id=" + apiKeyId + "&state=" + state + "&redirect_url=" + redirectURL + "&code_challenge=" + codeChallenge;
     };
     SocialLogin.getConnectURL = function (provider, apiKeyId, accessToken, redirectURL) {
