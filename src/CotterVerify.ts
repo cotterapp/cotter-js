@@ -5,7 +5,8 @@ import {
   ResponseData,
   VerifySuccess,
   AUTHENTICATION_METHOD,
-  IDENTIFIER_TYPE, SOCIAL_LOGIN_ACTION
+  IDENTIFIER_TYPE,
+  SOCIAL_LOGIN_ACTION,
 } from "./binder";
 import {
   challengeFromVerifier,
@@ -135,14 +136,7 @@ class CotterVerify {
               skipIdentiferForm: this.config.SkipIdentifierForm,
               skipIdentiferFormWithValue: this.config
                 .SkipIdentifierFormWithValue,
-              skipRedirectURL:
-                this.config.RedirectURL === null ||
-                  this.config.RedirectURL === undefined ||
-                  (this.config.RedirectURL &&
-                    this.config.RedirectURL.length <= 0) ||
-                  this.config.SkipRedirectURL
-                  ? true
-                  : false,
+              skipRedirectURL: !this.config.RedirectURL || this.config.SkipRedirectURL ? true : false,
               captchaRequired: this.config.CaptchaRequired,
               styles: this.config.Styles,
 
