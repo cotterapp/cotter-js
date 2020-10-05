@@ -1,6 +1,6 @@
 import CotterEnum from "./enum";
 import { isIFrame, verificationProccessPromise } from "./helper";
-import { Config, SocialLoginProviders } from "./binder";
+import { Config, SocialLoginProviders, SOCIAL_LOGIN_ACTION } from "./binder";
 import ModalMaker from "./components/ModalMaker";
 import API from "./API";
 
@@ -14,6 +14,8 @@ const defaultSocialConnectText = {
 };
 
 class SocialLogin {
+  static LOGIN_KEY = "cotter_slk"          // to save code verifier etc
+  static OAUTH_SESSION_NAME = "oauth_sess" // to store data that's supposed to be on the cookies from server
   loaded: boolean;
   cotterIframeID: string;
   containerID: string;
@@ -33,11 +35,25 @@ class SocialLogin {
     redirectURL: string,
     codeChallenge: string
   ) {
+    // Store state in session storage
+    const loginState = {
+      client_code_challenge: codeChallenge,
+      client_redirect_url: redirectURL,
+      client_state: state,
+      action: SOCIAL_LOGIN_ACTION.LOGIN,
+      company_id: apiKeyId,
+    }
+    const loginStateSess = btoa(JSON.stringify(loginState))
+    try {
+      sessionStorage.setItem(SocialLogin.OAUTH_SESSION_NAME, loginStateSess)
+    } catch (e) { }
+    // Send data to backend
     provider = encodeURIComponent(provider);
     apiKeyId = encodeURIComponent(apiKeyId);
     state = encodeURIComponent(state);
     redirectURL = encodeURIComponent(redirectURL);
     codeChallenge = encodeURIComponent(codeChallenge);
+
     return `${CotterEnum.BackendURL}/oauth/credential/login/${provider}?api_key_id=${apiKeyId}&state=${state}&redirect_url=${redirectURL}&code_challenge=${codeChallenge}`;
   }
 

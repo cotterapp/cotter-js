@@ -36,6 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 import CotterEnum from "./enum";
 import { isIFrame, verificationProccessPromise } from "./helper";
+import { SOCIAL_LOGIN_ACTION } from "./binder";
 import ModalMaker from "./components/ModalMaker";
 import API from "./API";
 var defaultSocialConnectText = {
@@ -64,6 +65,20 @@ var SocialLogin = /** @class */ (function () {
         this.init();
     }
     SocialLogin.getAuthorizeURL = function (provider, apiKeyId, state, redirectURL, codeChallenge) {
+        // Store state in session storage
+        var loginState = {
+            client_code_challenge: codeChallenge,
+            client_redirect_url: redirectURL,
+            client_state: state,
+            action: SOCIAL_LOGIN_ACTION.LOGIN,
+            company_id: apiKeyId,
+        };
+        var loginStateSess = btoa(JSON.stringify(loginState));
+        try {
+            sessionStorage.setItem(SocialLogin.OAUTH_SESSION_NAME, loginStateSess);
+        }
+        catch (e) { }
+        // Send data to backend
         provider = encodeURIComponent(provider);
         apiKeyId = encodeURIComponent(apiKeyId);
         state = encodeURIComponent(state);
@@ -190,6 +205,8 @@ var SocialLogin = /** @class */ (function () {
             });
         });
     };
+    SocialLogin.LOGIN_KEY = "cotter_slk"; // to save code verifier etc
+    SocialLogin.OAUTH_SESSION_NAME = "oauth_sess"; // to store data that's supposed to be on the cookies from server
     return SocialLogin;
 }());
 export default SocialLogin;

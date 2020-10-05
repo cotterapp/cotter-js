@@ -6,6 +6,7 @@ import {
   VerifySuccess,
   AUTHENTICATION_METHOD,
   IDENTIFIER_TYPE,
+  SOCIAL_LOGIN_ACTION,
 } from "./binder";
 import {
   challengeFromVerifier,
@@ -23,7 +24,6 @@ import SocialLogin from "./SocialLogin";
 const cotter_DefaultContainerID = "cotter-form-container";
 // key in session store for code verifier
 // (used in Social Login, need to store due to redirects)
-const cotter_social_login_key = "cotter_slk";
 
 class CotterVerify {
   config: Config;
@@ -136,14 +136,7 @@ class CotterVerify {
               skipIdentiferForm: this.config.SkipIdentifierForm,
               skipIdentiferFormWithValue: this.config
                 .SkipIdentifierFormWithValue,
-              skipRedirectURL:
-                this.config.RedirectURL === null ||
-                this.config.RedirectURL === undefined ||
-                (this.config.RedirectURL &&
-                  this.config.RedirectURL.length <= 0) ||
-                this.config.SkipRedirectURL
-                  ? true
-                  : false,
+              skipRedirectURL: !this.config.RedirectURL || this.config.SkipRedirectURL ? true : false,
               captchaRequired: this.config.CaptchaRequired,
               styles: this.config.Styles,
 
@@ -176,7 +169,7 @@ class CotterVerify {
           break;
         case cID + "ON_SOCIAL_LOGIN_REQUEST":
           window?.sessionStorage.setItem(
-            cotter_social_login_key,
+            SocialLogin.LOGIN_KEY,
             btoa(
               JSON.stringify({
                 code_verifier: this.verifier,
@@ -232,10 +225,10 @@ class CotterVerify {
     const action = urlParams.get("action");
     const auth_method = urlParams.get("auth_method");
     const socialLoginSession = window?.sessionStorage.getItem(
-      cotter_social_login_key
+      SocialLogin.LOGIN_KEY
     );
     // Redirect To Connect
-    if (action === "O_CONNECT") {
+    if (action === SOCIAL_LOGIN_ACTION.CONNECT) {
       const socialLogin = new SocialLogin(this.config);
       socialLogin
         .show()
@@ -268,7 +261,7 @@ class CotterVerify {
         socialLogin.redirect_url,
         auth_method
       );
-      window?.sessionStorage.removeItem(cotter_social_login_key);
+      window?.sessionStorage.removeItem(SocialLogin.LOGIN_KEY);
       history.pushState({}, null, window?.location?.href?.split("?")[0]);
     }
 
@@ -393,8 +386,8 @@ class CotterVerify {
       redirect_url: redirect_url
         ? redirect_url
         : skipRedirectURL
-        ? new URL(window.location.href).origin
-        : this.config.RedirectURL,
+          ? new URL(window.location.href).origin
+          : this.config.RedirectURL,
     };
 
     var self = this;

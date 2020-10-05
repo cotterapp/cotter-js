@@ -48,6 +48,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 import CotterEnum from "./enum";
 import axios from "axios";
 import { serverToCreationOptions, CredentialToServerCredentialCreation, CredentialToServerCredentialRequest, serverToRequestOptions, } from "./models/Options";
+import SocialLogin from "./SocialLogin";
 var API = /** @class */ (function () {
     function API(apiKeyID) {
         this.apiKeyID = apiKeyID;
@@ -301,7 +302,7 @@ var API = /** @class */ (function () {
     // =====================
     API.prototype.loginAndConnect = function (tokenID, userID, provider) {
         return __awaiter(this, void 0, void 0, function () {
-            var config, data, path, resp, err_8;
+            var config, data, loginStateSess, path, resp, err_8;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -318,6 +319,11 @@ var API = /** @class */ (function () {
                             user_id: userID,
                             identity_provider: provider,
                         };
+                        try {
+                            loginStateSess = sessionStorage.getItem(SocialLogin.OAUTH_SESSION_NAME);
+                            data['login_state'] = JSON.parse(atob(loginStateSess));
+                        }
+                        catch (e) { }
                         path = "/oauth/token/connect";
                         return [4 /*yield*/, axios.post("" + CotterEnum.BackendURL + path, data, config)];
                     case 1:
