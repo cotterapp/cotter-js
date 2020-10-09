@@ -8,6 +8,9 @@ Cotter's JS SDK for Passwordless Authentication using Email/Phone Number. To rea
 - [SDK Reference](https://docs.cotter.app/sdk-reference/web/web-sdk-verify-email-phone)
 - [Tutorial](https://blog.cotter.app/passwordless-login-with-email-and-json-web-token-jwt-authentication-with-nextjs/)
 
+## Questions
+Reach out on [our Slack Channel](https://join.slack.com/t/askcotter/shared_invite/zt-dxzf311g-5Mp3~odZNB2DwYaxIJ1dJA) to get the best response time.
+
 # Install
 
 ```shell
