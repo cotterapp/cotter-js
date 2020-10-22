@@ -21,5 +21,6 @@ declare class TokenHandler {
     getTokensFromRefreshToken(): Promise<OAuthToken>;
     getTokensFromRefreshTokenAPI(): Promise<void>;
     removeTokens(): Promise<void>;
+    updateTokensWithRefreshToken(refreshToken: string): Promise<OAuthToken | null>;
 }
 export default TokenHandler;
