@@ -126,7 +126,6 @@ var WebAuthn = /** @class */ (function () {
     };
     WebAuthn.prototype.onErrorDisplay = function (error) {
         var err = error;
-        console.log("ori", err);
         if (error.data && error.data.msg) {
             err = error.data.msg;
         }
@@ -134,7 +133,6 @@ var WebAuthn = /** @class */ (function () {
             err = error.msg;
         }
         err = err.toString();
-        console.log(err);
         if (err.includes("timed out")) {
             err = "The operation either timed out or was not allowed.";
         }
