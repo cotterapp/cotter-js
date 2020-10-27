@@ -35,7 +35,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 import CotterEnum from "./enum";
-import { AUTHENTICATION_METHOD, IDENTIFIER_TYPE, SOCIAL_LOGIN_ACTION } from "./binder";
+import { AUTHENTICATION_METHOD, IDENTIFIER_TYPE, SOCIAL_LOGIN_ACTION, } from "./binder";
 import { challengeFromVerifier, generateVerifier, verificationProccessPromise, isIFrame, } from "./helper";
 import UserHandler from "./handler/UserHandler";
 import WebAuthn from "./WebAuthn";
@@ -133,13 +133,7 @@ var CotterVerify = /** @class */ (function () {
                             skipIdentiferForm: _this.config.SkipIdentifierForm,
                             skipIdentiferFormWithValue: _this.config
                                 .SkipIdentifierFormWithValue,
-                            skipRedirectURL: _this.config.RedirectURL === null ||
-                                _this.config.RedirectURL === undefined ||
-                                (_this.config.RedirectURL &&
-                                    _this.config.RedirectURL.length <= 0) ||
-                                _this.config.SkipRedirectURL
-                                ? true
-                                : false,
+                            skipRedirectURL: !_this.config.RedirectURL || _this.config.SkipRedirectURL ? true : false,
                             captchaRequired: _this.config.CaptchaRequired,
                             styles: _this.config.Styles,
                             // for magic link
