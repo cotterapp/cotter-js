@@ -147,7 +147,7 @@ class WebAuthn {
         "You already registered this authenticator, you don't have to register it again.";
     } else if (err.includes("session data from cookie")) {
       err =
-        "Please enable third-party cookie in your browser settings";
+        "Please enable third-party cookies in your browser settings";
     }
     this.displayedError = err;
     var postData = {
