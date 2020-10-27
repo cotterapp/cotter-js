@@ -134,8 +134,11 @@ class WebAuthn {
   }
   onErrorDisplay(error: any) {
     var err = error;
+    var errLink = null;
     if (error.data && error.data.msg) {
       err = error.data.msg;
+    } else if (error.msg) {
+      err = error.msg
     }
     err = err.toString();
     if (err.includes("timed out")) {
@@ -145,12 +148,17 @@ class WebAuthn {
     } else if (err.includes("credentials already registered")) {
       err =
         "You already registered this authenticator, you don't have to register it again.";
+    } else if (err.includes("session data from cookie")) {
+      err =
+        "Please enable third-party cookies in your browser settings";
+      errLink = "https://help.cotter.app/en/articles/4572882-how-to-enable-third-party-cookies-to-use-cotter"
     }
     this.displayedError = err;
     var postData = {
       action: "ERROR_DISPLAY",
       payload: {
         error: err,
+        errorLink: errLink
       },
     };
     WebAuthn.sendPost(postData, this.cotterIframeID);
@@ -274,10 +282,6 @@ class WebAuthn {
     let api = new API(this.config.ApiKeyID);
     let options = await api.beginWebAuthnRegistration(identifier, origin);
 
-    let available = await window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-    if (!available) {
-      throw "The browser or user device doesn't support WebAuthn.";
-    }
     try {
       const credential = await navigator.credentials.create({
         publicKey: options,
@@ -314,10 +318,6 @@ class WebAuthn {
     let api = new API(this.config.ApiKeyID);
     let options = await api.beginWebAuthnLogin(identifier, origin);
 
-    let available = await window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-    if (!available) {
-      throw "The browser or user device doesn't support WebAuthn.";
-    }
     try {
       const credential = await navigator.credentials.get({
         publicKey: options,
