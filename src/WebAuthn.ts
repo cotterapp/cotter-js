@@ -134,6 +134,7 @@ class WebAuthn {
   }
   onErrorDisplay(error: any) {
     var err = error;
+    var errLink = null;
     if (error.data && error.data.msg) {
       err = error.data.msg;
     } else if (error.msg) {
@@ -150,12 +151,14 @@ class WebAuthn {
     } else if (err.includes("session data from cookie")) {
       err =
         "Please enable third-party cookies in your browser settings";
+      errLink = "https://help.cotter.app/en/articles/4572882-how-to-enable-third-party-cookies-to-use-cotter"
     }
     this.displayedError = err;
     var postData = {
       action: "ERROR_DISPLAY",
       payload: {
         error: err,
+        errorLink: errLink
       },
     };
     WebAuthn.sendPost(postData, this.cotterIframeID);
