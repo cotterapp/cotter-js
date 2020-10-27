@@ -274,10 +274,6 @@ class WebAuthn {
     let api = new API(this.config.ApiKeyID);
     let options = await api.beginWebAuthnRegistration(identifier, origin);
 
-    let available = await window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-    if (!available) {
-      throw "The browser or user device doesn't support WebAuthn.";
-    }
     try {
       const credential = await navigator.credentials.create({
         publicKey: options,
@@ -314,10 +310,6 @@ class WebAuthn {
     let api = new API(this.config.ApiKeyID);
     let options = await api.beginWebAuthnLogin(identifier, origin);
 
-    let available = await window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-    if (!available) {
-      throw "The browser or user device doesn't support WebAuthn.";
-    }
     try {
       const credential = await navigator.credentials.get({
         publicKey: options,
