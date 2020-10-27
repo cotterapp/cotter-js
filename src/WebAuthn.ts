@@ -136,6 +136,8 @@ class WebAuthn {
     var err = error;
     if (error.data && error.data.msg) {
       err = error.data.msg;
+    } else if (error.msg) {
+      err = error.msg
     }
     err = err.toString();
     if (err.includes("timed out")) {
