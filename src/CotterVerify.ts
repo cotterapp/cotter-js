@@ -320,6 +320,9 @@ class CotterVerify {
       if (this.config.CotterUserID) {
         path = `${path}&cotter_user_id=${this.config.CotterUserID}`;
       }
+      if (this.config.FormID) {
+        path = `${path}&form_id=${this.config.FormID}`;
+      }
       ifrm.setAttribute("src", encodeURI(path));
       ifrm.setAttribute("allowtransparency", "true");
     });

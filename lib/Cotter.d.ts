@@ -10,6 +10,7 @@ export default class Cotter extends CotterVerify {
     signInWithWebAuthnOrOTP: (onBegin?: OnBeginHandler) => CotterVerify;
     tokenHandler: TokenHandler;
     constructor(config: Config | string);
+    withFormID(formID: string): this;
     constructMagicLink(onBegin?: OnBeginHandler): MagicLink;
     constructOTPVerify(onBegin?: OnBeginHandler): CotterVerify;
     static isWebAuthnAvailable(): Promise<boolean>;

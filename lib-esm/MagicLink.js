@@ -78,6 +78,9 @@ var MagicLink = /** @class */ (function (_super) {
             if (_this.config.CotterUserID) {
                 path = path + "&cotter_user_id=" + _this.config.CotterUserID;
             }
+            if (_this.config.FormID) {
+                path = path + "&form_id=" + _this.config.FormID;
+            }
             ifrm.setAttribute("src", encodeURI(path));
         });
         ifrm.setAttribute("allowtransparency", "true");

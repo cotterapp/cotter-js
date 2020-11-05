@@ -59,17 +59,16 @@ class MagicLink extends CotterVerify {
     this.config.SkipRedirectURL = true;
 
     challengeFromVerifier(this.verifier).then((challenge) => {
-      var path = `${
-        CotterEnum.JSURL
-      }/login?auth_method=MAGIC_LINK&code_challenge=${challenge}&type=${
-        this.config.Type
-      }&domain=${this.config.Domain}&api_key=${
-        this.config.ApiKeyID
-      }&redirect_url=${encodeURIComponent(this.config.RedirectURL)}&state=${
-        this.state
-      }&id=${this.cID}&redirect_link=${this.config.RedirectMagicLink}`;
+      var path = `${CotterEnum.JSURL
+        }/login?auth_method=MAGIC_LINK&code_challenge=${challenge}&type=${this.config.Type
+        }&domain=${this.config.Domain}&api_key=${this.config.ApiKeyID
+        }&redirect_url=${encodeURIComponent(this.config.RedirectURL)}&state=${this.state
+        }&id=${this.cID}&redirect_link=${this.config.RedirectMagicLink}`;
       if (this.config.CotterUserID) {
         path = `${path}&cotter_user_id=${this.config.CotterUserID}`;
+      }
+      if (this.config.FormID) {
+        path = `${path}&form_id=${this.config.FormID}`;
       }
       ifrm.setAttribute("src", encodeURI(path));
     });

@@ -41,6 +41,12 @@ export default class Cotter extends CotterVerify {
     this.tokenHandler = tokenHandler.withApiKeyID(config.ApiKeyID);
   }
 
+  // withFormID specify the form ID used for customization
+  withFormID(formID: string) {
+    this.config.FormID = formID;
+    return this;
+  }
+
   // constructMagicLink constructs the magic link object with optional onBegin
   constructMagicLink(onBegin?: OnBeginHandler) {
     if (onBegin) this.config.OnBegin = onBegin;
