@@ -45,7 +45,7 @@ class TokenHandler {
         REFRESH_TOKEN_NAME,
         oauthTokens.refresh_token
       );
-    } catch (e) {}
+    } catch (e) { }
     this.tokenFetchingState = TOKEN_FETCHING_STATES.initial;
   }
 
@@ -169,7 +169,7 @@ class TokenHandler {
     this.tokenType = undefined;
     try {
       window?.localStorage?.removeItem(REFRESH_TOKEN_NAME);
-    } catch (e) {}
+    } catch (e) { }
     try {
       if (!this.apiKeyID) {
         throw "ApiKeyID is undefined, please initialize Cotter with ApiKeyID";
@@ -178,6 +178,21 @@ class TokenHandler {
       await api.removeRefreshToken();
     } catch (err) {
       throw err;
+    }
+  }
+
+  // Update tokens with a new refresh token
+  async updateTokensWithRefreshToken(refreshToken: string): Promise<OAuthToken | null> {
+    try {
+      window?.localStorage?.setItem(REFRESH_TOKEN_NAME, refreshToken);
+      const resp = await this.getTokensFromRefreshToken();
+      this.accessToken = resp.access_token
+      this.idToken = resp.id_token;
+      this.tokenType = resp.token_type;
+      return resp
+    } catch (err) {
+      // No refresh token in cookie or some other error
+      return null;
     }
   }
 }
