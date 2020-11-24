@@ -146,6 +146,7 @@ var TokenHandler = /** @class */ (function () {
                                 case TOKEN_FETCHING_STATES.ready:
                                     if (_this.fetchTokenResp) {
                                         resolve(_this.fetchTokenResp);
+                                        _this.tokenFetchingState = TOKEN_FETCHING_STATES.initial;
                                         return;
                                     }
                                     break;
