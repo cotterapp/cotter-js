@@ -11,17 +11,16 @@ import ModalMakerNoIframe from "../components/ModalMakerNoIframe";
 import CotterEnum from "../enum";
 
 class Loader {
-  static ApiKeyID: string;
-  static companyInfo: any;
-  static buttons: Array<any> = [];
+  ApiKeyID: string;
+  companyInfo: any;
+  buttons: Array<any> = [];
 
-  static Modals: { [formID: string]: ModalMakerNoIframe } = {};
-  static modalID: "cotter-modal";
-  static containerID: "cotter-modal-form-container";
-  static cancelDivID: "cotter-modal-cancel";
+  Modals: { [formID: string]: ModalMakerNoIframe } = {};
+  modalID: "cotter-modal";
+  containerID: "cotter-modal-form-container";
+  cancelDivID: "cotter-modal-cancel";
 
-  static async init() {
-    console.log("Loader Init");
+  constructor() {
     var apiKeyID = document
       .querySelector(`[${ATTR_API_KEY_ID}]`)
       ?.getAttribute(`${ATTR_API_KEY_ID}`);
@@ -45,7 +44,9 @@ class Loader {
       CotterEnum.JSURL = "https://s.js.cotter.app";
       CotterEnum.AssetURL = "https://s.js.cotter.app";
     }
-
+  }
+  async init() {
+    console.log("Loader Init");
     // Get company info and customization
     const api = new API(this.ApiKeyID);
     let companyInfo;
@@ -76,7 +77,7 @@ class Loader {
     });
   }
 
-  static async initModal(formID: string) {
+  async initModal(formID: string) {
     const modalID = `${this.modalID}-${formID}`;
     const containerID = `${this.containerID}-${formID}`;
     const cancelDivID = `${this.cancelDivID}-${formID}`;
@@ -103,7 +104,7 @@ class Loader {
     this.initCotterForModal(formID, containerID);
   }
 
-  static async initCotterForModal(formID: string, containerID: string) {
+  async initCotterForModal(formID: string, containerID: string) {
     var container = document.getElementById(containerID);
     if (!container) {
       let self = this;
@@ -148,5 +149,5 @@ class Loader {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  Loader.init();
+  new Loader().init();
 });
