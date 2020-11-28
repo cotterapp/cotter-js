@@ -10,5 +10,6 @@ declare class API {
     beginWebAuthnLogin(identifier: string, origin: string): Promise<PublicKeyCredentialRequestOptions>;
     finishWebAuthnLogin(identifier: string, identifierType: string, credential: any, origin: string, publicKey: string): Promise<any>;
     loginAndConnect(tokenID: string, userID: string, provider: any): Promise<any>;
+    getInfo(): Promise<any>;
 }
 export default API;
