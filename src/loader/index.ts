@@ -16,9 +16,9 @@ class Loader {
   buttons: Array<any> = [];
 
   Modals: { [formID: string]: ModalMakerNoIframe } = {};
-  modalID: "cotter-modal";
-  containerID: "cotter-modal-form-container";
-  cancelDivID: "cotter-modal-cancel";
+  modalID = "cotter-modal";
+  containerID = "cotter-modal-form-container";
+  cancelDivID = "cotter-modal-cancel";
 
   constructor() {
     var apiKeyID = document
