@@ -15,3 +15,5 @@ export declare const verificationProccessPromise: (self: {
     onError: (error: any) => void;
 }) => Promise<VerifySuccess>;
 export declare const isIFrame: (input: HTMLElement | null) => input is HTMLIFrameElement;
+export declare const lightOrDark: (color: any) => boolean;
+export declare const getModalHeight: (customization: any) => number;

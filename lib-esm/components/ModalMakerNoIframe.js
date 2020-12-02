@@ -74,11 +74,6 @@ var ModalMakerNoIframe = /** @class */ (function () {
             awaitCloseAnimation: true,
         });
     };
-    ModalMakerNoIframe.prototype.removeSelf = function () {
-        var cotterWebAuthn = document.getElementById(this.modalID);
-        if (cotterWebAuthn)
-            cotterWebAuthn.remove();
-    };
     ModalMakerNoIframe.prototype.showModal = function () {
         return __awaiter(this, void 0, void 0, function () {
             var self_1;
@@ -104,7 +99,6 @@ var ModalMakerNoIframe = /** @class */ (function () {
             this.activeModal.closeModalById(this.modalID);
         else
             MicroModal.close(this.modalID);
-        this.removeSelf();
     };
     return ModalMakerNoIframe;
 }());

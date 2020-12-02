@@ -5,5 +5,10 @@ export const ATTR_ENV = "data-cotter-env";
 export const DEFAULT_FORM_SETTINGS = {
   authenticationMethod: AUTHENTICATION_METHOD.MAGIC_LINK,
   type: IDENTIFIER_TYPE.EMAIL,
+  modalBackgroundColor: "#ffffff",
+  modalTitleColor: "#2e2e2e",
+  modalTitle: "Welcome",
+  logo: "https://www.cotter.app/assets/cotter_logo.png",
 };
 export const POPUP_BUTTON_HREF = "#/ct/login/";
+export const DIV_CONTAINER = "cotter-form-container-";

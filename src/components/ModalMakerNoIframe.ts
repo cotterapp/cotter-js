@@ -7,11 +7,7 @@ class ModalMakerNoIframe {
   cancelDivID: string;
   activeModal?: Modal | null;
 
-  constructor(
-    modalID: string,
-    containerID: string,
-    cancelDivID: string,
-  ) {
+  constructor(modalID: string, containerID: string, cancelDivID: string) {
     this.modalID = modalID;
     this.containerID = containerID;
     this.cancelDivID = cancelDivID;
@@ -54,11 +50,6 @@ class ModalMakerNoIframe {
     });
   }
 
-  removeSelf() {
-    let cotterWebAuthn = document.getElementById(this.modalID);
-    if (cotterWebAuthn) cotterWebAuthn.remove();
-  }
-
   async showModal() {
     try {
       this.activeModal = MicroModal.show(this.modalID, {});
@@ -75,7 +66,6 @@ class ModalMakerNoIframe {
   closeModal() {
     if (this.activeModal) this.activeModal.closeModalById(this.modalID);
     else MicroModal.close(this.modalID);
-    this.removeSelf();
   }
 }
 

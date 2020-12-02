@@ -133,7 +133,9 @@ var CotterVerify = /** @class */ (function () {
                             skipIdentiferForm: _this.config.SkipIdentifierForm,
                             skipIdentiferFormWithValue: _this.config
                                 .SkipIdentifierFormWithValue,
-                            skipRedirectURL: !_this.config.RedirectURL || _this.config.SkipRedirectURL ? true : false,
+                            skipRedirectURL: !_this.config.RedirectURL || _this.config.SkipRedirectURL
+                                ? true
+                                : false,
                             captchaRequired: _this.config.CaptchaRequired,
                             styles: _this.config.Styles,
                             // for magic link
@@ -303,7 +305,7 @@ var CotterVerify = /** @class */ (function () {
                 path = path + "&cotter_user_id=" + _this.config.CotterUserID;
             }
             if (_this.config.FormID) {
-                path = path + "&form_id=" + _this.config.FormID;
+                path = path + "&form_id=" + encodeURIComponent(_this.config.FormID);
             }
             ifrm.setAttribute("src", encodeURI(path));
             ifrm.setAttribute("allowtransparency", "true");

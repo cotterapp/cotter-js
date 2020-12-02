@@ -136,7 +136,10 @@ class CotterVerify {
               skipIdentiferForm: this.config.SkipIdentifierForm,
               skipIdentiferFormWithValue: this.config
                 .SkipIdentifierFormWithValue,
-              skipRedirectURL: !this.config.RedirectURL || this.config.SkipRedirectURL ? true : false,
+              skipRedirectURL:
+                !this.config.RedirectURL || this.config.SkipRedirectURL
+                  ? true
+                  : false,
               captchaRequired: this.config.CaptchaRequired,
               styles: this.config.Styles,
 
@@ -321,7 +324,7 @@ class CotterVerify {
         path = `${path}&cotter_user_id=${this.config.CotterUserID}`;
       }
       if (this.config.FormID) {
-        path = `${path}&form_id=${this.config.FormID}`;
+        path = `${path}&form_id=${encodeURIComponent(this.config.FormID)}`;
       }
       ifrm.setAttribute("src", encodeURI(path));
       ifrm.setAttribute("allowtransparency", "true");
@@ -389,8 +392,8 @@ class CotterVerify {
       redirect_url: redirect_url
         ? redirect_url
         : skipRedirectURL
-          ? new URL(window.location.href).origin
-          : this.config.RedirectURL,
+        ? new URL(window.location.href).origin
+        : this.config.RedirectURL,
     };
 
     var self = this;

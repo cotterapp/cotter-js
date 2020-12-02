@@ -4,5 +4,10 @@ export declare const ATTR_ENV = "data-cotter-env";
 export declare const DEFAULT_FORM_SETTINGS: {
     authenticationMethod: AUTHENTICATION_METHOD;
     type: IDENTIFIER_TYPE;
+    modalBackgroundColor: string;
+    modalTitleColor: string;
+    modalTitle: string;
+    logo: string;
 };
 export declare const POPUP_BUTTON_HREF = "#/ct/login/";
+export declare const DIV_CONTAINER = "cotter-form-container-";

@@ -6,7 +6,6 @@ declare class ModalMakerNoIframe {
     activeModal?: Modal | null;
     constructor(modalID: string, containerID: string, cancelDivID: string);
     initModal(onCloseDiv: Function, modalDiv: string): void;
-    removeSelf(): void;
     showModal(): Promise<void>;
     closeModal(): void;
 }
