@@ -112,6 +112,7 @@ class TokenHandler {
           case TOKEN_FETCHING_STATES.ready:
             if (this.fetchTokenResp) {
               resolve(this.fetchTokenResp);
+              this.tokenFetchingState = TOKEN_FETCHING_STATES.initial;
               return;
             }
             break;
