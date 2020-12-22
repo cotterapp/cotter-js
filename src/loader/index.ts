@@ -11,6 +11,9 @@ import {
 import ModalMakerNoIframe from "../components/ModalMakerNoIframe";
 import CotterEnum from "../enum";
 import { getModalHeight, lightOrDark } from "../helper";
+import TokenHandler from "../handler/TokenHandler";
+
+const tokenHandler = new TokenHandler();
 
 class Loader {
   ApiKeyID: string;
@@ -48,6 +51,51 @@ class Loader {
       CotterEnum.AssetURL = "https://s.js.cotter.app";
     }
   }
+
+  async protectedPageCheck() {
+    // check if this page is protected
+    tokenHandler.withApiKeyID(this.ApiKeyID)
+
+    let siteCustomization = this.companyInfo?.customization?.siteCustomization || {};
+
+    let protectedPages = siteCustomization.protectedPages ?? [];
+    protectedPages = protectedPages.filter((el) => el.path.includes(window.location.pathname) || window.location.pathname.includes(el.path))
+
+    // protection logic
+    let isProtectedPage = false;
+    
+    protectedPages.map((page) => {
+      switch(page.matcher) {
+        case "start":
+          let reg = new RegExp('^' + page.path, 'i')
+          isProtectedPage = reg.test(window.location.pathname);
+          break;
+        case "equal":
+          isProtectedPage = window.location.pathname === page.path;
+          break;
+        default:
+          break;
+      }
+    })
+
+    if(!isProtectedPage) {
+      return;
+    }
+
+    // validate access token
+    try {
+      let accessToken = await tokenHandler.getAccessToken()
+      let token = accessToken?.token;
+      
+      if(!token) {
+        // TODO: redirect to page denied inside the customization
+        window.location.href = siteCustomization.accessDeniedPage || "/"
+      }
+    } catch(e) {
+      throw new Error(`Fail fetching token, err: ${e}`)
+    }
+  }
+
   async init() {
     console.log("Loader Init");
     // Get company info and customization
@@ -59,6 +107,8 @@ class Loader {
     } catch (e) {
       throw new Error(`Fail fetching company info for ${this.ApiKeyID}`);
     }
+
+    await this.protectedPageCheck();
 
     // Get all buttons that opens the login modal
     Array.from(
