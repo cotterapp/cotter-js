@@ -40,7 +40,7 @@
   ],
   "dependencies": {
     "axios": "^0.21.1",
-    "cotter-token-js": "0.1.9-beta.0",
+    "cotter-token-js": "^0.1.9",
     "detect-node": "^2.0.4"
   }
 }
