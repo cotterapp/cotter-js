@@ -197,21 +197,42 @@ class CotterVerify {
           this.verifyError = data.payload;
           break;
         case cID + "ON_BEGIN":
-          // OnBegin method should return the error message
-          // if there is no error, return null
-          if (!!this.config.OnBegin) {
-            let ret = this.config.OnBegin(data.payload);
-            Promise.resolve(ret || null)
-              .then((err: string | null) => {
-                if (!err) this.continue(data.payload, this.cotterIframeID);
-                else this.StopSubmissionWithError(err, this.cotterIframeID);
-              })
-              .catch((e) => {
-                console.log("The OnBegin function throws an error: ", e);
-                throw "The OnBegin function throws an error: " + e;
-              });
+          const continueOnBegin = () => {
+            // OnBegin method should return the error message
+            // if there is no error, return null
+            if (!!this.config.OnBegin) {
+              let ret = this.config.OnBegin(data.payload);
+              Promise.resolve(ret || null)
+                .then((err: string | null) => {
+                  if (!err) this.continue(data.payload, this.cotterIframeID);
+                  else this.StopSubmissionWithError(err, this.cotterIframeID);
+                })
+                .catch((e) => {
+                  console.log("The OnBegin function throws an error: ", e);
+                  throw "The OnBegin function throws an error: " + e;
+                });
+            } else {
+              this.continue(data.payload, this.cotterIframeID);
+            }
+          }
+
+          // Check if this identifier is allowed to continue
+          if(this.config.FormID) {
+            const resp = fetch(`${CotterEnum.WorkerURL}/screening/form?identifier=${encodeURIComponent(data.payload.identifier)}&form-id=${encodeURIComponent(this.config.FormID)}`, {
+              method: "GET",
+              headers: {
+                API_KEY_ID: this.config.ApiKeyID,
+                "Content-type": "application/json",
+              }
+            }).then(body => body.json()).then(data => {
+              if(data.passed) {
+                continueOnBegin()
+                return
+              }
+              this.StopSubmissionWithError("You are not allowed to use this form", this.cotterIframeID)
+            })
           } else {
-            this.continue(data.payload, this.cotterIframeID);
+            continueOnBegin()
           }
           break;
         default:

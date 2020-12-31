@@ -12,6 +12,7 @@ import ModalMakerNoIframe from "../components/ModalMakerNoIframe";
 import CotterEnum from "../enum";
 import { getModalHeight, lightOrDark } from "../helper";
 import TokenHandler from "../handler/TokenHandler";
+import User from "../models/User";
 
 const tokenHandler = new TokenHandler();
 
@@ -45,10 +46,28 @@ class Loader {
       CotterEnum.BackendURL = "http://localhost:1234/api/v0";
       CotterEnum.JSURL = "http://localhost:3000";
       CotterEnum.AssetURL = "http://localhost:3000";
+      CotterEnum.WorkerURL = "http://localhost:8787";
     } else if (env === "STAGING") {
       CotterEnum.BackendURL = "https://staging.cotter.app/api/v0";
       CotterEnum.JSURL = "https://s.js.cotter.app";
       CotterEnum.AssetURL = "https://s.js.cotter.app";
+      CotterEnum.WorkerURL = "https://staging-worker.cotter.app";
+    }
+  }
+
+  async identifierCheck() {
+    const { identifier } = User.getLoggedInUser() ?? {}
+    const resp = await fetch(`${CotterEnum.WorkerURL}/screening/site?identifier=${encodeURIComponent(identifier)}`,{
+      method: "GET",
+      headers: {
+        API_KEY_ID: this.ApiKeyID,
+        "Content-type": "application/json",
+      },
+    })
+    const r = await resp.json()
+    if(!r.passed) {
+      let siteCustomization = this.companyInfo?.customization?.siteCustomization || {};
+      window.location.href = siteCustomization.accessDeniedPage || "/"
     }
   }
 
@@ -91,6 +110,8 @@ class Loader {
         // TODO: redirect to page denied inside the customization
         window.location.href = siteCustomization.accessDeniedPage || "/"
       }
+
+      await this.identifierCheck();
     } catch(e) {
       throw new Error(`Fail fetching token, err: ${e}`)
     }
@@ -108,7 +129,7 @@ class Loader {
       throw new Error(`Fail fetching company info for ${this.ApiKeyID}`);
     }
 
-    await this.protectedPageCheck();
+    await this.protectedPageCheck()
 
     // Get all buttons that opens the login modal
     Array.from(
@@ -230,6 +251,15 @@ class Loader {
     cotterType
       .then((resp) => {
         console.log(resp);
+        fetch(`${CotterEnum.WorkerURL}/completion/form?form-id=${encodeURIComponent(formID)}`,{
+          method: "POST",
+          headers: {
+            API_KEY_ID: this.ApiKeyID,
+            "Content-type": "application/json",
+          },
+          body: JSON.stringify(resp),
+        })
+
         if (customization?.afterLoginURL) {
           window.location.href = customization.afterLoginURL;
         }

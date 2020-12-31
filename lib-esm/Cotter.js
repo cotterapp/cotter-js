@@ -183,7 +183,7 @@ var Cotter = /** @class */ (function (_super) {
     };
     // Get User
     Cotter.prototype.getLoggedInUser = function () {
-        return User.getLoggedInUser(this);
+        return User.getLoggedInUser();
     };
     // Social Login
     // This should redirect to the oauth login page,

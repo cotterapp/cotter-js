@@ -9,7 +9,7 @@ declare class User implements IUser {
     cotter: Cotter | undefined;
     constructor(user: IUser);
     update(user: IUser): void;
-    static getLoggedInUser(cotter: Cotter): User | null;
+    static getLoggedInUser(): User | null;
     registerWebAuthn(): Promise<import("../binder").VerifySuccess>;
 }
 export default User;

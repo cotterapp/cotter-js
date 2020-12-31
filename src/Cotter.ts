@@ -124,7 +124,7 @@ export default class Cotter extends CotterVerify {
 
   // Get User
   getLoggedInUser() {
-    return User.getLoggedInUser(this);
+    return User.getLoggedInUser();
   }
 
   // Social Login

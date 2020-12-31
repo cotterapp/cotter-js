@@ -7,6 +7,7 @@ var CotterEnum = /** @class */ (function () {
     CotterEnum.AssetURL = "https://js.cotter.app";
     CotterEnum.BackendURL = "https://www.cotter.app/api/v0";
     CotterEnum.JSURL = "https://js.cotter.app";
+    CotterEnum.WorkerURL = "https://worker.cotter.app";
     return CotterEnum;
 }());
 export default CotterEnum;

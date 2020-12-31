@@ -51,7 +51,7 @@ var User = /** @class */ (function () {
         this.enrolled = user.enrolled;
         this.identifier = user.identifier;
     };
-    User.getLoggedInUser = function (cotter) {
+    User.getLoggedInUser = function () {
         var userStr = null;
         try {
             userStr = localStorage.getItem(UserHandler.STORAGE_KEY);
