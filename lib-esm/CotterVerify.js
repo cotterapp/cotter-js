@@ -209,11 +209,12 @@ var CotterVerify = /** @class */ (function () {
                                 "Content-type": "application/json",
                             }
                         }).then(function (body) { return body.json(); }).then(function (data) {
+                            var _a;
                             if (data.passed) {
                                 continueOnBegin_1();
                                 return;
                             }
-                            _this.StopSubmissionWithError("You are not allowed to use this form", _this.cotterIframeID);
+                            _this.StopSubmissionWithError((_a = data.message) !== null && _a !== void 0 ? _a : "You are not allowed to use this form", _this.cotterIframeID);
                         });
                     }
                     else {

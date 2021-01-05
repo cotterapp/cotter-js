@@ -229,7 +229,7 @@ class CotterVerify {
                 continueOnBegin()
                 return
               }
-              this.StopSubmissionWithError("You are not allowed to use this form", this.cotterIframeID)
+              this.StopSubmissionWithError(data.message ?? "You are not allowed to use this form", this.cotterIframeID)
             })
           } else {
             continueOnBegin()

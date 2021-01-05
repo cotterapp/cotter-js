@@ -258,11 +258,11 @@ class Loader {
             "Content-type": "application/json",
           },
           body: JSON.stringify(resp),
+        }).then((_) => {
+          if (customization?.afterLoginURL) {
+            window.location.href = customization.afterLoginURL;
+          }
         })
-
-        if (customization?.afterLoginURL) {
-          window.location.href = customization.afterLoginURL;
-        }
       })
       .catch((err) => {
         console.log(err);
