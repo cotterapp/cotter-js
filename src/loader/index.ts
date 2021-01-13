@@ -7,12 +7,14 @@ import {
   DEFAULT_FORM_SETTINGS,
   DIV_CONTAINER,
   POPUP_BUTTON_HREF,
+  LOGOUT_BUTTON_HREF,
 } from "./constants";
 import ModalMakerNoIframe from "../components/ModalMakerNoIframe";
 import CotterEnum from "../enum";
-import { getModalHeight, lightOrDark } from "../helper";
+import { getModalHeight } from "../helper";
 import TokenHandler from "../handler/TokenHandler";
 import User from "../models/User";
+import UserHandler from "../handler/UserHandler";
 
 const tokenHandler = new TokenHandler();
 
@@ -161,6 +163,27 @@ class Loader {
         }
       }
     );
+
+    // Initialize logout buttons
+    Array.from(document.querySelectorAll(`[href*='${LOGOUT_BUTTON_HREF}']`)).map(
+      (e) => {
+        var href = e.getAttribute("href");
+        var formID = href?.split(LOGOUT_BUTTON_HREF).pop() || null;
+
+        if (formID) {
+          const baseRedirectURL = new URL(window.location.href).origin
+          const redirectURLPath = companyInfo.customization?.[formID].afterLogoutURL
+          const redirectURL = `${baseRedirectURL}${redirectURLPath}`
+          
+          e.addEventListener("click", () => {  
+            tokenHandler.removeTokens().then(() => {
+              UserHandler.remove()
+              window.location.href = redirectURL
+            })
+          })
+        }
+      }
+    )
   }
 
   async initModal(formID: string) {

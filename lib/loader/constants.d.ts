@@ -11,3 +11,4 @@ export declare const DEFAULT_FORM_SETTINGS: {
 };
 export declare const POPUP_BUTTON_HREF = "#/ct/login/";
 export declare const DIV_CONTAINER = "cotter-form-container-";
+export declare const LOGOUT_BUTTON_HREF = "#/ct/logout/";
