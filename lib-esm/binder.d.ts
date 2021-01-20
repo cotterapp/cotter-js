@@ -129,6 +129,13 @@ export interface Styles {
     country_code_blank: any;
     input_text_p: any;
     check_input: any;
+    button_container: any;
+    button_text: any;
+    divider_text: any;
+    divider_text_before: any;
+    divider_text_span: any;
+    divider_text_after: any;
+    [key: string]: any;
 }
 export interface SocialLoginConnectText {
     title: string;
