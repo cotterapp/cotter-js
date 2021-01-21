@@ -175,6 +175,8 @@ class Loader {
           const redirectURLPath = companyInfo.customization?.[formID].afterLogoutURL
           const redirectURL = `${baseRedirectURL}${redirectURLPath}`
           
+          if(!redirectURLPath) return
+
           e.addEventListener("click", () => {  
             tokenHandler.removeTokens().then(() => {
               UserHandler.remove()
@@ -187,6 +189,9 @@ class Loader {
   }
 
   async initModal(formID: string) {
+    // skip initializing if the modal already exists
+    if(this.Modals[formID]) return
+
     const modalID = `${this.modalID}-${formID}`;
     const containerID = `${this.containerID}-${formID}`;
     const cancelDivID = `${this.cancelDivID}-${formID}`;
