@@ -1,4 +1,4 @@
-import { AUTHENTICATION_METHOD, IDENTIFIER_TYPE } from "../binder";
+import { AUTHENTICATION_METHOD, IDENTIFIER_TYPE } from "./binder";
 
 export const ATTR_API_KEY_ID = "data-cotter-api-key-id";
 export const ATTR_ENV = "data-cotter-env";

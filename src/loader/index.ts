@@ -1,4 +1,3 @@
-import API from "../API";
 import { AUTHENTICATION_METHOD, IDENTIFIER_TYPE } from "../binder";
 import Cotter from "../Cotter";
 import {
@@ -8,13 +7,14 @@ import {
   DIV_CONTAINER,
   POPUP_BUTTON_HREF,
   LOGOUT_BUTTON_HREF,
-} from "./constants";
+} from "../constants";
 import ModalMakerNoIframe from "../components/ModalMakerNoIframe";
 import CotterEnum from "../enum";
 import { getModalHeight } from "../helper";
 import TokenHandler from "../handler/TokenHandler";
 import User from "../models/User";
 import UserHandler from "../handler/UserHandler";
+import CompanyHandler from "../handler/CompanyHandler";
 
 const tokenHandler = new TokenHandler();
 
@@ -58,7 +58,9 @@ class Loader {
   }
 
   async identifierCheck() {
-    const { identifier } = User.getLoggedInUser() ?? {}
+    let siteCustomization = this.companyInfo?.customization?.siteCustomization || {};
+    const loggedInUser = User.getLoggedInUser()
+    const { identifier } =  loggedInUser
     const resp = await fetch(`${CotterEnum.WorkerURL}/screening/site?identifier=${encodeURIComponent(identifier)}`,{
       method: "GET",
       headers: {
@@ -68,7 +70,6 @@ class Loader {
     })
     const r = await resp.json()
     if(!r.passed) {
-      let siteCustomization = this.companyInfo?.customization?.siteCustomization || {};
       window.location.href = siteCustomization.accessDeniedPage || "/"
     }
   }
@@ -103,6 +104,11 @@ class Loader {
       return;
     }
 
+    const loggedInUser = User.getLoggedInUser()
+    if(!loggedInUser) {
+      window.location.href = siteCustomization.accessDeniedPage || "/"
+    }
+
     // validate access token
     try {
       let accessToken = await tokenHandler.getAccessToken()
@@ -119,20 +125,15 @@ class Loader {
     }
   }
 
+  preInit(): Loader {
+    this.companyInfo = CompanyHandler.getInfo()
+    this.protectedPageCheck()
+
+    return this;
+  }
+
   async init() {
     console.log("Loader Init");
-    // Get company info and customization
-    const api = new API(this.ApiKeyID);
-    let companyInfo;
-    try {
-      companyInfo = await api.getInfo();
-      this.companyInfo = companyInfo;
-    } catch (e) {
-      throw new Error(`Fail fetching company info for ${this.ApiKeyID}`);
-    }
-
-    await this.protectedPageCheck()
-
     // Get all buttons that opens the login modal
     Array.from(
       document.querySelectorAll(`[href*='${POPUP_BUTTON_HREF}']`)
@@ -172,7 +173,7 @@ class Loader {
 
         if (formID) {
           const baseRedirectURL = new URL(window.location.href).origin
-          const redirectURLPath = companyInfo.customization?.[formID].afterLogoutURL
+          const redirectURLPath = this.companyInfo.customization?.[formID]?.afterLogoutURL
           const redirectURL = `${baseRedirectURL}${redirectURLPath}`
           
           if(!redirectURLPath) return
@@ -195,9 +196,7 @@ class Loader {
     const modalID = `${this.modalID}-${formID}`;
     const containerID = `${this.containerID}-${formID}`;
     const cancelDivID = `${this.cancelDivID}-${formID}`;
-    const customization = this.companyInfo?.customization
-      ? this.companyInfo?.customization[formID]
-      : DEFAULT_FORM_SETTINGS;
+    const customization = this.companyInfo?.customization?.[formID]?? DEFAULT_FORM_SETTINGS;
     const logo = customization.logo || DEFAULT_FORM_SETTINGS.logo;
     const title = customization.modalTitle || DEFAULT_FORM_SETTINGS.modalTitle;
     const backgroundColor =
@@ -298,8 +297,10 @@ class Loader {
   }
 }
 
+const __loader = new Loader().preInit()
+
 document.addEventListener("DOMContentLoaded", () => {
-  new Loader().init();
+  __loader.init()
 });
 
 class CotterExport extends Cotter {

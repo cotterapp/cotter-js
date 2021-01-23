@@ -46,8 +46,18 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 import WebAuthn from "./WebAuthn";
+import { ATTR_API_KEY_ID, } from "./constants";
 function dec2hex(dec) {
     return ("0" + dec.toString(16)).substr(-2);
+}
+export function getAPIKeyIDFromAttr() {
+    var _a;
+    var apiKeyID = (_a = document
+        .querySelector("[" + ATTR_API_KEY_ID + "]")) === null || _a === void 0 ? void 0 : _a.getAttribute("" + ATTR_API_KEY_ID);
+    if (!apiKeyID) {
+        throw new Error("You need to specify the " + ATTR_API_KEY_ID + " when adding this <script>.");
+    }
+    return apiKeyID;
 }
 export function generateVerifier() {
     var array = new Uint32Array(56 / 2);

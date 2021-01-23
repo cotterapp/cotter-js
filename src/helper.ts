@@ -1,9 +1,25 @@
 import { Config, IDENTIFIER_TYPE, VerifySuccess } from "./binder";
 import WebAuthn from "./WebAuthn";
 import TokenHandler from "./handler/TokenHandler";
+import {
+  ATTR_API_KEY_ID,
+} from "./constants";
 
 function dec2hex(dec: any) {
   return ("0" + dec.toString(16)).substr(-2);
+}
+
+export function getAPIKeyIDFromAttr(): string {
+  var apiKeyID = document
+    .querySelector(`[${ATTR_API_KEY_ID}]`)
+    ?.getAttribute(`${ATTR_API_KEY_ID}`);
+  if (!apiKeyID) {
+    throw new Error(
+      `You need to specify the ${ATTR_API_KEY_ID} when adding this <script>.`
+    );
+  }
+
+  return apiKeyID
 }
 
 export function generateVerifier() {

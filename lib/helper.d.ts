@@ -1,5 +1,6 @@
 import { Config, VerifySuccess } from "./binder";
 import TokenHandler from "./handler/TokenHandler";
+export declare function getAPIKeyIDFromAttr(): string;
 export declare function generateVerifier(): string;
 export declare function base64urlencode(a: ArrayBuffer): string;
 export declare function base64urldecode(input: string): ArrayBuffer;
