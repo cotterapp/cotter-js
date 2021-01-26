@@ -236,6 +236,8 @@ class CotterVerify {
                 return
               }
               this.StopSubmissionWithError(data.message ?? "You are not allowed to use this form", this.cotterIframeID)
+            }).catch((e) => {
+              this.StopSubmissionWithError("Something went wrong, we're unable to process your request", this.cotterIframeID)
             })
           } else {
             continueOnBegin()
