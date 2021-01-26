@@ -187,16 +187,18 @@ export var lightOrDark = function (color) {
     }
 };
 export var getModalHeight = function (customization) {
-    var _a, _b, _c, _d, _e, _f;
+    var _a, _b, _c, _d, _e, _f, _g;
     var modalHeight = 200;
-    if (((_a = customization.captchaRequired) === null || _a === void 0 ? void 0 : _a.toString()) === "true")
+    console.log("customization", customization);
+    console.log("customization.captchaRequired?.toString()", (_a = customization.captchaRequired) === null || _a === void 0 ? void 0 : _a.toString());
+    if (((_b = customization.captchaRequired) === null || _b === void 0 ? void 0 : _b.toString()) === "true")
         modalHeight = 500;
-    if (((_b = customization.socialLoginProviders) === null || _b === void 0 ? void 0 : _b.length) > 0)
-        modalHeight += 100 + 40 * ((_c = customization.socialLoginProviders) === null || _c === void 0 ? void 0 : _c.length);
-    if (customization.type === "PHONE" && ((_d = customization.phoneChannels) === null || _d === void 0 ? void 0 : _d.length) > 1)
+    if (((_c = customization.socialLoginProviders) === null || _c === void 0 ? void 0 : _c.length) > 0)
+        modalHeight += 100 + 40 * ((_d = customization.socialLoginProviders) === null || _d === void 0 ? void 0 : _d.length);
+    if (customization.type === "PHONE" && ((_e = customization.phoneChannels) === null || _e === void 0 ? void 0 : _e.length) > 1)
         modalHeight += 120;
-    if (((_e = customization.additionalFields) === null || _e === void 0 ? void 0 : _e.length) > 0)
-        modalHeight += 100 * ((_f = customization.additionalFields) === null || _f === void 0 ? void 0 : _f.length);
+    if (((_f = customization.additionalFields) === null || _f === void 0 ? void 0 : _f.length) > 0)
+        modalHeight += 100 * ((_g = customization.additionalFields) === null || _g === void 0 ? void 0 : _g.length);
     return modalHeight;
 };
 //# sourceMappingURL=helper.js.map

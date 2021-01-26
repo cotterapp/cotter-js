@@ -180,7 +180,7 @@ var CotterVerify = /** @class */ (function () {
                     break;
                 case cID + "ON_BEGIN":
                     var continueOnBegin_1 = function () {
-                        if (_this.config.AuthenticationMethod === "MAGIC_LINK") {
+                        if (_this.config.AuthenticationMethod === "MAGIC_LINK" && !_this.config.CaptchaRequired) {
                             var container = document.getElementById(_this.config.ContainerID);
                             var currentContainerHeight = container.offsetHeight;
                             container.style.height = Math.max(300, currentContainerHeight) + "px";

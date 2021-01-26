@@ -20,7 +20,9 @@ const tokenHandler = new TokenHandler();
 
 class Loader {
   ApiKeyID: string;
-  companyInfo: any;
+  get companyInfo() {
+    return CompanyHandler.getInfo()
+  }
   buttons: Array<any> = [];
   containers: Array<any> = [];
 
@@ -126,7 +128,6 @@ class Loader {
   }
 
   preInit(): Loader {
-    this.companyInfo = CompanyHandler.getInfo()
     this.protectedPageCheck()
 
     return this;
