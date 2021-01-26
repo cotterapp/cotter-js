@@ -5,6 +5,8 @@ const COTTER_COMPANY_CACHE_EXPIRY_KEY = "cotter_company_cache_expiry"
 const COTTER_COMPANY_CACHE_KEY = "cotter_company_info"
 
 class CompanyHandler {
+  static infoPromise: Promise<any>
+
   static getInfo(): any {
     let companyInfo = localStorage.getItem(COTTER_COMPANY_CACHE_KEY)
     let expiry = Date.parse(localStorage.getItem(COTTER_COMPANY_CACHE_EXPIRY_KEY))
@@ -13,7 +15,7 @@ class CompanyHandler {
       // fetch from API
       let apiKeyID = getAPIKeyIDFromAttr()
       let spaceAPI = new API(apiKeyID)
-      spaceAPI.getInfo().then((companyInfo) => {
+      CompanyHandler.infoPromise = spaceAPI.getInfo().then((companyInfo) => {
         let newExpiry = Date.now() + 10
         localStorage.setItem(COTTER_COMPANY_CACHE_KEY, JSON.stringify(companyInfo))
         localStorage.setItem(COTTER_COMPANY_CACHE_EXPIRY_KEY, new Date(newExpiry).toString())

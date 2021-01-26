@@ -172,25 +172,32 @@ class Loader {
         var href = e.getAttribute("href");
         var formID = href?.split(LOGOUT_BUTTON_HREF).pop() || null;
 
-        if (formID) {
-          const baseRedirectURL = new URL(window.location.href).origin
-          const redirectURLPath = this.companyInfo.customization?.[formID]?.afterLogoutURL
-          const redirectURL = `${baseRedirectURL}${redirectURLPath}`
-          
-          if(!redirectURLPath) return
-
-          e.addEventListener("click", () => {  
-            tokenHandler.removeTokens().then(() => {
-              UserHandler.remove()
-              window.location.href = redirectURL
+        const addLogoutHandler = () => {
+          if (formID) {
+            const baseRedirectURL = new URL(window.location.href).origin
+            const redirectURLPath = this.companyInfo.customization?.[formID]?.afterLogoutURL
+            const redirectURL = `${baseRedirectURL}${redirectURLPath}`
+            
+            if(!redirectURLPath) return
+  
+            e.addEventListener("click", () => {  
+              tokenHandler.removeTokens().then(() => {
+                UserHandler.remove()
+                window.location.href = redirectURL
+              })
             })
-          })
+          }
         }
+        
+        if(this.companyInfo) addLogoutHandler()
+        else CompanyHandler.infoPromise.finally(addLogoutHandler)
       }
     )
   }
 
   async initModal(formID: string) {
+    if(CompanyHandler.infoPromise) await CompanyHandler.infoPromise
+
     // skip initializing if the modal already exists
     if(this.Modals[formID]) return
 

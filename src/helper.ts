@@ -169,8 +169,6 @@ export const lightOrDark = (color: any) => {
 
 export const getModalHeight = (customization: any) => {
   let modalHeight = 200;
-  console.log("customization", customization)
-  console.log("customization.captchaRequired?.toString()", customization.captchaRequired?.toString())
   if (customization.captchaRequired?.toString() === "true") modalHeight = 500;
   if (customization.socialLoginProviders?.length > 0)
     modalHeight += 100 + 40 * customization.socialLoginProviders?.length;
