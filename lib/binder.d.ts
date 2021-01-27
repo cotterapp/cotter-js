@@ -80,6 +80,7 @@ export interface Config {
     SocialConnectText?: SocialLoginConnectText;
     SocialLoginProviders?: string[];
     RedirectMagicLink?: boolean;
+    FormID?: string;
 }
 export interface AdditionalField {
     label: string;

@@ -321,7 +321,7 @@ var API = /** @class */ (function () {
                         };
                         try {
                             loginStateSess = sessionStorage.getItem(SocialLogin.OAUTH_SESSION_NAME);
-                            data['login_state'] = JSON.parse(atob(loginStateSess));
+                            data["login_state"] = JSON.parse(atob(loginStateSess));
                         }
                         catch (e) { }
                         path = "/oauth/token/connect";
@@ -335,6 +335,31 @@ var API = /** @class */ (function () {
                             throw err_8.response.data;
                         }
                         throw err_8;
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    // ==============================
+    //      Loader Company Info
+    // ==============================
+    API.prototype.getInfo = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var resp, err_9;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, axios.get(CotterEnum.BackendURL + "/company/info/" + this.apiKeyID, null)];
+                    case 1:
+                        resp = _a.sent();
+                        return [2 /*return*/, resp.data];
+                    case 2:
+                        err_9 = _a.sent();
+                        if (err_9.response) {
+                            throw err_9.response.data;
+                        }
+                        throw err_9;
                     case 3: return [2 /*return*/];
                 }
             });

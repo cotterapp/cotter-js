@@ -26,7 +26,7 @@ class User implements IUser {
     this.identifier = user.identifier;
   }
 
-  static getLoggedInUser(cotter: Cotter): User | null {
+  static getLoggedInUser(): User | null {
     var userStr = null;
     try {
       userStr = localStorage.getItem(UserHandler.STORAGE_KEY);

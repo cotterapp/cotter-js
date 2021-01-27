@@ -1,9 +1,25 @@
-import { Config, VerifySuccess } from "./binder";
+import { Config, IDENTIFIER_TYPE, VerifySuccess } from "./binder";
 import WebAuthn from "./WebAuthn";
 import TokenHandler from "./handler/TokenHandler";
+import {
+  ATTR_API_KEY_ID,
+} from "./constants";
 
 function dec2hex(dec: any) {
   return ("0" + dec.toString(16)).substr(-2);
+}
+
+export function getAPIKeyIDFromAttr(): string {
+  var apiKeyID = document
+    .querySelector(`[${ATTR_API_KEY_ID}]`)
+    ?.getAttribute(`${ATTR_API_KEY_ID}`);
+  if (!apiKeyID) {
+    throw new Error(
+      `You need to specify the ${ATTR_API_KEY_ID} when adding this <script>.`
+    );
+  }
+
+  return apiKeyID
 }
 
 export function generateVerifier() {
@@ -118,3 +134,47 @@ export const verificationProccessPromise = (self: {
 export const isIFrame = (
   input: HTMLElement | null
 ): input is HTMLIFrameElement => input !== null && input.tagName === "IFRAME";
+
+export const lightOrDark = (color: any) => {
+  var r, g, b, hsp;
+  // Check the format of the color, HEX or RGB?
+  if (color.match(/^rgb/)) {
+    // If HEX --> store the red, green, blue values in separate variables
+    color = color.match(
+      /^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/
+    );
+
+    r = color[1];
+    g = color[2];
+    b = color[3];
+  } else {
+    // If RGB --> Convert it to HEX: http://gist.github.com/983661
+    color = +("0x" + color.slice(1).replace(color.length < 5 && /./g, "$&$&"));
+
+    r = color >> 16;
+    g = (color >> 8) & 255;
+    b = color & 255;
+  }
+
+  // HSP (Highly Sensitive Poo) equation from http://alienryderflex.com/hsp.html
+  hsp = Math.sqrt(0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b));
+
+  // Using the HSP value, determine whether the color is light or dark
+  if (hsp > 127.5) {
+    return false; // false means this color is  "light"
+  } else {
+    return true; // true means this color is "dark"
+  }
+};
+
+export const getModalHeight = (customization: any) => {
+  let modalHeight = 200;
+  if (customization.captchaRequired?.toString() === "true") modalHeight = 500;
+  if (customization.socialLoginProviders?.length > 0)
+    modalHeight += 100 + 40 * customization.socialLoginProviders?.length;
+  if (customization.type === "PHONE" && customization.phoneChannels?.length > 1)
+    modalHeight += 120;
+  if (customization.additionalFields?.length > 0)
+    modalHeight += 100 * customization.additionalFields?.length;
+  return modalHeight;
+};

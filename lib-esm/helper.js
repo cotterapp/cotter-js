@@ -46,8 +46,18 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 import WebAuthn from "./WebAuthn";
+import { ATTR_API_KEY_ID, } from "./constants";
 function dec2hex(dec) {
     return ("0" + dec.toString(16)).substr(-2);
+}
+export function getAPIKeyIDFromAttr() {
+    var _a;
+    var apiKeyID = (_a = document
+        .querySelector("[" + ATTR_API_KEY_ID + "]")) === null || _a === void 0 ? void 0 : _a.getAttribute("" + ATTR_API_KEY_ID);
+    if (!apiKeyID) {
+        throw new Error("You need to specify the " + ATTR_API_KEY_ID + " when adding this <script>.");
+    }
+    return apiKeyID;
 }
 export function generateVerifier() {
     var array = new Uint32Array(56 / 2);
@@ -149,4 +159,44 @@ export var verificationProccessPromise = function (self) {
     });
 };
 export var isIFrame = function (input) { return input !== null && input.tagName === "IFRAME"; };
+export var lightOrDark = function (color) {
+    var r, g, b, hsp;
+    // Check the format of the color, HEX or RGB?
+    if (color.match(/^rgb/)) {
+        // If HEX --> store the red, green, blue values in separate variables
+        color = color.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/);
+        r = color[1];
+        g = color[2];
+        b = color[3];
+    }
+    else {
+        // If RGB --> Convert it to HEX: http://gist.github.com/983661
+        color = +("0x" + color.slice(1).replace(color.length < 5 && /./g, "$&$&"));
+        r = color >> 16;
+        g = (color >> 8) & 255;
+        b = color & 255;
+    }
+    // HSP (Highly Sensitive Poo) equation from http://alienryderflex.com/hsp.html
+    hsp = Math.sqrt(0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b));
+    // Using the HSP value, determine whether the color is light or dark
+    if (hsp > 127.5) {
+        return false; // false means this color is  "light"
+    }
+    else {
+        return true; // true means this color is "dark"
+    }
+};
+export var getModalHeight = function (customization) {
+    var _a, _b, _c, _d, _e, _f;
+    var modalHeight = 200;
+    if (((_a = customization.captchaRequired) === null || _a === void 0 ? void 0 : _a.toString()) === "true")
+        modalHeight = 500;
+    if (((_b = customization.socialLoginProviders) === null || _b === void 0 ? void 0 : _b.length) > 0)
+        modalHeight += 100 + 40 * ((_c = customization.socialLoginProviders) === null || _c === void 0 ? void 0 : _c.length);
+    if (customization.type === "PHONE" && ((_d = customization.phoneChannels) === null || _d === void 0 ? void 0 : _d.length) > 1)
+        modalHeight += 120;
+    if (((_e = customization.additionalFields) === null || _e === void 0 ? void 0 : _e.length) > 0)
+        modalHeight += 100 * ((_f = customization.additionalFields) === null || _f === void 0 ? void 0 : _f.length);
+    return modalHeight;
+};
 //# sourceMappingURL=helper.js.map

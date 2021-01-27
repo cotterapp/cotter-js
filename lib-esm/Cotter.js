@@ -76,6 +76,11 @@ var Cotter = /** @class */ (function (_super) {
         _this.tokenHandler = tokenHandler.withApiKeyID(config.ApiKeyID);
         return _this;
     }
+    // withFormID specify the form ID used for customization
+    Cotter.prototype.withFormID = function (formID) {
+        this.config.FormID = formID;
+        return this;
+    };
     // constructMagicLink constructs the magic link object with optional onBegin
     Cotter.prototype.constructMagicLink = function (onBegin) {
         if (onBegin)
@@ -178,7 +183,7 @@ var Cotter = /** @class */ (function (_super) {
     };
     // Get User
     Cotter.prototype.getLoggedInUser = function () {
-        return User.getLoggedInUser(this);
+        return User.getLoggedInUser();
     };
     // Social Login
     // This should redirect to the oauth login page,

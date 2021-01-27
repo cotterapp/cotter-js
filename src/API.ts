@@ -278,14 +278,34 @@ class API {
         identity_provider: provider,
       };
       try {
-        const loginStateSess = sessionStorage.getItem(SocialLogin.OAUTH_SESSION_NAME)
-        data['login_state'] = JSON.parse(atob(loginStateSess))
-      } catch (e) { }
+        const loginStateSess = sessionStorage.getItem(
+          SocialLogin.OAUTH_SESSION_NAME
+        );
+        data["login_state"] = JSON.parse(atob(loginStateSess));
+      } catch (e) {}
       var path = "/oauth/token/connect";
       var resp = await axios.post(
         `${CotterEnum.BackendURL}${path}`,
         data,
         config
+      );
+      return resp.data;
+    } catch (err) {
+      if (err.response) {
+        throw err.response.data;
+      }
+      throw err;
+    }
+  }
+
+  // ==============================
+  //      Loader Company Info
+  // ==============================
+  async getInfo() {
+    try {
+      var resp = await axios.get(
+        `${CotterEnum.BackendURL}/company/info/${this.apiKeyID}`,
+        null
       );
       return resp.data;
     } catch (err) {

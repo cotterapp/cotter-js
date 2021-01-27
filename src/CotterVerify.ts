@@ -136,7 +136,10 @@ class CotterVerify {
               skipIdentiferForm: this.config.SkipIdentifierForm,
               skipIdentiferFormWithValue: this.config
                 .SkipIdentifierFormWithValue,
-              skipRedirectURL: !this.config.RedirectURL || this.config.SkipRedirectURL ? true : false,
+              skipRedirectURL:
+                !this.config.RedirectURL || this.config.SkipRedirectURL
+                  ? true
+                  : false,
               captchaRequired: this.config.CaptchaRequired,
               styles: this.config.Styles,
 
@@ -194,21 +197,50 @@ class CotterVerify {
           this.verifyError = data.payload;
           break;
         case cID + "ON_BEGIN":
-          // OnBegin method should return the error message
-          // if there is no error, return null
-          if (!!this.config.OnBegin) {
-            let ret = this.config.OnBegin(data.payload);
-            Promise.resolve(ret || null)
-              .then((err: string | null) => {
-                if (!err) this.continue(data.payload, this.cotterIframeID);
-                else this.StopSubmissionWithError(err, this.cotterIframeID);
-              })
-              .catch((e) => {
-                console.log("The OnBegin function throws an error: ", e);
-                throw "The OnBegin function throws an error: " + e;
-              });
+          const continueOnBegin = () => {
+            if(this.config.AuthenticationMethod === "MAGIC_LINK" && !this.config.CaptchaRequired) {
+              const container =  document.getElementById(this.config.ContainerID)
+              const currentContainerHeight = container.offsetHeight
+              container.style.height = `${Math.max(300, currentContainerHeight)}px`
+            }
+
+            // OnBegin method should return the error message
+            // if there is no error, return null
+            if (!!this.config.OnBegin) {
+              let ret = this.config.OnBegin(data.payload);
+              Promise.resolve(ret || null)
+                .then((err: string | null) => {
+                  if (!err) this.continue(data.payload, this.cotterIframeID);
+                  else this.StopSubmissionWithError(err, this.cotterIframeID);
+                })
+                .catch((e) => {
+                  console.log("The OnBegin function throws an error: ", e);
+                  throw "The OnBegin function throws an error: " + e;
+                });
+            } else {
+              this.continue(data.payload, this.cotterIframeID);
+            }
+          }
+
+          // Check if this identifier is allowed to continue
+          if(this.config.FormID) {
+            const resp = fetch(`${CotterEnum.WorkerURL}/screening/form?identifier=${encodeURIComponent(data.payload.identifier)}&form-id=${encodeURIComponent(this.config.FormID)}`, {
+              method: "GET",
+              headers: {
+                API_KEY_ID: this.config.ApiKeyID,
+                "Content-type": "application/json",
+              }
+            }).then(body => body.json()).then(data => {
+              if(data.passed) {
+                continueOnBegin()
+                return
+              }
+              this.StopSubmissionWithError(data.message ?? "You are not allowed to use this form", this.cotterIframeID)
+            }).catch((e) => {
+              this.StopSubmissionWithError("Something went wrong, we're unable to process your request", this.cotterIframeID)
+            })
           } else {
-            this.continue(data.payload, this.cotterIframeID);
+            continueOnBegin()
           }
           break;
         default:
@@ -320,6 +352,9 @@ class CotterVerify {
       if (this.config.CotterUserID) {
         path = `${path}&cotter_user_id=${this.config.CotterUserID}`;
       }
+      if (this.config.FormID) {
+        path = `${path}&form_id=${encodeURIComponent(this.config.FormID)}`;
+      }
       ifrm.setAttribute("src", encodeURI(path));
       ifrm.setAttribute("allowtransparency", "true");
     });
@@ -386,8 +421,8 @@ class CotterVerify {
       redirect_url: redirect_url
         ? redirect_url
         : skipRedirectURL
-          ? new URL(window.location.href).origin
-          : this.config.RedirectURL,
+        ? new URL(window.location.href).origin
+        : this.config.RedirectURL,
     };
 
     var self = this;

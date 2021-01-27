@@ -3,6 +3,7 @@ var webpack = require("webpack");
 
 var PATHS = {
   entryPoint: path.resolve(__dirname, "src/indexumd.ts"),
+  loaderEntryPoint: path.resolve(__dirname, "src/loader/index.ts"),
   dist: path.resolve(__dirname, "dist"),
 };
 
@@ -14,6 +15,7 @@ var config = {
   entry: {
     cotter: [PATHS.entryPoint],
     "cotter.min": [PATHS.entryPoint],
+    "cotter.loader": [PATHS.loaderEntryPoint],
   },
   // The output defines how and where we want the bundles. The special
   // value `[name]` in `filename` tell Webpack to use the name we defined above.

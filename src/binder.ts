@@ -94,6 +94,8 @@ export interface Config {
 
   // Redirect Magic Link to login
   RedirectMagicLink?: boolean; // default true
+
+  FormID?: string // for customization
 }
 
 export interface AdditionalField {
