@@ -199,7 +199,7 @@ class CotterVerify {
         case cID + "ON_BEGIN":
           const continueOnBegin = () => {
             if(this.config.AuthenticationMethod === "MAGIC_LINK" && !this.config.CaptchaRequired && document.getElementById(this.config.ContainerID)) {
-              const container =  document.getElementById(this.config.ContainerID) 
+              const container =  document.getElementById(this.config.ContainerID)
               const currentContainerHeight = container.offsetHeight
               container.style.height = `${Math.max(300, currentContainerHeight)}px`
             }
