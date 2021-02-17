@@ -89,6 +89,9 @@ class Loader {
     let isProtectedPage = false;
     
     protectedPages.map((page) => {
+      // if we found out that this page is a protected page, continue.
+      if(isProtectedPage) return;
+      
       switch(page.matcher) {
         case "start":
           let reg = new RegExp('^' + page.path, 'i')
