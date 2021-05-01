@@ -1,9 +1,7 @@
-var __spreadArrays = (this && this.__spreadArrays) || function () {
-    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
-    for (var r = Array(s), k = 0, i = 0; i < il; i++)
-        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
-            r[k] = a[j];
-    return r;
+var __spreadArray = (this && this.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
 };
 var FOCUSABLE_ELEMENTS = [
     "a[href]",
@@ -274,7 +272,7 @@ var MicroModal = (function () {
         // Create an config object with default openTrigger
         var options = Object.assign({}, { openTrigger: "data-micromodal-trigger" }, config);
         // Collects all the nodes with the trigger
-        var triggers = __spreadArrays(document.querySelectorAll("[" + options.openTrigger + "]"));
+        var triggers = __spreadArray([], document.querySelectorAll("[" + options.openTrigger + "]"));
         // Makes a mappings of modals with their trigger nodes
         var triggerMap = generateTriggerMap(triggers, options.openTrigger);
         // Checks if modals and triggers exist in dom
@@ -285,7 +283,7 @@ var MicroModal = (function () {
         for (var key in triggerMap) {
             var value = triggerMap[key];
             options.targetModal = key;
-            options.triggers = __spreadArrays(value);
+            options.triggers = __spreadArray([], value);
             activeModal = new Modal(options); // eslint-disable-line no-new
         }
     };
