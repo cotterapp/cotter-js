@@ -71,7 +71,7 @@ var ModalMakerNoIframe = /** @class */ (function () {
         // Load modal
         MicroModal.init({
             awaitOpenAnimation: true,
-            awaitCloseAnimation: true,
+            awaitCloseAnimation: true, // [9]
         });
     };
     ModalMakerNoIframe.prototype.showModal = function () {
