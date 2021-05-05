@@ -272,10 +272,12 @@ class Loader {
     const authMethod =
       customization?.authenticationMethod ||
       DEFAULT_FORM_SETTINGS.authenticationMethod;
+    const redirectMagicLink = customization.RedirectMagicLink
     let cotter = new Cotter({
       ApiKeyID: this.ApiKeyID,
       ContainerID: containerID,
       Type: idType,
+      RedirectMagicLink: redirectMagicLink,
     });
     cotter = cotter.withFormID(formID);
     const cotterMethod =
