@@ -66,9 +66,8 @@ class Loader {
       ?.getAttribute(`${ATTR_CONFIG}`);
     if (conf) {
       try {
-
         this.config = JSON.parse(conf);
-      }catch(e) {
+      } catch(e) {
         console.log(`Invalid ${ATTR_CONFIG}, has to be a JSON`)
       }
     }
