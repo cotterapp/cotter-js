@@ -7,6 +7,7 @@ import {
   DIV_CONTAINER,
   POPUP_BUTTON_HREF,
   LOGOUT_BUTTON_HREF,
+  ATTR_CONFIG
 } from "../constants";
 import ModalMakerNoIframe from "../components/ModalMakerNoIframe";
 import CotterEnum from "../enum";
@@ -30,6 +31,7 @@ class Loader {
   modalID = "cotter-modal";
   containerID = "cotter-modal-form-container";
   cancelDivID = "cotter-modal-cancel";
+  config: {};
 
   constructor() {
     var apiKeyID = document
@@ -56,6 +58,18 @@ class Loader {
       CotterEnum.JSURL = "https://s.js.cotter.app";
       CotterEnum.AssetURL = "https://s.js.cotter.app";
       CotterEnum.WorkerURL = "https://staging-worker.cotter.app";
+    }
+
+    // Get cotter config
+    var conf = document
+      .querySelector(`[${ATTR_CONFIG}]`)
+      ?.getAttribute(`${ATTR_CONFIG}`);
+    if (conf) {
+      try {
+        this.config = JSON.parse(conf);
+      } catch(e) {
+        console.log(`Invalid ${ATTR_CONFIG}, has to be a JSON`)
+      }
     }
   }
 
@@ -273,6 +287,7 @@ class Loader {
       customization?.authenticationMethod ||
       DEFAULT_FORM_SETTINGS.authenticationMethod;
     let cotter = new Cotter({
+      ...this.config,
       ApiKeyID: this.ApiKeyID,
       ContainerID: containerID,
       Type: idType,
