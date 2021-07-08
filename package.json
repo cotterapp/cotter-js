@@ -1,6 +1,6 @@
 {
   "name": "cotter",
-  "version": "0.3.34",
+  "version": "0.3.35-alpha.0",
   "description": "Cotter web SDK for JavaScript",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -41,6 +41,7 @@
   "dependencies": {
     "axios": "^0.21.1",
     "cotter-token-js": "^0.1.11",
-    "detect-node": "^2.0.5"
+    "detect-node": "^2.0.5",
+    "fetch-retry": "^4.1.1"
   }
 }
