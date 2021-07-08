@@ -14,6 +14,7 @@ import {
   verificationProccessPromise,
   isIFrame,
 } from "./helper";
+import fetchRetry from 'fetch-retry';
 import TokenHandler from "./handler/TokenHandler";
 import UserHandler from "./handler/UserHandler";
 import WebAuthn from "./WebAuthn";
@@ -430,7 +431,8 @@ class CotterVerify {
     if (auth_method) {
       url = `${url}&auth_method=${auth_method}`;
     }
-    fetch(url, {
+    const fRetry = fetchRetry(fetch)
+    fRetry(url, {
       method: "POST",
       headers: {
         API_KEY_ID: `${self.config.ApiKeyID}`,
@@ -438,6 +440,9 @@ class CotterVerify {
       },
       body: JSON.stringify(data),
       credentials: "include",
+      retries: 3,
+      retryDelay: 300,
+      retryOn: [500],
     })
       .then(async function (response: ResponseData) {
         // If not successful, call OnError and return
