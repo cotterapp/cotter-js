@@ -169,6 +169,7 @@ class Loader {
         this.buttons.push(e);
       }
     });
+    this.initBanner();
 
     // Get all div containers
     Array.from(document.querySelectorAll(`[id*='${DIV_CONTAINER}']`)).forEach(
@@ -265,6 +266,25 @@ class Loader {
     }, modalDiv);
     this.Modals[formID] = modal;
     this.initCotter(formID, containerID);
+  }
+
+
+  async initBanner() {
+    if(CompanyHandler.infoPromise) await CompanyHandler.infoPromise
+
+    const customization = this.companyInfo?.customization?.alert_banner;
+    if (!customization || !customization.show_banner) return;
+    var bannerDiv = document.createElement("div");
+    bannerDiv.id = "cotter-banner-div";
+    bannerDiv.style.width = 100 + "%";
+    bannerDiv.style.padding = 15 + "px";
+    bannerDiv.style.background = customization.bg_color;
+    bannerDiv.style.color = customization.text_color;
+    bannerDiv.style.display = 'flex';
+    bannerDiv.style.alignItems = 'center';
+    bannerDiv.style.justifyContent = 'center';
+    bannerDiv.innerHTML=`<div><b>${customization.title}</b> ${customization.subtitle}</div>`;
+    document.body.prepend(bannerDiv);
   }
 
   cancel(formID: string) {
