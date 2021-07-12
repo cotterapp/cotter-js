@@ -275,12 +275,26 @@ class Loader {
     const customization = this.companyInfo?.customization?.alert_banner;
     if (!customization || !customization.show_banner) return;
     // Setup Font
-    var fontStyle = document.createElement("link");
-    fontStyle.rel = "stylesheet";
-    fontStyle.href =
-      "https://fonts.googleapis.com/css?family=Lato:700&display=swap";
-    document.head.appendChild(fontStyle);
-
+    var fontStyle1 = document.createElement("link");
+    fontStyle1.rel = "stylesheet";
+    fontStyle1.href =
+      "https://fonts.googleapis.com";
+    fontStyle1.rel = "preconnect"
+    var fontStyle2 = document.createElement("link");
+    fontStyle2.rel = "stylesheet";
+    fontStyle2.href =
+      "https://fonts.gstatic.com";
+    fontStyle2.rel = "preconnect"
+    fontStyle2.crossOrigin = "true"
+    var fontStyle3 = document.createElement("link");
+    fontStyle3.rel = "stylesheet";
+    fontStyle3.href =
+      "https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap";
+    fontStyle3.rel = "stylesheet"
+    document.head.appendChild(fontStyle1);
+    document.head.appendChild(fontStyle2);
+    document.head.appendChild(fontStyle3);
+    
     var bannerDiv = document.createElement("div");
     bannerDiv.id = "cotter-banner-div";
 
@@ -291,7 +305,7 @@ class Loader {
     bannerDiv.style.padding = 15 + "px";
     bannerDiv.style.background = customization.bg_color;
     bannerDiv.style.color = customization.text_color;
-    bannerDiv.style.fontFamily = 'Lato';
+    bannerDiv.style.fontFamily = 'Inter';
     bannerDiv.style.display = 'flex';
     bannerDiv.style.alignItems = 'center';
     bannerDiv.style.justifyContent = 'center';
