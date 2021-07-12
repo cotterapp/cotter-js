@@ -169,6 +169,7 @@ class Loader {
         this.buttons.push(e);
       }
     });
+    this.initBanner();
 
     // Get all div containers
     Array.from(document.querySelectorAll(`[id*='${DIV_CONTAINER}']`)).forEach(
@@ -265,6 +266,51 @@ class Loader {
     }, modalDiv);
     this.Modals[formID] = modal;
     this.initCotter(formID, containerID);
+  }
+
+
+  async initBanner() {
+    if(CompanyHandler.infoPromise) await CompanyHandler.infoPromise
+
+    const customization = this.companyInfo?.customization?.alert_banner;
+    if (!customization || !customization.show_banner) return;
+    // Setup Font
+    var fontStyle1 = document.createElement("link");
+    fontStyle1.rel = "stylesheet";
+    fontStyle1.href =
+      "https://fonts.googleapis.com";
+    fontStyle1.rel = "preconnect"
+    var fontStyle2 = document.createElement("link");
+    fontStyle2.rel = "stylesheet";
+    fontStyle2.href =
+      "https://fonts.gstatic.com";
+    fontStyle2.rel = "preconnect"
+    fontStyle2.crossOrigin = "true"
+    var fontStyle3 = document.createElement("link");
+    fontStyle3.rel = "stylesheet";
+    fontStyle3.href =
+      "https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap";
+    fontStyle3.rel = "stylesheet"
+    document.head.appendChild(fontStyle1);
+    document.head.appendChild(fontStyle2);
+    document.head.appendChild(fontStyle3);
+    
+    var bannerDiv = document.createElement("div");
+    bannerDiv.id = "cotter-banner-div";
+
+    bannerDiv.style.position = 'relative';
+    bannerDiv.style.top = '0px';
+    bannerDiv.style.left = '0px';
+    bannerDiv.style.width = 100 + "vw";
+    bannerDiv.style.padding = 15 + "px";
+    bannerDiv.style.background = customization.bg_color;
+    bannerDiv.style.color = customization.text_color;
+    bannerDiv.style.fontFamily = 'Inter';
+    bannerDiv.style.display = 'flex';
+    bannerDiv.style.alignItems = 'center';
+    bannerDiv.style.justifyContent = 'center';
+    bannerDiv.innerHTML=`<div><b>${customization.title}</b> ${customization.subtitle}</div>`;
+    document.body.prepend(bannerDiv);
   }
 
   cancel(formID: string) {
