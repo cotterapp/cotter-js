@@ -274,12 +274,24 @@ class Loader {
 
     const customization = this.companyInfo?.customization?.alert_banner;
     if (!customization || !customization.show_banner) return;
+    // Setup Font
+    var fontStyle = document.createElement("link");
+    fontStyle.rel = "stylesheet";
+    fontStyle.href =
+      "https://fonts.googleapis.com/css?family=Lato:700&display=swap";
+    document.head.appendChild(fontStyle);
+
     var bannerDiv = document.createElement("div");
     bannerDiv.id = "cotter-banner-div";
-    bannerDiv.style.width = 100 + "%";
+
+    bannerDiv.style.position = 'relative';
+    bannerDiv.style.top = '0px';
+    bannerDiv.style.left = '0px';
+    bannerDiv.style.width = 100 + "vw";
     bannerDiv.style.padding = 15 + "px";
     bannerDiv.style.background = customization.bg_color;
     bannerDiv.style.color = customization.text_color;
+    bannerDiv.style.fontFamily = 'Lato';
     bannerDiv.style.display = 'flex';
     bannerDiv.style.alignItems = 'center';
     bannerDiv.style.justifyContent = 'center';
