@@ -94,6 +94,8 @@ class Loader {
     // check if this page is protected
     tokenHandler.withApiKeyID(this.ApiKeyID)
 
+    if(!this.companyInfo && CompanyHandler.infoPromise) await CompanyHandler.infoPromise;
+
     let siteCustomization = this.companyInfo?.customization?.siteCustomization || {};
 
     let protectedPages = siteCustomization.protectedPages ?? [];
