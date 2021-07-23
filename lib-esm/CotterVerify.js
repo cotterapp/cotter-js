@@ -37,6 +37,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 import CotterEnum from "./enum";
 import { AUTHENTICATION_METHOD, IDENTIFIER_TYPE, SOCIAL_LOGIN_ACTION, } from "./binder";
 import { challengeFromVerifier, generateVerifier, verificationProccessPromise, isIFrame, } from "./helper";
+import fetchRetry from 'fetch-retry';
 import UserHandler from "./handler/UserHandler";
 import WebAuthn from "./WebAuthn";
 import API from "./API";
@@ -368,7 +369,7 @@ var CotterVerify = /** @class */ (function () {
         if (redirect_url === void 0) { redirect_url = null; }
         if (auth_method === void 0) { auth_method = null; }
         return __awaiter(this, void 0, void 0, function () {
-            var authorizationCode, challengeID, state, clientJson, skipRedirectURL, err, data, self, url;
+            var authorizationCode, challengeID, state, clientJson, skipRedirectURL, err, data, self, url, fRetry;
             return __generator(this, function (_a) {
                 authorizationCode = payload.authorization_code;
                 challengeID = payload.challenge_id;
@@ -401,7 +402,8 @@ var CotterVerify = /** @class */ (function () {
                 if (auth_method) {
                     url = url + "&auth_method=" + auth_method;
                 }
-                fetch(url, {
+                fRetry = fetchRetry(fetch);
+                fRetry(url, {
                     method: "POST",
                     headers: {
                         API_KEY_ID: "" + self.config.ApiKeyID,
@@ -409,6 +411,9 @@ var CotterVerify = /** @class */ (function () {
                     },
                     body: JSON.stringify(data),
                     credentials: "include",
+                    retries: 3,
+                    retryDelay: 300,
+                    retryOn: [500],
                 })
                     .then(function (response) {
                     return __awaiter(this, void 0, void 0, function () {
