@@ -99,7 +99,6 @@ class Loader {
     let siteCustomization = this.companyInfo?.customization?.siteCustomization || {};
 
     let protectedPages = siteCustomization.protectedPages ?? [];
-    protectedPages = protectedPages.filter((el) => el.path.includes(window.location.pathname) || window.location.pathname.includes(el.path))
 
     // protection logic
     let isProtectedPage = false;
@@ -108,6 +107,7 @@ class Loader {
       // if we found out that this page is a protected page, continue.
       if(isProtectedPage) return;
       
+      // remove trailing and leading paths
       const pagePath = page.path.replace(/^\/|\/$/g, '');
       const windowPath = window.location.pathname.replace(/^\/|\/$/g, '');
       
