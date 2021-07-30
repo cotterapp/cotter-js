@@ -108,13 +108,16 @@ class Loader {
       // if we found out that this page is a protected page, continue.
       if(isProtectedPage) return;
       
+      const pagePath = page.path.replace(/^\/|\/$/g, '');
+      const windowPath = window.location.pathname.replace(/^\/|\/$/g, '');
+      
       switch(page.matcher) {
         case "start":
-          let reg = new RegExp('^' + page.path, 'i')
-          isProtectedPage = reg.test(window.location.pathname);
+          let reg = new RegExp('^' + pagePath, 'i')
+          isProtectedPage = reg.test(windowPath);
           break;
         case "equal":
-          isProtectedPage = window.location.pathname === page.path;
+          isProtectedPage = windowPath === pagePath;
           break;
         default:
           break;
